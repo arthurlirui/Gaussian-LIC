@@ -1,0 +1,40 @@
+% Communication sequence diagram for Co-LIC2 paper
+% Join -> publish -> merge -> loop -> PGO correction
+\begin{tikzpicture}[
+  font=\scriptsize,
+  >=Stealth,
+  actor/.style={draw, rounded corners, minimum width=2.2cm, minimum height=0.55cm, align=center, fill=gray!10},
+  msg/.style={->, thick},
+  msgd/.style={->, thick, dashed},
+]
+
+% Actors (vertical lifelines)
+\node[actor] (n) at (0,0) {New Node};
+\node[actor] (h) at (4.5,0) {Cluster Head};
+\node[actor] (o) at (9,0) {Other Nodes};
+
+\draw[dashed, gray] (n.south) -- ++(0,-6.5);
+\draw[dashed, gray] (h.south) -- ++(0,-6.5);
+\draw[dashed, gray] (o.south) -- ++(0,-6.5);
+
+% Time flows downward; messages
+% Join
+\draw[msg] (0,-0.7) -- (4.5,-0.9) node[midway, above, font=\scriptsize] {1. HELLO (NodeDescriptor)};
+\draw[msg] (4.5,-1.3) -- (0,-1.5) node[midway, above, font=\scriptsize] {2. cluster digest + head id};
+
+% Publish
+\draw[msg] (0,-2.2) -- (4.5,-2.4) node[midway, above, font=\scriptsize] {3. POSE\_STREAM @20Hz};
+\draw[msg] (0,-2.9) -- (4.5,-3.1) node[midway, above, font=\scriptsize] {4. SUBMAP\_PUSH (compressed)};
+
+% Merge + delta
+\draw[msg] (4.5,-3.7) -- (0,-3.9) node[midway, above, font=\scriptsize] {5. MAP\_DELTA (merged Gaussians)};
+\draw[msg] (4.5,-4.3) -- (9,-4.5) node[midway, above, font=\scriptsize] {5'. MAP\_DELTA to peers};
+
+% Loop closure
+\draw[msgd, green!50!black] (9,-5.0) -- (4.5,-5.2) node[midway, above, font=\scriptsize] {6. CONSTRAINT (visual loop)};
+
+% PGO correction
+\draw[msg, purple!60!black] (4.5,-5.8) -- (0,-6.0) node[midway, above, font=\scriptsize] {7. PGO correction (pose deltas)};
+\draw[msg, purple!60!black] (4.5,-6.2) -- (9,-6.4) node[midway, above, font=\scriptsize] {7'. PGO correction};
+
+\end{tikzpicture}

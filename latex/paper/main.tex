@@ -1,0 +1,105 @@
+% Co-LIC2: Cooperative Multi-Node LiDAR-Inertial-Visual Gaussian Splatting SLAM
+% arXiv-style technical report
+% Compile: pdflatex main && bibtex main && pdflatex main && pdflatex main
+\documentclass[10pt,letterpaper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc,fit,shapes.geometric,backgrounds,decorations.pathreplacing}
+\usepackage{listings}
+\usepackage[margin=1in]{geometry}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=*,nosep}
+\setlist[enumerate]{leftmargin=*,nosep}
+
+\hypersetup{colorlinks=true,linkcolor=blue!60!black,citecolor=green!50!black,urlcolor=blue!60!black}
+
+% Custom commands
+\newcommand{\SEthree}{SE(3)}
+\newcommand{\Twb}{T_{W\leftarrow B}}
+\newcommand{\nodeid}{i}
+\newcommand{\headid}{h}
+\newcommand{\GaussianMap}{\mathcal{G}}
+\newcommand{\submap}{\mathcal{S}}
+\newcommand{\bbox}{\mathcal{B}}
+
+\title{Co-LIC2: Cooperative Multi-Node LiDAR-Inertial-Visual \\
+       Gaussian Splatting SLAM with Shared Sensing}
+
+\author{Arthur Li Rui \\
+  \texttt{arthurlirui@example.com} \\
+  Gaussian-LIC Project
+}
+
+\date{September 25, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We present Co-LIC2, a cooperative SLAM system in which multiple moving
+platforms---each carrying multiple cameras, multiple LiDARs, and an
+IMU---communicate over a bandwidth-limited wireless network to jointly build a
+single photo-realistic 3D Gaussian Splatting map. Co-LIC2 extends the
+single-platform Gaussian-LIC2 framework along three axes: (i) a generalized
+continuous-time multi-camera, multi-LiDAR, multi-IMU fusion front-end that
+estimates a shared body-frame trajectory; (ii) a hierarchical hybrid
+communication architecture with cluster-head election, submap publication, and
+graceful degradation under link loss; and (iii) a cooperative mapping back-end
+that aligns, merges, and de-duplicates ownership-tagged Gaussian submaps across
+nodes, maintained globally consistent by a robust pose graph. We describe the
+full system model, the submap compression and exchange protocol, the
+inter-node registration pipeline, and a bandwidth budget controller that keeps
+per-node uplink within a configurable cap. We discuss failure modes and the
+trade-offs that drove the design. Code and a detailed design document are
+released alongside this report.
+\end{abstract}
+
+\section{Introduction}
+\input{sections/introduction}
+
+\section{Related Work}
+\input{sections/related}
+
+\section{System Model}
+\input{sections/system}
+
+\section{Communication and Data Sharing}
+\input{sections/communication}
+
+\section{Cooperative Mapping}
+\input{sections/mapping}
+
+\section{Implementation}
+\input{sections/implementation}
+
+\section{Experiments and Analysis}
+\input{sections/experiments}
+
+\section{Discussion}
+\input{sections/discussion}
+
+\section{Conclusion}
+\input{sections/conclusion}
+
+\bibliographystyle{IEEEtran}
+\bibliography{../bib/references}
+
+\appendix
+\section{Submap Binary Format}
+\input{sections/appendix}
+
+\end{document}

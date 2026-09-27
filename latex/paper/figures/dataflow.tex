@@ -1,0 +1,67 @@
+% Data-flow figure for Co-LIC2 paper
+% Per-node pipeline: sensors -> CT fusion -> local map -> submap pub; incoming -> merge -> PGO -> correction
+\begin{tikzpicture}[
+  font=\footnotesize,
+  >=Stealth,
+  node distance=0.5cm and 0.9cm,
+  box/.style={draw, rounded corners, minimum width=2.4cm, minimum height=0.7cm, align=center},
+  sens/.style={box, fill=gray!10},
+  core/.style={box, fill=blue!10},
+  map/.style={box, fill=green!12},
+  coop/.style={box, fill=orange!12},
+  pgo/.style={box, fill=purple!12},
+  arr/.style={->, thick},
+]
+
+% Sensor column
+\node[sens] (cam) {Cameras $N_c$};
+\node[sens, below=of cam] (lid) {LiDARs $N_l$};
+\node[sens, below=of lid] (imu) {IMU};
+
+% Sync
+\node[box, fill=gray!15, right=1.0cm of lid] (sync) {Sync \&\\time-stamp};
+
+% CT fusion
+\node[core, right=1.0cm of sync] (ct) {CT B-spline\\fusion (multi-sensor)};
+
+% Trajectory + local map
+\node[box, fill=yellow!15, above right=0.3cm and 1.0cm of ct] (traj) {Trajectory $\Twb(t)$};
+\node[map, below right=0.3cm and 1.0cm of ct] (gmap) {Local Gaussian\\map $\GaussianMap_i$};
+
+% Submap publish path
+\node[coop, right=1.0cm of gmap] (ext) {Submap\\extractor};
+\node[coop, right=1.0cm of ext] (cmp) {Submap\\compressor};
+\node[coop, right=1.0cm of cmp] (comm) {Comm layer\\$\to$ head / peers};
+
+% Incoming merge path
+\node[coop, below=1.0cm of comm] (minc) {Incoming\\submaps};
+\node[coop, left=1.0cm of minc] (merge) {Map merger};
+\node[pgo, left=1.0cm of merge] (pgo) {Pose graph\\(iSAM2)};
+
+% Correction back to local map
+\node[box, fill=red!10, below=1.0cm of pgo] (corr) {Apply PGO\\correction};
+
+% Edges
+\draw[arr] (cam.east) -- (sync.west);
+\draw[arr] (lid.east) -- (sync.west);
+\draw[arr] (imu.east) -- (sync.west);
+\draw[arr] (sync.east) -- (ct.west);
+\draw[arr] (ct.east) -- (traj.west);
+\draw[arr] (ct.east) -- (gmap.west);
+\draw[arr] (traj.east) to[bend left=20] (ext.north);
+\draw[arr] (gmap.east) -- (ext.west);
+\draw[arr] (ext.east) -- (cmp.west);
+\draw[arr] (cmp.east) -- (comm.west);
+
+\draw[arr] (minc.west) -- (merge.east);
+\draw[arr] (merge.west) -- (pgo.east);
+\draw[arr] (pgo.south) -- (corr.north);
+\draw[arr, dashed, red!60!black] (corr.east) to[bend right=20] (gmap.south);
+\draw[arr, dashed, red!60!black] (merge.north) to[bend left=15] (gmap.south east);
+
+% Loop closure annotation
+\node[coop, below=0.4cm of merge] (loop) {Loop-closure agent};
+\draw[arr, dashed] (loop.north) -- (merge.south);
+\draw[arr, dashed] (loop.west) -- (pgo.south east);
+
+\end{tikzpicture}

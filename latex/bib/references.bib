@@ -1,0 +1,1804 @@
+% =========================================================================
+% Related Work Bibliography for Gaussian-LIC2 Project
+% Collected via Doubao web search on 2026-09-08, updated through 2026-09-12
+% Focus: 3D Gaussian Splatting SLAM, LiDAR-Inertial-Visual fusion,
+%        continuous-time odometry, depth completion, photo-realistic mapping
+% 56 entries total (17 original + 19 addendum-2 + 4 addendum-3
+%                   + 5 addendum-4 + 5 addendum-5 + 4 foundational extras
+%                   + 2 addendum-6)
+% =========================================================================
+
+% ---------------------------------------------------------------------------
+% 1. Gaussian-LIC2 (this project, IJRR 2026) & its conference version (ICRA 2025)
+% ---------------------------------------------------------------------------
+
+@article{lang2026gaussian2,
+  title     = {{Gaussian-LIC2}: {LiDAR-Inertial-Camera} {Gaussian} Splatting {SLAM}},
+  author    = {Lang, Xiaolei and Lv, Jiajun and Tang, Kai and Li, Laijian and Huang, Jianxin and Liu, Lina and Liu, Yong and Zuo, Xingxing},
+  journal   = {The International Journal of Robotics Research},
+  year      = {2026},
+  eprint    = {2507.04004},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2507.04004}
+}
+
+@inproceedings{lang2025gaussian,
+  title     = {{Gaussian-LIC}: Real-time photo-realistic {SLAM} with {Gaussian} splatting and {LiDAR-inertial-camera} fusion},
+  author    = {Lang, Xiaolei and Li, Laijian and Wu, Chenming and Zhao, Chen and Liu, Lina and Liu, Yong and Lv, Jiajun and Zuo, Xingxing},
+  booktitle = {2025 IEEE International Conference on Robotics and Automation (ICRA)},
+  pages     = {8500--8507},
+  year      = {2025},
+  organization = {IEEE},
+  doi       = {10.1109/ICRA55743.2025.11128712}
+}
+
+% ---------------------------------------------------------------------------
+% 2. Coco-LIC: the odometry backend used by Gaussian-LIC (RA-L 2023)
+% ---------------------------------------------------------------------------
+
+@article{lang2023coco,
+  title   = {{Coco-LIC}: Continuous-Time Tightly-Coupled {LiDAR-Inertial-Camera} Odometry using Non-Uniform {B-spline}},
+  author  = {Lang, Xiaolei and Chen, Chao and Tang, Kai and Ma, Yukai and Lv, Jiajun and Liu, Yong and Zuo, Xingxing},
+  journal = {IEEE Robotics and Automation Letters},
+  volume  = {8},
+  number  = {11},
+  pages   = {7074--7081},
+  year    = {2023},
+  doi     = {10.1109/LRA.2023.3326544},
+  eprint  = {2309.09808},
+  archivePrefix = {arXiv}
+}
+
+% ---------------------------------------------------------------------------
+% 3. LiDAR(-Inertial)-Visual Gaussian Splatting SLAM / Mapping (closest related work)
+% ---------------------------------------------------------------------------
+
+% GS-LIVM — ICCV 2025, real-time LIV mapping with GPR for sparse LiDAR
+@inproceedings{xie2025gslivm,
+  title     = {{GS-LIVM}: Real-Time Photo-Realistic {LiDAR-Inertial-Visual} Mapping with {Gaussian} Splatting},
+  author    = {Xie, Yusen and Huang, Zhenmin and Wu, Jin and Ma, Jun},
+  booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+  year      = {2025},
+  eprint    = {2410.17084},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2410.17084}
+}
+
+% LIVE-GS / GSFusion — online LIV SLAM with surfel BA + bounded Gaussian scale
+@article{park2026livegs,
+  title   = {{LIVE-GS}: Online {LiDAR-Inertial-Visual} State Estimation and Globally Consistent Mapping with {3D} {Gaussian} Splatting},
+  author  = {Park, Jaeseok and Park, Chanoh and Kim, Minsu and Kim, Minkyoung and Kim, Soohwan},
+  journal = {arXiv preprint arXiv:2507.23273},
+  year    = {2026},
+  eprint  = {2507.23273},
+  archivePrefix = {arXiv},
+  doi     = {10.48550/arXiv.2507.23273}
+}
+
+% LIV-GS — RA-L 2025, LiDAR point cloud directly registered against Gaussian map
+@article{xiao2025livgs,
+  title   = {{LiV-GS}: {LiDAR-Vision} Integration for {3D} {Gaussian} Splatting {SLAM} in Outdoor Environments},
+  author  = {Xiao, Renxiang and Liu, Wei and Chen, Yushuai and Hu, Liang},
+  journal = {IEEE Robotics and Automation Letters},
+  volume  = {10},
+  number  = {1},
+  year    = {2025},
+  doi     = {10.1109/LRA.2024.3505777}
+}
+
+% Real-Time LiDAR Gaussian Splatting SLAM — pure LiDAR, G-ICP + spherical rasterization
+@article{tak2026realtime,
+  title   = {Real-Time {LiDAR} {Gaussian} Splatting {SLAM}},
+  author  = {Tak, Seungjun and Jeon, Yewon and Hwang, Jaeik and Hwang, SukMin and Ha, Seongbo and Yu, Hyeonwoo},
+  journal = {arXiv preprint arXiv:2607.04127},
+  year    = {2026},
+  eprint  = {2607.04127},
+  archivePrefix = {arXiv},
+  doi     = {10.48550/arXiv.2607.04127}
+}
+
+% LIT-GS — IROS 2026, LiDAR-Inertial-Thermal GS for illumination-robust mapping
+@inproceedings{shi2026litgs,
+  title     = {{LIT-GS}: {LiDAR-Inertial-Thermal} {Gaussian} Splatting for Illumination-Robust Mapping},
+  author    = {Shi, Shikuan and Zheng, Chunran and Xu, Jiaming and Ye, Tianyong and Yu, Tao and Cui, Yukang},
+  booktitle = {IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  year      = {2026},
+  eprint    = {2606.20424},
+  archivePrefix = {arXiv}
+}
+
+% ---------------------------------------------------------------------------
+% 4. RGB-D / monocular 3DGS-SLAM (indoor-focused, often compared as baselines)
+% ---------------------------------------------------------------------------
+
+% Geometry-Aware Online Mapping — IROS 2026
+@inproceedings{luu2026geometry,
+  title     = {Geometry-Aware Online Mapping for {3D} {Gaussian} Splatting {SLAM}},
+  author    = {Luu, Thai and Tran, Quan and Phan, Hieu and Dang, Tuan},
+  booktitle = {IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  year      = {2026},
+  eprint    = {2608.14902},
+  archivePrefix = {arXiv},
+  doi       = {10.48550/arXiv.2608.14902}
+}
+
+% FeatureSLAM — real-time feature-enriched 3DGS SLAM (open-set semantics)
+@article{thirgood2026featureslam,
+  title   = {{FeatureSLAM}: Feature-enriched {3D} {Gaussian} Splatting {SLAM} in real time},
+  author  = {Thirgood, Christopher and Mendez, Oscar and Ling, Erin and Storey, Jon and Hadfield, Simon},
+  journal = {arXiv preprint arXiv:2601.05738},
+  year    = {2026},
+  eprint  = {2601.05738},
+  archivePrefix = {arXiv},
+  doi     = {10.48550/arXiv.2601.05738}
+}
+
+% SGAD-SLAM — pixel-aligned Gaussians at adjusted depth, CVPR 2026
+@inproceedings{hu2026sgad,
+  title     = {{SGAD-SLAM}: Splatting {Gaussians} at Adjusted Depth for Better Radiance Fields in {RGBD} {SLAM}},
+  author    = {Hu, Pengchong and Han, Zhizhong},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2026},
+  eprint    = {2603.21055},
+  archivePrefix = {arXiv},
+  doi       = {10.48550/arXiv.2603.21055}
+}
+
+% RP-SLAM — TVCG 2026, real-time photorealistic SLAM with efficient 3DGS
+@article{bai2026rpslam,
+  title   = {{RP-SLAM}: Real-Time Photorealistic {SLAM} With Efficient {3D} {Gaussian} Splatting},
+  author  = {Bai, Lizhi and Tian, Chunqi and Yang, Jun and Zhang, Siyu and Suganuma, Masanori and Okatani, Takayuki},
+  journal = {IEEE Transactions on Visualization and Computer Graphics},
+  volume  = {32},
+  pages   = {1452--1466},
+  year    = {2026},
+  doi     = {10.1109/TVCG.2025.3616173}
+}
+
+% ---------------------------------------------------------------------------
+% 5. Collaborative / dynamic-scene 3DGS-SLAM
+% ---------------------------------------------------------------------------
+
+% CGS-SLAM — multi-agent VI-SLAM with metric monocular depth, VGGT alignment
+@article{deambrogi2026cgsslam,
+  title   = {{CGS-SLAM}: Collaborative {Gaussian} Splatting based {SLAM} for Multi-Agent Reconstruction},
+  author  = {de Ambrogi, Jean-Daniel and Chetouani, Aladine and Nguyen, Vincent and Chateigner, Aurélien},
+  journal = {arXiv preprint arXiv:2608.26868},
+  year    = {2026},
+  eprint  = {2608.26868},
+  archivePrefix = {arXiv},
+  doi     = {10.48550/arXiv.2608.26868}
+}
+
+% RoSe-SLAM — robust semantic-aware 3DGS SLAM from dynamic monocular videos
+@article{wang2026roseslam,
+  title   = {{RoSe-SLAM}: Robust Semantic-Aware {Gaussian} Splatting {SLAM} from Dynamic Monocular Videos},
+  author  = {Wang, Wenting and Guo, Jiaxin and Dong, Wenzhen and Liu, Yun-Hui and Wang, Charlie C. L. and Yam, Yeung},
+  journal = {arXiv preprint arXiv:2608.29003},
+  year    = {2026},
+  eprint  = {2608.29003},
+  archivePrefix = {arXiv}
+}
+
+% ---------------------------------------------------------------------------
+% 6. Addendum (2026-09-09): newly surveyed via Doubao web search
+% ---------------------------------------------------------------------------
+
+% MotionGS-SLAM — event-modulated 3DGS for motion-blur robust SLAM (ICRA 2026)
+@inproceedings{hu2026motiongs,
+  title     = {{MotionGS-SLAM}: Event-Modulated {Gaussian} Splatting for Motion-Blur Robust {SLAM}},
+  author    = {Hu, Zhiqiang and Huang, Shouren and Ishikawa, Masatoshi},
+  booktitle = {2026 IEEE International Conference on Robotics and Automation (ICRA)},
+  pages     = {14608--14615},
+  year      = {2026},
+  organization = {IEEE},
+  eprint    = {2608.15024},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2608.15024},
+  doi       = {10.48550/arXiv.2608.15024}
+}
+
+% MoonSplat — monocular online voxelized 3DGS with Sim(3) global optimization (SIGGRAPH 2026)
+@inproceedings{pu2026moonsplat,
+  title     = {{MoonSplat}: Monocular Online {Gaussian} Splatting with {Sim(3)} Global Optimization},
+  author    = {Pu, Guo and Han, Yixuan and Li, Haofeng and Zhang, Yao and Zhou, Hui and Lian, Zhouhui},
+  booktitle = {SIGGRAPH Conference Papers '26},
+  articleno = {189},
+  pages     = {1--11},
+  year      = {2026},
+  publisher = {ACM},
+  doi       = {10.1145/3799902.3811110},
+  eprint    = {2606.17935},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2606.17935}
+}
+
+% MyGO-Splat — multi-objective closed-loop geometric feedback for RGB-only 3DGS SLAM (IROS 2026)
+@inproceedings{zhu2026mygosplat,
+  title     = {{MyGO-Splat}: Multi-Objective Closed-Loop Geometric Feedback for {RGB}-Only {Gaussian} {SLAM}},
+  author    = {Zhu, Fan and Chen, Ziyu and Zhao, Zhenjun and Xu, Zhisong and Zhu, Hui and Li, Mingrui and Jiang, Chunmao and Civera, Javier},
+  booktitle = {IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  year      = {2026},
+  eprint    = {2606.29738},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2606.29738},
+  doi       = {10.48550/arXiv.2606.29738}
+}
+
+% ===========================================================================
+% 7. Addendum 2 (2026-09-09 continued): foundational & baseline works
+%    Surveyed via Doubao web search; PDFs downloaded into papers/.
+%    Covers: (a) 3DGS foundations, (b) NeRF-SLAM baselines,
+%    (c) LiDAR-Inertial(-Visual) odometry front-ends,
+%    (d) classic RGB-D / monocular 3DGS-SLAM.
+% ===========================================================================
+
+% ---------------------------------------------------------------------------
+% 7a. 3D Gaussian Splatting foundations (the representation Gaussian-LIC2 builds on)
+% ---------------------------------------------------------------------------
+
+% 3D Gaussian Splatting — the original 3DGS paper (SIGGRAPH 2023 / ACM TOG)
+@article{kerbl20233dgs,
+  title   = {{3D} {Gaussian} Splatting for Real-Time Radiance Field Rendering},
+  author  = {Kerbl, Bernhard and Kopanas, Georgios and Leimk{\"u}hler, Thomas and Drettakis, George},
+  journal = {ACM Transactions on Graphics},
+  volume  = {42},
+  number  = {4},
+  pages   = {1--14},
+  year    = {2023},
+  doi     = {10.1145/3592410},
+  eprint  = {2308.04079},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2308.04079}
+}
+
+% Mip-Splatting — alias-free 3DGS (SIGGRAPH 2024 / ACM TOG)
+@article{yu2024mipsplatting,
+  title   = {Mip-Splatting: Alias-Free {3D} {Gaussian} Splatting},
+  author  = {Yu, Zehao and Chen, Anpei and Huang, Binbin and Sattler, Torsten and Geiger, Andreas},
+  journal = {ACM Transactions on Graphics},
+  volume  = {43},
+  number  = {4},
+  pages   = {1--13},
+  year    = {2024},
+  doi     = {10.1145/3658167},
+  eprint  = {2311.16493},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2311.16493}
+}
+
+% Scaffold-GS — structured 3D Gaussians with anchor-driven MLP decoding (CVPR 2024)
+@inproceedings{lu2024scaffoldgs,
+  title     = {{Scaffold-GS}: Structured {3D} {Gaussians} for View-Adaptive Rendering},
+  author    = {Lu, Tao and Yu, Muyao and Xu, Junfei and Xiangli, Yuanbo and Wang, Linning and Lin, Dahua and Dai, Bo},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2024},
+  eprint    = {2312.00109},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2312.00109}
+}
+
+% StopThePop — hierarchical per-pixel sorted 3DGS, eliminates popping (SIGGRAPH 2024 / ACM TOG)
+@article{radl2024stopthepop,
+  title   = {{StopThePop}: Sorted {Gaussian} Splatting for View-Consistent Real-time Rendering},
+  author  = {Radl, Lukas and Steiner, Michael and Parger, Mathias and Weinrauch, Alexander and Kerbl, Bernhard and Steinberger, Markus},
+  journal = {ACM Transactions on Graphics},
+  volume  = {43},
+  number  = {4},
+  pages   = {1--17},
+  year    = {2024},
+  doi     = {10.1145/3658187},
+  eprint  = {2402.00525},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2402.00525}
+}
+
+% Taming-3DGS — predictable model growth & steerable densification (SIGGRAPH Asia 2024)
+@inproceedings{mallick2024taming3dgs,
+  title     = {Taming {3DGS}: High-Quality Radiance Fields with Limited Resources},
+  author    = {Mallick, Saswat Subhajyoti and Goel, Rahul and Kerbl, Bernhard and Steinberger, Markus and Vicente Carrasco, Francisco and De La Torre, Fernando},
+  booktitle = {SIGGRAPH Asia 2024 Conference Papers},
+  articleno = {2},
+  pages     = {1--11},
+  year      = {2024},
+  publisher = {ACM},
+  doi       = {10.1145/3680528.3687694},
+  eprint    = {2406.04347},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2406.04347}
+}
+
+% ---------------------------------------------------------------------------
+% 7b. NeRF-SLAM baselines (pre-3DGS dense neural SLAM, compared as prior art)
+% ---------------------------------------------------------------------------
+
+% iMAP — first real-time NeRF-SLAM, single MLP (ICCV 2021)
+@inproceedings{sucar2021imap,
+  title     = {{iMAP}: Implicit Mapping and Positioning in Real-Time},
+  author    = {Sucar, Edgar and Liu, Shikun and Ortiz, Joseph and Davison, Andrew J.},
+  booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+  pages     = {6229--6238},
+  year      = {2021},
+  eprint    = {2104.05603},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2104.05603}
+}
+
+% NICE-SLAM — hierarchical grid neural implicit SLAM (CVPR 2022)
+@inproceedings{zhu2022niceslam,
+  title     = {{NICE-SLAM}: Neural Implicit Scalable Encoding for {SLAM}},
+  author    = {Zhu, Zihan and Peng, Songyou and Larsson, Viktor and Cui, Zhaopeng and Oswald, Martin R. and Geiger, Andreas and Pollefeys, Marc},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {12786--12796},
+  year      = {2022},
+  eprint    = {2112.12130},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2112.12130}
+}
+
+% Co-SLAM — joint coordinate + sparse parametric encodings for fast neural SLAM (CVPR 2023)
+@inproceedings{wang2023coslam,
+  title     = {{Co-SLAM}: Joint Coordinate and Sparse Parametric Encodings for Neural Real-Time {SLAM}},
+  author    = {Wang, Hengyi and Wang, Jingwen and Agapito, Lourdes},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {13293--13302},
+  year      = {2023},
+  eprint    = {2304.14377},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2304.14377}
+}
+
+% Point-SLAM — data-adaptive neural point cloud SLAM (ICCV 2023)
+@inproceedings{sandstrom2023pointslam,
+  title     = {{Point-SLAM}: Dense Neural Point Cloud-based {SLAM}},
+  author    = {Sandstr{\"o}m, Erik and Li, Yue and Van Gool, Luc and Oswald, Martin R.},
+  booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+  pages     = {18433--18444},
+  year      = {2023},
+  doi       = {10.1109/ICCV51070.2023.01690},
+  eprint    = {2304.04278},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2304.04278}
+}
+
+% GO-SLAM — global optimization for consistent 3D instant reconstruction (ICCV 2023)
+@inproceedings{zhang2023goslam,
+  title     = {{GO-SLAM}: Global Optimization for Consistent {3D} Instant Reconstruction},
+  author    = {Zhang, Youming and Tosi, Fabio and Mattoccia, Stefano and Poggi, Matteo},
+  booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+  year      = {2023},
+  eprint    = {2309.05271},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2309.05271}
+}
+
+% NeRF-SLAM — real-time dense monocular SLAM with uncertainty-aware NeRF (IROS 2023)
+@inproceedings{rosinol2023nerfslam,
+  title     = {{NeRF-SLAM}: Real-Time Dense Monocular {SLAM} with Neural Radiance Fields},
+  author    = {Rosinol, Antoni and Leonard, John J. and Carlone, Luca},
+  booktitle = {2023 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  pages     = {3437--3444},
+  year      = {2023},
+  organization = {IEEE},
+  doi       = {10.1109/IROS55552.2023.10341922},
+  eprint    = {2210.13641},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2210.13641}
+}
+
+% ---------------------------------------------------------------------------
+% 7c. LiDAR-Inertial(-Visual) odometry front-ends (Gaussian-LIC2's backend baselines)
+% ---------------------------------------------------------------------------
+
+% FAST-LIO2 — fast direct LiDAR-inertial odometry with ikd-tree (TRO 2022)
+@article{xu2022fastlio2,
+  title   = {{FAST-LIO2}: Fast Direct {LiDAR}-inertial Odometry},
+  author  = {Xu, Wei and Cai, Yixi and He, Dongjiao and Lin, Jiarong and Zhang, Fu},
+  journal = {IEEE Transactions on Robotics},
+  volume  = {38},
+  number  = {4},
+  pages   = {2053--2073},
+  year    = {2022},
+  doi     = {10.1109/TRO.2022.3141876},
+  eprint  = {2206.06321},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2206.06321}
+}
+
+% FAST-LIVO2 — fast direct LiDAR-inertial-visual odometry with unified voxel map (TRO 2024)
+@article{zheng2024fastlivo2,
+  title   = {{FAST-LIVO2}: Fast, Direct {LiDAR}-Inertial-Visual Odometry},
+  author  = {Zheng, Chunran and Xu, Wei and Zou, Zuhao and Hua, Tong and Yuan, Chongjian and He, Dongjiao and Zhou, Bingyang and Liu, Zheng and Lin, Jiarong and Zhu, Fangcheng and Ren, Yunfan and Wang, Rong and Meng, Fanle and Zhang, Fu},
+  journal = {IEEE Transactions on Robotics},
+  volume  = {40},
+  pages   = {1--22},
+  year    = {2024},
+  doi     = {10.1109/TRO.2024.3422960},
+  eprint  = {2408.14035},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2408.14035}
+}
+
+% R3LIVE — real-time LiDAR-inertial-visual radiance reconstruction (TRO 2022)
+@article{lin2024r3live,
+  title   = {{R3LIVE}: A Robust, Real-Time, {RGB}-Colored, {LiDAR}-Inertial-Visual State Estimator},
+  author  = {Lin, Jiarong and Zhang, Fu},
+  journal = {IEEE Transactions on Robotics},
+  volume  = {38},
+  number  = {6},
+  pages   = {3680--3704},
+  year    = {2022},
+  doi     = {10.1109/TRO.2022.3170746},
+  eprint  = {2109.07982},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2109.07982}
+}
+
+% ---------------------------------------------------------------------------
+% 7d. Classic RGB-D / monocular 3DGS-SLAM (indoor baselines preceding the 2026 wave)
+% ---------------------------------------------------------------------------
+
+% SplaTAM — splat, track & map 3D Gaussians for dense RGB-D SLAM (CVPR 2024)
+@inproceedings{keetha2024splatam,
+  title     = {{SplaTAM}: Splat, Track \& Map {3D} {Gaussians} for Dense {RGB-D} {SLAM}},
+  author    = {Keetha, Nikhil and Karhade, Krishna and Jatavallabhula, Krishna Murthy and Yang, Milind and Ramanan, Deva and Majumder, Srinath},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {21357--21366},
+  year      = {2024},
+  eprint    = {2312.02126},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2312.02126}
+}
+
+% GS-SLAM — dense visual SLAM with 3D Gaussian Splatting & adaptive expansion (CVPR 2024)
+@inproceedings{yan2024gsslam,
+  title     = {{GS-SLAM}: Dense Visual {SLAM} with {3D} {Gaussian} Splatting},
+  author    = {Yan, Chi and Qu, Delin and Xu, Dan and Zhao, Bin and Xie, Xiaohao and Lin, Liang and Li, Xuelong},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {19595--19604},
+  year      = {2024},
+  eprint    = {2311.11700},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2311.11700}
+}
+
+% Photo-SLAM — real-time localization + photorealistic mapping, hyper primitives (CVPR 2024)
+@inproceedings{huang2024photoslam,
+  title     = {{Photo-SLAM}: Real-time Simultaneous Localization and Photorealistic Mapping for Monocular, Stereo, and {RGB-D} Cameras},
+  author    = {Huang, Huajian and Li, Longwei and Cheng, Hui and Yeung, Sai-Kit},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {21584--21593},
+  year      = {2024},
+  eprint    = {2311.16728},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2311.16728}
+}
+
+% MonoGS / Gaussian Splatting SLAM — monocular dense SLAM with 3DGS, analytical Jacobians (CVPR 2024)
+@inproceedings{matsuki2024monogs,
+  title     = {{Gaussian} Splatting {SLAM}},
+  author    = {Matsuki, Hidenobu and Murai, Riku and Kelly, Paul H. J. and Davison, Andrew J.},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {18039--18048},
+  year      = {2024},
+  eprint    = {2312.06741},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2312.06741}
+}
+
+% LoopSplat — loop closure by registering 3D Gaussian Splats, submap PGO (WACV 2025)
+@inproceedings{zhu2024loopsplat,
+  title     = {{LoopSplat}: Loop Closure by Registering {3D} {Gaussian} Splats},
+  author    = {Zhu, Liyuan and Li, Yue and Sandstr{\"o}m, Erik and Huang, Shengyu and Schindler, Konrad and Armeni, Iro},
+  booktitle = {Proceedings of the IEEE/CVF Winter Conference on Applications of Computer Vision (WACV)},
+  year      = {2025},
+  eprint    = {2408.10154},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2408.10154}
+}
+
+% ---------------------------------------------------------------------------
+% 7e. Continuous-time B-spline trajectory estimation (methodological root of Coco-LIC / Gaussian-LIC2)
+% ---------------------------------------------------------------------------
+
+% Ctrl-VIO — continuous-time B-spline VIO for rolling-shutter cameras, same lab as Coco-LIC (RA-L 2022)
+@article{lang2022ctrlvio,
+  title   = {{Ctrl-VIO}: Continuous-Time Visual-Inertial Odometry for Rolling Shutter Cameras},
+  author  = {Lang, Xiaolei and Lv, Jiajun and Huang, Jianxin and Ma, Yukai and Liu, Yong and Zuo, Xingxing},
+  journal = {IEEE Robotics and Automation Letters},
+  volume  = {7},
+  number  = {4},
+  pages   = {11225--11232},
+  year    = {2022},
+  doi     = {10.1109/LRA.2022.3193119},
+  eprint  = {2208.12008},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2208.12008}
+}
+
+% Wildcat — online continuous-time 3D LiDAR-inertial SLAM with B-spline trajectory (arXiv 2022)
+@article{ramezani2022wildcat,
+  title   = {{Wildcat}: Online Continuous-Time {3D} {Lidar}-Inertial {SLAM}},
+  author  = {Ramezani, Milad and Khosoussi, Kasra and Catt, Gavin and Moghadam, Peyman and Williams, Jason and Borges, Paulo and Pauling, Fred and Kottege, Navinda},
+  journal = {arXiv preprint arXiv:2205.12595},
+  year    = {2022},
+  eprint  = {2205.12595},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2205.12595}
+}
+
+% RESPLE — recursive Bayesian B-spline estimation for LiDAR odometry (RA-L 2025)
+@article{cao2025resple,
+  title   = {{RESPLE}: Recursive Spline Estimation for {LiDAR}-Based Odometry},
+  author  = {Cao, Ziyu and Talbot, William and Li, Kailai},
+  journal = {IEEE Robotics and Automation Letters},
+  year    = {2025},
+  doi     = {10.1109/LRA.2025.3604758},
+  eprint  = {2504.11580},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2504.11580}
+}
+
+% CT-VoxelMap — continuous-time LIO with Lie-group B-spline + probabilistic adaptive voxel map (arXiv 2026)
+@article{zhao2026ctvoxelmap,
+  title   = {{CT-VoxelMap}: Efficient Continuous-Time {LiDAR}-Inertial Odometry with Probabilistic Adaptive Voxel Mapping},
+  author  = {Zhao, Lei and Li, Xingyi and Deng, Tianchen and Cao, Chuan and Zhang, Han and Chen, Weidong},
+  journal = {arXiv preprint arXiv:2604.03747},
+  year    = {2026},
+  eprint  = {2604.03747},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2604.03747}
+}
+
+% ===========================================================================
+% Addendum 3 (2026-09-10): newly surveyed related work
+% Found via Doubao web search targeting the last month / Sep 2026 arXiv listings.
+% Four additional works not in the 2026-09-08 / 2026-09-09 sets.
+% ===========================================================================
+
+% SEGS-SLAM — structure-enhanced 3DGS-SLAM with appearance embedding (ICCV 2025)
+@inproceedings{wen2025segsslam,
+  title     = {{SEGS-SLAM}: Structure-Enhanced {3D} {Gaussian} Splatting {SLAM} with Appearance Embedding},
+  author    = {Wen, Tianci and Liu, Zhiang and Fang, Yongchun},
+  booktitle = {2025 IEEE/CVF International Conference on Computer Vision (ICCV)},
+  year      = {2025},
+  pages     = {1--11},
+  organization = {IEEE},
+  doi       = {10.1109/ICCV51701.2025.02609},
+  eprint    = {2501.05242},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2501.05242}
+}
+
+% ARSGaussian — LiDAR-constrained 3DGS for aerial remote sensing NVS (ISPRS J. 2026)
+@article{yao2026arsgaussian,
+  title   = {{ARSGaussian}: {3D} {Gaussian} Splatting with {LiDAR} for Aerial Remote Sensing Novel View Synthesis},
+  author  = {Yao, Yiling and Zhang, Bing and Zhang, Wenjuan and Gao, Lianru and Peng, Dailiang and Li, Bocheng and Wang, Yaning and Wang, Bowen},
+  journal = {ISPRS Journal of Photogrammetry and Remote Sensing},
+  volume  = {231},
+  pages   = {288--306},
+  year    = {2026},
+  doi     = {10.1016/j.isprsjprs.2025.10.022},
+  eprint  = {2412.18380},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2412.18380}
+}
+
+% WildGS-SLAM — monocular dynamic-environment 3DGS-SLAM with uncertainty (CVPR 2025)
+@inproceedings{zheng2025wildgsslam,
+  title     = {{WildGS-SLAM}: Monocular {Gaussian} Splatting {SLAM} in Dynamic Environments},
+  author    = {Zheng, Jianhao and Zhu, Zihan and Bieri, Valentin and Pollefeys, Marc and Peng, Songyou and Armeni, Iro},
+  booktitle = {2025 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2025},
+  pages     = {11461--11471},
+  organization = {IEEE},
+  doi       = {10.1109/CVPR52734.2025.01070},
+  eprint    = {2504.03886},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2504.03886}
+}
+
+% Structured-Li-GS — LiDAR-anchored structured 3DGS using FAST-LIVO2 (ISPRS 2026)
+@inproceedings{weng2026structuredligs,
+  title     = {{Structured-Li-GS}: Structured {3D} {Gaussians} Splatting with {LiDAR} Incorporation and Spatial Constraints},
+  author    = {Weng, Huaiyuan and Li, Huibin and Yeum, Chul Min},
+  booktitle = {ISPRS Annals of the Photogrammetry, Remote Sensing and Spatial Information Sciences},
+  series    = {ISPRS Congress 2026},
+  volume    = {XI-2-2026},
+  pages     = {375--383},
+  year      = {2026},
+  doi       = {10.5194/isprs-annals-XI-2-2026-375-2026},
+  eprint    = {2606.27509},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2606.27509}
+}
+
+% =====================================================================
+% Addendum 4 (2026-09-11) — five newly surveyed related works
+% =====================================================================
+
+% LI-GS — LiDAR-incorporated 2D Gaussian surfels with plane-constrained GMM (arXiv 2024)
+@article{jiang2024ligs,
+  title     = {{LI-GS}: {Gaussian} Splatting with {LiDAR} Incorporated for Accurate Large-Scale Reconstruction},
+  author    = {Jiang, Changjian and Gao, Ruilan and Shao, Kele and Wang, Yue and Xiong, Rong and Zhang, Yu},
+  journal   = {arXiv preprint arXiv:2409.12899},
+  year      = {2024},
+  eprint    = {2409.12899},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2409.12899}
+}
+
+% GRAND-SLAM — multi-agent large-scale outdoor 3DGS-SLAM with loop closure (RA-L 2025)
+@article{thomas2025grandslam,
+  title     = {{GRAND-SLAM}: Local Optimization for Globally Consistent Large-Scale Multi-Agent {Gaussian} {SLAM}},
+  author    = {Thomas, Annika and Sonawalla, Aneesa and Rose, Alex and How, Jonathan P.},
+  journal   = {IEEE Robotics and Automation Letters},
+  volume    = {10},
+  number    = {12},
+  pages     = {13129--13136},
+  year      = {2025},
+  doi       = {10.1109/LRA.2025.3623026},
+  eprint    = {2506.18885},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2506.18885}
+}
+
+% CVT-GS — post-hoc 3DGS simplification via Centroidal Voronoi Tessellation (arXiv 2026)
+@article{li2026cvtgs,
+  title     = {{CVT-GS}: Learning to Simplify {3D} {Gaussian} Splatting with Centroidal {Voronoi} Tessellation},
+  author    = {Li, Bingxian and Li, Yilong and Peng, Jingliang and Wang, Peng-Shuai and Zhu, Fei and Li, Guozheng and Liu, Chi Harold and Wang, Guoping and Pang, Bo},
+  journal   = {arXiv preprint arXiv:2609.08730},
+  year      = {2026},
+  eprint    = {2609.08730},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2609.08730}
+}
+
+% LatentAM — online dictionary-learning latent 3DGS mapping for open-vocab perception (RA-L 2026)
+@article{lee2026latentam,
+  title     = {{LatentAM}: Real-Time, Large-Scale Latent {Gaussian} Attention Mapping via Online Dictionary Learning},
+  author    = {Lee, Junwoon and Tian, Yulun},
+  journal   = {IEEE Robotics and Automation Letters},
+  year      = {2026},
+  eprint    = {2602.12314},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2602.12314}
+}
+
+% Gassidy — dynamic-environment RGB-D 3DGS-SLAM with rendering loss flows (arXiv 2024)
+@article{wen2024gassidy,
+  title     = {{Gassidy}: {Gaussian} Splatting {SLAM} in Dynamic Environments},
+  author    = {Wen, Long and Li, Shixin and Zhang, Yu and Huang, Yuhong and Lin, Jianjie and Pan, Fengjunjie and Bing, Zhenshan and Knoll, Alois},
+  journal   = {arXiv preprint arXiv:2411.15476},
+  year      = {2024},
+  eprint    = {2411.15476},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2411.15476}
+}
+
+% =====================================================================
+% Addendum 5 (2026-09-12) — five newly surveyed related works
+% =====================================================================
+
+% LightSplat — hybrid sparse-feature + dense-Gaussian RGB-D SLAM with online loop closure (IROS 2026)
+@inproceedings{bao2026lightsplat,
+  title     = {{LightSplat}: Real-Time High-Fidelity {3D} {Gaussian} {SLAM} with Loop Closure},
+  author    = {Bao, Junze and Gao, Ye and Huang, Yiming and Yu, Xiaolong and Dong, Chen and Gao, Qing and Wang, Wei and L{\"u}, Jinhu},
+  booktitle = {IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  year      = {2026},
+  eprint    = {2609.07274},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2609.07274}
+}
+
+% RGBD GS-ICP SLAM — G-ICP + 3DGS single-map fusion, 107 FPS (ECCV 2024)
+@inproceedings{ha2024gsicp,
+  title     = {{RGBD} {GS-ICP} {SLAM}},
+  author    = {Ha, Seongbo and Yeon, Jiung and Yu, Hyeonwoo},
+  booktitle = {European Conference on Computer Vision (ECCV)},
+  pages     = {180--197},
+  year      = {2024},
+  eprint    = {2403.12550},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2403.12550}
+}
+
+% MM3DGS SLAM — first visual-inertial 3DGS SLAM, pre-integrated IMU + depth (IROS 2024)
+@inproceedings{sun2024mm3dgs,
+  title     = {{MM3DGS} {SLAM}: Multi-modal {3D} {Gaussian} Splatting for {SLAM} Using Vision, Depth, and Inertial Measurements},
+  author    = {Sun, Lisong C. and Bhatt, Neel P. and Liu, Jonathan C. and Fan, Zhiwen and Wang, Zhangyang and Humphreys, Todd E. and Topcu, Ufuk},
+  booktitle = {IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  pages     = {10159--10166},
+  year      = {2024},
+  eprint    = {2404.00923},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2404.00923}
+}
+
+% GI-SLAM — Gaussian-Inertial SLAM with IMU loss for enhanced tracking (arXiv 2025)
+@article{liu2025gislam,
+  title   = {{GI-SLAM}: {Gaussian-Inertial} {SLAM}},
+  author  = {Liu, Xulang and Tan, Ning},
+  journal = {arXiv preprint arXiv:2503.18275},
+  year    = {2025},
+  eprint  = {2503.18275},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2503.18275}
+}
+
+% G2S-ICP SLAM — geometry-aware surface-aligned 2D Gaussian disks in G-ICP (arXiv 2025)
+@article{pak2025g2sicp,
+  title   = {{G2S-ICP} {SLAM}: Geometry-aware {Gaussian} Splatting {ICP} {SLAM}},
+  author  = {Pak, Gyuhyeon and Cho, Hae Min and Kim, Euntai},
+  journal = {arXiv preprint arXiv:2507.18344},
+  year    = {2025},
+  eprint  = {2507.18344},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2507.18344}
+}
+
+% =====================================================================
+% Addendum 6 (2026-09-13) — two newly surveyed related works
+% =====================================================================
+
+% RIDE — relocalization-informed dense depth estimation from a metrically scaled 3DGS model (arXiv 2026)
+@article{lian2026ride,
+  title     = {{RIDE}: Relocalization-Informed Depth Estimation with {3D} {Gaussian} Splatting},
+  author    = {Lian, Jiarong and Xiao, Zhe and Zhang, Zhaoyang and Li, Wei and Chen, Ruizhi},
+  journal   = {arXiv preprint arXiv:2609.11079},
+  year      = {2026},
+  eprint    = {2609.11079},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2609.11079},
+  doi       = {10.48550/arXiv.2609.11079}
+}
+
+% A&B-LO — continuous-time LiDAR odometry with adaptive non-uniform B-spline (RA-L 2026)
+@article{lu2026ablo,
+  title   = {{A\&B-LO}: Continuous-Time {LiDAR} Odometry With Adaptive Non-Uniform {B-Spline} Trajectory Representation},
+  author  = {Lu, Yuchu and Yao, Chenpeng and Du, Jiayuan and Liu, Chengju and Chen, Qijun},
+  journal = {IEEE Robotics and Automation Letters},
+  volume  = {11},
+  number  = {3},
+  pages   = {3550--3557},
+  year    = {2026},
+  doi     = {10.1109/LRA.2026.3656754}
+}
+
+% =====================================================================
+% Addendum 7 (2026-09-14) — two newly surveyed related works
+% =====================================================================
+
+% EGS-SLAM — first event-RGB-D GS-SLAM; models continuous camera trajectory
+% during exposure; learnable CRF aligns HDR events with LDR images;
+% no-event loss suppresses ringing. Accepted to IEEE RA-L. (arXiv:2508.07003)
+@article{chen2025egsslam,
+  title     = {{EGS-SLAM}: {RGB-D} {Gaussian} Splatting {SLAM} with Events},
+  author    = {Chen, Siyu and Yuan, Shenghai and Nguyen, Thien-Minh and Huang, Zhuyu and Shi, Chenyang and Jing, Jin and Xie, Lihua},
+  journal   = {IEEE Robotics and Automation Letters},
+  year      = {2025},
+  eprint    = {2508.07003},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2508.07003},
+  doi       = {10.48550/arXiv.2508.07003}
+}
+
+% MCGS-SLAM — first purely RGB-based multi-camera 3DGS SLAM system;
+% multi-camera bundle adjustment (MCBA) jointly refines poses & depths;
+% scale-consistency module via low-rank priors; accepted to ICRA 2026.
+% (arXiv:2509.14191)
+@inproceedings{cao2026mcgsslam,
+  title     = {{MCGS-SLAM}: A Multi-Camera {SLAM} Framework Using {Gaussian} Splatting for High-Fidelity Mapping},
+  author    = {Cao, Zhihao and Wu, Hanyu and Tang, Li Wa and Luo, Zizhou and Zhang, Wei and Pollefeys, Marc and Zhu, Zihan and Oswald, Martin R.},
+  booktitle = {IEEE International Conference on Robotics and Automation (ICRA)},
+  year      = {2026},
+  eprint    = {2509.14191},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2509.14191},
+  doi       = {10.48550/arXiv.2509.14191}
+}
+
+% =====================================================================
+% Addendum 8 (2026-09-15) — four newly surveyed related works
+% =====================================================================
+
+% GS-SDF — LiDAR-augmented 2DGS + neural SDF; SDF-based Gaussian init +
+% shape regularization; FAST-LIVO2 poses; IROS 2025. (arXiv:2503.10170)
+@inproceedings{liu2025gssdf,
+  title     = {{GS-SDF}: {LiDAR}-Augmented {Gaussian} Splatting and Neural {SDF}
+               for Geometrically Consistent Rendering and Reconstruction},
+  author    = {Liu, Jianheng and Wan, Yunfei and Wang, Bowen and Zheng, Chunran
+               and Lin, Jiarong and Zhang, Fu},
+  booktitle = {IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  year      = {2025},
+  eprint    = {2503.10170},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2503.10170},
+  doi       = {10.48550/arXiv.2503.10170}
+}
+
+% VarSplat — uncertainty-aware 3DGS-SLAM; per-splat appearance variance
+% rendered to pixel-wise uncertainty via law of total variance; CVPR 2026.
+% (arXiv:2603.09673)
+@inproceedings{tran2026varsplat,
+  title     = {{VarSplat}: Uncertainty-aware {3D} {Gaussian} Splatting for Robust
+               {RGB-D} {SLAM}},
+  author    = {Tran, Anh-Thuan and Kosecka, Jana},
+  booktitle = {IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2026},
+  eprint    = {2603.09673},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2603.09673},
+  doi       = {10.48550/arXiv.2603.09673}
+}
+
+% GAVIS — anisotropic visibility field for 3DGS uncertainty; spherical-harmonic
+% analytical, training-free; active mapping next-best-view; CVPR 2026.
+% (arXiv:2605.30342)
+@inproceedings{xue2026gavis,
+  title     = {Uncertainty-driven {3D} {Gaussian} Splatting Active Mapping via
+               Anisotropic Visibility Field},
+  author    = {Xue, Shangjie and Dill, Jesse and Ahuja, Dhruv and Dellaert, Frank
+               and Tsiotras, Panagiotis and Xu, Danfei},
+  booktitle = {IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2026},
+  eprint    = {2605.30342},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2605.30342},
+  doi       = {10.48550/arXiv.2605.30342}
+}
+
+% VBGS-SLAM — variational Bayesian 3DGS-SLAM; closed-form updates;
+% posterior uncertainty over SE(3) poses + splat map; RGB-D. (arXiv:2604.02696)
+@article{zhu2026vbgsslam,
+  title     = {{VBGS-SLAM}: Variational Bayesian {Gaussian} Splatting Simultaneous
+               Localization and Mapping},
+  author    = {Zhu, Yuhan and Zhang, Yanyu and Xu, Jie and Ren, Wei},
+  journal   = {arXiv preprint arXiv:2604.02696},
+  year      = {2026},
+  eprint    = {2604.02696},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2604.02696},
+  doi       = {10.48550/arXiv.2604.02696}
+}
+
+% =====================================================================
+% Addendum 9 (2026-09-16) — four newly surveyed related works
+% (LIVO/GS-SLAM lineage + loop-closure baselines cited by GRAND-SLAM)
+% =====================================================================
+
+% LIV-GaussMap — tightly-coupled LIV Gaussian radiance-field mapping;
+% size-adaptive voxel init from LIO, photometric-gradient refinement;
+% RA-L 2024. (arXiv:2401.14857)
+@article{hong2024livgaussmap,
+  title     = {{LIV-GaussMap}: {LiDAR-Inertial-Visual} Fusion for Real-time
+               {3D} Radiance Field Map Rendering},
+  author    = {Hong, Sheng and He, Junjie and Zheng, Xinhu and Zheng, Chunran
+               and Shen, Shaojie},
+  journal   = {IEEE Robotics and Automation Letters},
+  volume    = {9},
+  number    = {11},
+  pages     = {9765--9772},
+  year      = {2024},
+  eprint    = {2401.14857},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2401.14857},
+  doi       = {10.1109/LRA.2024.3460410}
+}
+
+% GS-LIVO — real-time LIV Gaussian-SLAM deployable on embedded Jetson;
+% hash-octree global Gaussian map + sliding-window optimization + IESKF;
+% T-RO 2025. (arXiv:2501.08672)
+@article{hong2025gslivo,
+  title     = {{GS-LIVO}: Real-Time {LiDAR}, Inertial, and Visual Multi-sensor
+               Fused Odometry with {Gaussian} Mapping},
+  author    = {Hong, Sheng and Zheng, Chunran and Shen, Yishu and Li, Changze
+               and Zhang, Fu and Qin, Tong and Shen, Shaojie},
+  journal   = {IEEE Transactions on Robotics},
+  volume    = {41},
+  pages     = {4253--4268},
+  year      = {2025},
+  eprint    = {2501.08672},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2501.08672},
+  doi       = {10.1109/TRO.2025.3623026}
+}
+
+% HGS-Mapping — first online dense 3DGS mapping for urban/autonomous-driving
+% scenes; Hybrid Gaussian Representation (sphere/2D-plane/3D) for LiDAR
+% coverage gaps; ECCV 2024 / RA-L 2024. (arXiv:2403.20159)
+@article{wu2024hgsmapping,
+  title     = {{HGS-Mapping}: Online Dense Mapping Using Hybrid {Gaussian}
+               Representation in Urban Scenes},
+  author    = {Wu, Ke and Zhang, Kaizhao and Zhang, Zhiwei and Yuan, Shanshuai
+               and Tie, Muer and Wei, Julong and Xu, Zijun and Zhao, Jieru
+               and Gan, Zhongxue and Ding, Wenchao},
+  journal   = {IEEE Robotics and Automation Letters},
+  volume    = {9},
+  number    = {11},
+  pages     = {9573--9580},
+  year      = {2024},
+  eprint    = {2403.20159},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2403.20159},
+  doi       = {10.1109/LRA.2024.3460410}
+}
+
+% GLC-SLAM — monocular 3DGS-SLAM with hierarchical loop closure;
+% submap-level GSPR descriptor retrieval + NVS geometric verification;
+% global-to-local PGO + direct map adjustment; ESWA 2026. (arXiv:2409.10982)
+@article{xu2024glcslam,
+  title     = {{GLC-SLAM}: {Gaussian} Splatting {SLAM} with Efficient Loop Closure},
+  author    = {Xu, Ziheng and Li, Qingfeng and Chen, Chen and Liu, Xuefeng
+               and Niu, Jianwei},
+  journal   = {Expert Systems with Applications},
+  year      = {2026},
+  eprint    = {2409.10982},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2409.10982},
+  doi       = {10.1016/j.eswa.2026.133585}
+}
+
+% =====================================================================
+% Addendum 10 (2026-09-17) — five newly surveyed related works
+% (panoramic GS-SLAM; LIV-GS-SLAM family extension; CT multi-modal
+%  odometry; dynamic-scene LiDAR-Visual GS-SLAM)
+% =====================================================================
+
+% PanoGS-SLAM — first panoramic dense SLAM built on 3DGS; spherical-domain
+% differentiable rendering with sphere-consistent photometric loss and
+% depth-guided Gaussian init; real-time, code to be released.
+% (arXiv:2609.17387, submitted 15 Sep 2026)
+@article{mao2026panogsslam,
+  title     = {{PanoGS-SLAM}: Panoramic {3D} {Gaussian} Splatting {SLAM}},
+  author    = {Mao, Yongqi and Shi, Hao and Zhang, Yufan and Yi, Zhonghua and
+               Guo, Xiangfei and Wang, Kaiwei},
+  journal   = {arXiv preprint arXiv:2609.17387},
+  year      = {2026},
+  eprint    = {2609.17387},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2609.17387},
+  doi       = {10.48550/arXiv.2609.17387}
+}
+
+% LVI-GS — tightly-coupled LiDAR-Visual-Inertial SLAM with 3DGS;
+% colourized LiDAR init + pyramid (coarse-to-fine) training + LiDAR depth
+% loss; real-time photo-realistic mapping. Published in IEEE TIM 2025.
+% (arXiv:2411.02703)
+@article{zhao2025lvigs,
+  title     = {{LVI-GS}: Tightly Coupled {LiDAR--Visual--Inertial} {SLAM}
+               Using {3-D} {Gaussian} Splatting},
+  author    = {Zhao, Huibin and Guan, Weipeng and Lu, Peng},
+  journal   = {IEEE Transactions on Instrumentation and Measurement},
+  volume    = {74},
+  pages     = {7504810},
+  year      = {2025},
+  publisher = {IEEE},
+  eprint    = {2411.02703},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2411.02703},
+  doi       = {10.1109/TIM.2025.3551585}
+}
+
+% LVGS-SLAM — LiDAR-Visual-Supervised GS-SLAM for unstructured
+% environments; dense depth rendering feedback (sparse LiDAR -> pixel-level
+% dense depth via 3DGS rendering, no extra NN); generative refinement
+% module with synthetic view bank for untextured geometry. RA-L Aug 2026.
+% (IEEE-only, no arXiv preprint; BibTeX only, following LIV-GS/RP-SLAM precedent)
+@article{qian2026lvgsslam,
+  title     = {{LVGS-SLAM}: {LiDAR-Visual-Supervised} {Gaussian} Splatting
+               {SLAM} With Dense Depth Rendering for Unstructured
+               Environments},
+  author    = {Qian, Liangshu and Li, Wei and Hu, Yu},
+  journal   = {IEEE Robotics and Automation Letters},
+  volume    = {11},
+  number    = {8},
+  pages     = {9755--9762},
+  year      = {2026},
+  publisher = {IEEE},
+  doi       = {10.1109/LRA.2026.3707359}
+}
+
+% TRaIL-Odom — tightly-coupled continuous-time Radar-IMU-LiDAR odometry
+% with degeneracy-aware adaptive Doppler reweighting (per-point + scan-wise
+% gain scheduling); CT framework in the Wildcat/Coco-LIC lineage but with
+% radar instead of camera. RA-L 2026. (arXiv:2609.03561)
+@article{noh2026trailodom,
+  title     = {{TRaIL-Odom}: Tightly Coupled Continuous Time
+               {Radar-IMU-LiDAR} Odometry with Adaptive {Doppler} Weighting},
+  author    = {Noh, Chiyun and Tuna, Turcan and Talbot, William and
+               Hutter, Marco and Kneip, Laurent and Kim, Ayoung},
+  journal   = {IEEE Robotics and Automation Letters},
+  year      = {2026},
+  note      = {Accepted 23 August 2026},
+  eprint    = {2609.03561},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2609.03561},
+  doi       = {10.48550/arXiv.2609.03561}
+}
+
+% LVD-GS — LiDAR-Visual 3DGS-SLAM for dynamic outdoor scenes; hierarchical
+% explicit-implicit (Sem-Geo-DINO) collaborative rendering + joint
+% dynamic-mask module (open-world segmentation + DINO-Depth uncertainty);
+% evaluated on KITTI/nuScenes. (arXiv:2510.22669)
+@article{zhu2025lvdgs,
+  title     = {{LVD-GS}: {Gaussian} Splatting {SLAM} for Dynamic Scenes via
+               Hierarchical Explicit-Implicit Representation Collaboration
+               Rendering},
+  author    = {Zhu, Wenkai and Li, Xu and Xu, Qimin and Wang, Benwu and
+               Wei, Kun and Peng, Yiming and Wang, Zihang},
+  journal   = {arXiv preprint arXiv:2510.22669},
+  year      = {2025},
+  eprint    = {2510.22669},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2510.22669},
+  doi       = {10.48550/arXiv.2510.22669}
+}
+
+% Addendum 11 (2026-09-18) — two newly surveyed related works.
+%
+% Super Odometry 2.0 — resilient multi-modal (camera/LiDAR/IMU) odometry via
+% hierarchical degradation adaptation: adaptive feature selection → adaptive
+% state direction → adaptive factor (engine) selection → learned IMU
+% odometry fallback; elevates IMU to equal-rank sensor. Validated across
+% 200 km / 800 h on aerial, wheeled, legged robots. (arXiv:2608.25427,
+% Science Robotics 2025)
+@article{zhao2026superodometry,
+  title     = {{SUPER ODOMETRY 2.0}: Resilient Odometry via Hierarchical
+               Adaptation},
+  author    = {Zhao, Shibo and Zhou, Sifan and Zhang, Yuchen and Zhang, Ji
+               and Wang, Chen and Wang, Wenshan and Scherer, Sebastian},
+  journal   = {Science Robotics},
+  year      = {2025},
+  volume    = {10},
+  number    = {109},
+  pages     = {eadv1818},
+  eprint    = {2608.25427},
+  archivePrefix = {arXiv},
+  url       = {https://arxiv.org/abs/2608.25427},
+  doi       = {10.1126/scirobotics.adv1818}
+}
+
+% LV-GS SLAM — decoupled LiDAR-Visual 3DGS SLAM for large-scale environments;
+% 30 Hz LiDAR odometry frontend + 15–19 Hz tracking; novel depth propagation
+% initializes Gaussians from dense depth maps (9× faster PSNR convergence
+% vs. direct LiDAR init); keyframe-based submap memory management prevents
+% GPU OOM; validated on KITTI and a quadruped robot platform. (MDPI Applied
+% Sciences, open access; PDF not downloadable via automation — MDPI serves
+% the PDF only to interactive browser sessions, following the LIV-GS /
+% RP-SLAM / LVGS-SLAM IEEE-only precedent, this entry is bib-only.)
+@article{he2026lvgsslam,
+  title     = {{LV-GS SLAM}: A Decoupled {LiDAR–Visual} {3D Gaussian Splatting}
+               {SLAM} in a Large-Scale Environment},
+  author    = {He, Haotong and Sheikder, Chandan and Yin, Zhiwei and Liu,
+               Pengyang and Guo, Meijun and Zhang, Weimin},
+  journal   = {Applied Sciences (Switzerland)},
+  year      = {2026},
+  volume    = {16},
+  number    = {16},
+  pages     = {8028},
+  publisher = {MDPI},
+  url       = {https://www.mdpi.com/2076-3417/16/16/8028},
+  doi       = {10.3390/app16168028}
+}
+
+% Addendum 12 (2026-09-19) — two newly surveyed related works.
+
+% Robust 3DGS-based SLAM via Adaptive Kernel Smoothing — challenges the notion
+% that rendering quality is the primary determinant of tracking accuracy in
+% 3DGS-SLAM; argues that making the rasterizer resilient to Gaussian-parameter
+% noise is more critical. Proposes Corrective Blurry KNN (CB-KNN): during
+% keyframe rendering, transiently shifts K-nearest-neighbor Gaussians toward
+% their centroid and replaces their RGB with a locally-adaptive weighted
+% average, producing a deliberately smoother (blurred) rendered image that
+% regularizes the photometric-alignment landscape (Graduated Non-Convexity).
+% The map parameters themselves are NOT modified — the smoothing is transient
+% and keyframe-only, so scene fidelity is preserved while tracking robustness
+% improves. Validated on Replica, TUM-RGBD, ScanNet; integrates with MonoGS.
+% Published at ECCV 2026; arXiv:2511.23221 (v3, 30 Jun 2026).
+@inproceedings{zhang2026adaptivekernel,
+  title     = {Robust {3DGS}-based {SLAM} via Adaptive Kernel Smoothing},
+  author    = {Zhang, Shouhe and Ren, Dayong and Li, Wen Jie and Yu, Piaopiao
+               and Song, Sensen and Shao, Kaikai and Qian, Yurong},
+  booktitle = {Computer Vision -- ECCV 2026},
+  publisher = {Springer Nature Switzerland},
+  year      = {2026},
+  note      = {arXiv:2511.23221},
+  url       = {https://arxiv.org/abs/2511.23221},
+  doi       = {10.1007/978-3-032-37013-6_9}
+}
+
+% BDGS-SLAM — Bayesian Dynamic Gaussian Splatting SLAM for dynamic
+% environments. Integrates YOLOv5 semantic detection with a Bayesian filter
+% that recursively estimates each Gaussian's dynamic/static posterior,
+% avoiding hard binary labels. A multi-view probabilistic update with
+% exponential-decay weighting aggregates co-visible keyframe observations to
+% recover static Gaussians that were misclassified as dynamic. An adaptive
+% soft-penalty optimization (rather than hard deletion) suppresses dynamic
+% Gaussians' opacity contribution while preserving static structure.
+% Validated on TUM RGB-D, BONN Dynamic, OpenLoris-Scene; achieves SOTA ATE
+% among dynamic 3DGS-SLAM methods. MDPI Sensors, open access; PDF endpoint
+% returns HTTP 403 to non-interactive clients, following the LV-GS SLAM /
+% IEEE-only precedent, this entry is bib-only.
+@article{yang2025bdgsslam,
+  title     = {{BDGS-SLAM}: A Probabilistic {3D} {Gaussian Splatting} Framework
+               for Robust {SLAM} in Dynamic Environments},
+  author    = {Yang, Tianyu and Wei, Shuangfeng and Nan, Jingxuan and Li,
+               Mingyang and Li, Mingrui},
+  journal   = {Sensors},
+  year      = {2025},
+  volume    = {25},
+  number    = {21},
+  pages     = {6641},
+  publisher = {MDPI},
+  url       = {https://www.mdpi.com/1424-8220/25/21/6641},
+  doi       = {10.3390/s25216641}
+}
+
+% Addendum 13 (2026-09-20) — three newly surveyed related works.
+% All three have arXiv preprints; PDFs downloaded to papers/.
+
+% SCOUT-SLAM — structurally-coupled dual-uncertainty 3DGS SLAM for the wild.
+% A shared base network estimates both tracking and reconstruction
+% uncertainty; a LoRA adapter trained on multi-view feature consistency
+% produces a tracking uncertainty that does NOT depend on reconstruction
+% quality, breaking the circular dependency between tracking accuracy and
+% reconstruction stability. A spatially-adaptive prior modulates the
+% training objective so reconstruction instability does not inflate
+% uncertainty on static regions. SOTA tracking + artifact-free static
+% reconstruction on TUM RGB-D, Bonn Dynamic, Wild-SLAM MoCap. RGB-D only.
+@article{karthik2026scoutslam,
+  title     = {{SCOUT-SLAM}: Structurally-Coupled Dual Uncertainty-Aware
+               {3DGS} {SLAM} in the Wild},
+  author    = {Karthik, Kumaran and Jois, Pramat Shastri and Sundaram,
+               Suresh},
+  year      = {2026},
+  eprint    = {2609.14634},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url       = {https://arxiv.org/abs/2609.14634},
+  doi       = {10.48550/arXiv.2609.14634}
+}
+
+% EliGSiR — continual RGB-D Gaussian-Splatting mapping under bounded compute.
+% Re-frames online mapping as a *bounded-budget* continual-learning problem:
+% Map-Guided View Scheduling filters/reconsiders incoming views by current
+% map state; Load-Adaptive Fidelity adjusts supervision resolution to
+% current mapping load; Targeted Geometry Growth separates depth supervision
+% from Gaussian creation and adds geometric capacity only where repeated
+% RGB-D observations indicate missing/misplaced structure. On TUM fr3 long
+% office, 21.52 dB vs 19.42 dB for SplaTAM at GT poses; with live ORB-SLAM3
+% poses, 23.02 dB in 155.5 s vs 20.10 dB in 230.9 s for CaRtGS. RGB-D only.
+@article{ellensohn2026eligsir,
+  title     = {{EliGSiR}: Continual {RGB-D} Mapping with {Gaussian} Splatting
+               under Bounded Compute},
+  author    = {Ellensohn, Bj{\"o}rn and Rueckert, Elmar and Rauch, Christian},
+  year      = {2026},
+  eprint    = {2609.20348},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url       = {https://arxiv.org/abs/2609.20348},
+  doi       = {10.48550/arXiv.2609.20348}
+}
+
+% RawSLAM — first online Gaussian SLAM directly on 16-bit linear HDR imagery.
+% HDR Gaussian Splatting module with MLP-free logarithmic parameterization of
+% Gaussian color features; Reinhard range-compressed photometric objective;
+% structure-guided spatial gradient weighting. Outperforms an HDR adaptation
+% of MonoGS in both trajectory and reconstruction accuracy while rendering
+% natively in linear scene radiance; same formulation halves MonoGS error on
+% standard 8-bit inputs and transfers to SplaTAM, Gaussian SLAM, DROID-W,
+% eliminating their tracking failures on challenging illumination. Releases
+% RawSLAM dataset: 10 real indoor sequences with 16-bit RAW + depth + IMU +
+% OptiTrack poses. RGB-D (depth + IMU available in dataset).
+@article{orozco2026rawslam,
+  title     = {{RawSLAM}: Online {HDR} {Gaussian} {SLAM} from Linear Radiance},
+  author    = {Orozco Gonz{\'a}lez, Marina and Merino, Luis},
+  year      = {2026},
+  eprint    = {2609.20589},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url       = {https://arxiv.org/abs/2609.20589},
+  doi       = {10.48550/arXiv.2609.20589}
+}
+
+% Addendum 14 (2026-09-21): four newly surveyed related works.
+
+% VGGT-GS SLAM — uncalibrated monocular 3DGS SLAM with feed-forward VGGT
+% pose+depth priors. Submap differentiable bundle adjustment jointly refines
+% camera poses and a 3D Gaussian map and optimizes submap-shared intrinsics
+% and radial-tangential distortion via analytic calibration Jacobians.
+% Gaussian-native alignment (GNA) does camera-anchored scale refinement
+% between submaps and verifies loop closures. Consistent improvements in
+% localization accuracy + strong rendering quality on indoor benchmarks; a
+% strong baseline for uncalibrated Gaussian SLAM. Monocular RGB only.
+@article{han2026vggtgsslam,
+  title     = {{VGGT-GS SLAM}: Uncalibrated Monocular {Gaussian} Splatting
+               {SLAM} with Feed-Forward Priors},
+  author    = {Han, Yuhang and Wang, Hao and Cao, Jiaxi and Liu, Xingyu},
+  year      = {2026},
+  eprint    = {2609.19628},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url       = {https://arxiv.org/abs/2609.19628},
+  doi       = {10.48550/arXiv.2609.19628}
+}
+
+% Stipple — real-time incremental 3DGS with visual-inertial tracking. VIO
+% frontend based on Basalt feeds an incremental 3DGS backend built on Brush
+% (Rust, GPU-vendor-agnostic). Substitutes 3DGS's heavy preprocessing with
+% an incremental training strategy driven by the VI tracker, plus several
+% efficiency improvements to keep training real-time alongside tracking.
+% Directly relevant: a VI-driven, real-time, incremental Gaussian mapping
+% pipeline of the same family as Gaussian-LIC2. Monocular + IMU.
+@article{northoff2026stipple,
+  title     = {{Stipple}: Real-Time Incremental {Gaussian} Splatting with
+               Visual-Inertial Tracking},
+  author    = {Northoff, Kilian and de Mayo, Mateo and Cremers, Daniel},
+  year      = {2026},
+  eprint    = {2608.00931},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2608.00931},
+  doi       = {10.48550/arXiv.2608.00931}
+}
+
+% GLAM-SLAM — decoupled real-time large-scale outdoor Gaussian-Splatting
+% SLAM. Robust feature-based SLAM frontend + structured sparse anchor-grid
+% mapping representation. Geometry-based flow-densification anchoring
+% strategy and scene partitioning with MLP initializations to generate
+% localized Gaussians. 15% reconstruction-quality improvement on KITTI,
+% Oxford RobotCar, Malaga while maintaining real-time scaling. Addresses
+% the long-sequence GPU-memory / real-time scaling problem. Monocular.
+@article{mermigkas2026glamslam,
+  title     = {{GLAM-SLAM}: Real-time {Gaussian} Large-scale Mapping via Flow
+               Densification and Spatial Decomposition},
+  author    = {Mermigkas, Panagiotis and Manetas, Argyris and Maragos, Petros},
+  year      = {2026},
+  eprint    = {2607.21416},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2607.21416},
+  doi       = {10.48550/arXiv.2607.21416}
+}
+
+% LXD-SLAM — LiDAR+X Dense SLAM, a versatile unified multi-sensor fusion
+% framework centered on 3D LiDAR with plug-and-play Camera/IMU/Wheel
+% Encoder/GNSS (up to 32 sensor combinations). Mathematically unified
+% Iterative Error-State Kalman Filter with adaptive hierarchical
+% prediction; updates minimize point-to-mesh distances and visual
+% reprojection errors. Environment modeled by continuous multi-layered
+% Gaussian-Process sub-meshes enabling ray-to-mesh depth recovery for
+% visual features. Extended Scan Context descriptor + Bidirectional PnP
+% for robust multi-modal loop closure. Matches/exceeds specialized
+% odometry SOTAs while producing high-fidelity globally consistent dense
+% meshes in real time. LiDAR-centric multi-sensor, no Gaussian splatting.
+@article{wang2026lxdslam,
+  title     = {{LXD-SLAM}: {LiDAR+X} Dense {SLAM} with Configurable Sensor
+               Combinations},
+  author    = {Wang, Zhong and Zhang, Lin and Li, Linfei and Shen, Ying and
+               Zhang, Shaoming and Shi, Pengcheng and Zhao, Shengjie},
+  year      = {2026},
+  eprint    = {2606.27811},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2606.27811},
+  doi       = {10.48550/arXiv.2606.27811}
+}
+
+% Addendum 15 (2026-09-22): three newly surveyed related works.
+
+% RMGS-SLAM — tightly coupled LiDAR-Inertial-Visual 3DGS SLAM for real-time
+% large-scale scenes. State estimation and 3D Gaussian primitive
+% initialization run in parallel with a global Gaussian optimization;
+% cascaded strategy combines feed-forward predictions with voxel-PCA
+% geometric priors to improve initialization quality and accelerate
+% convergence; loop closure performed directly on the optimized global
+% Gaussian map for long-term consistency. Directly overlaps Gaussian-LIC2's
+% LiDAR-inertial-visual real-time photorealistic-mapping niche — a key
+% contemporary baseline to discuss.
+@article{li2026rmgsslam,
+  title     = {{RMGS-SLAM}: Real-time Multi-sensor {Gaussian} Splatting {SLAM}},
+  author    = {Li, Dongen and Liu, Yi and Liu, Junqi and Sun, Zewen and
+               Huang, Zefan and Sun, Shuo and Liu, Jiahui and Yuan, Chengran and
+               Guo, Hongliang and Tay, Francis E. H. and Ang Jr, Marcelo H.},
+  year      = {2026},
+  eprint    = {2604.12942},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2604.12942},
+  doi       = {10.48550/arXiv.2604.12942}
+}
+
+% TRGS-SLAM — 3DGS thermal-inertial SLAM for uncooled microbolometer
+% cameras. Handles motion blur, rolling-shutter, and fixed-pattern noise
+% via a model-aware 3DGS renderer; introduces B-spline trajectory
+% optimization with a two-stage IMU loss, view-diversity-based opacity
+% resetting, and pose-drift correction. The B-spline continuous-time
+% trajectory + IMU formulation is methodologically close to
+% Gaussian-LIC2's continuous-time estimation, making it a relevant
+% comparison despite the different (thermal vs LiDAR/visual) sensor modality.
+@article{carmichael2026trgsslam,
+  title     = {{TRGS-SLAM}: {IMU}-Aided {Gaussian} Splatting {SLAM} for
+               Blurry, Rolling Shutter, and Noisy Thermal Images},
+  author    = {Carmichael, Spencer and Skinner, Katherine A.},
+  year      = {2026},
+  eprint    = {2603.20443},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2603.20443},
+  doi       = {10.48550/arXiv.2603.20443}
+}
+
+% Cube-Splat — first panoramic GS-SLAM; factorizes each 360° frame into a
+% cubemap of four fixed-orientation virtual pinhole views sharing a single
+% optical center, with the front face as the primary pose state and an
+% adjoint-consistent optimization that lets all faces coherently update one
+% state while preserving cross-view geometric consistency. Mapping module
+% densifies anisotropic Gaussians from aggregated cubemap rays. Released
+% with SynPano, a synthetic panoramic SLAM benchmark. Extends GS-SLAM to a
+% new (panoramic) sensor modality; tangential to Gaussian-LIC2's
+% LiDAR/visual-inertial focus but a current GS-SLAM frontier worth noting.
+@article{guo2026cubesplat,
+  title     = {{Cube-Splat}: High-Fidelity 360{\deg} {Gaussian} Splatting
+               {SLAM} via Cubemap Factorization and
+               Adjoint-Consistent Optimization},
+  author    = {Guo, Xiangfei and Shi, Hao and Zhang, Yufan and Yi, Zhonghua and
+               Mao, Yongqi and Yin, Xiaoting and Wang, Kaiwei},
+  year      = {2026},
+  eprint    = {2609.21347},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url       = {https://arxiv.org/abs/2609.21347},
+  doi       = {10.48550/arXiv.2609.21347}
+}
+
+% Dynamic-LIVO — dynamic-aware LiDAR-Inertial-Visual Odometry using
+% spatio-temporal (S-T) normal analysis to identify and reject dynamic
+% LiDAR points, propagating the classification into both the LiDAR-inertial
+% and visual-inertial updates. Introduces a time-delayed S-T normal
+% estimation that defers classification of insufficiently constrained
+% (newly observed, spatially sparse) points and re-evaluates them as more
+% observations arrive, preserving valid static points. Directly relevant to
+% Gaussian-LIC2: it is a FAST-LIVO2-lineage LIVO system that hardens state
+% estimation and static colored mapping against dynamic outliers — the same
+% dynamic-environment robustness gap that a LiDAR-visual-inertial 3DGS SLAM
+% like Gaussian-LIC2 must close before feeding clean static primitives to
+% the Gaussian map. Source code + self-collected dataset to be released.
+@article{zhang2026dynamiclivo,
+  title     = {{Dynamic-LIVO}: A Dynamic-Aware {LiDAR-Inertial-Visual}
+               Odometry System Using Spatio-Temporal Normals},
+  author    = {Zhang, Zhixin and Ahiwe, Samuel and Hale, Matthew and
+               Zhao, Liang and Ladosz, Pawel},
+  year      = {2026},
+  eprint    = {2609.19336},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2609.19336},
+  doi       = {10.48550/arXiv.2609.19336}
+}
+
+% AWM-3DFM (Adaptive World Memory 3D Foundation Model) — a memory-centric
+% 3D foundation model for scalable robotic localization, dense
+% reconstruction, and Gaussian rendering. Core is a dual-stage adaptive
+% world memory: (1) gated recurrent spatial states for learned memory
+% propagation, (2) test-time temporal-spatial regulation calibrating
+% token-wise update/preservation/forgetting. Organizes memory into local
+% submaps with progressive mapping/tracking, loop closure, and SL(4)-based
+% global refinement; a Gaussian reconstruction head decodes the shared
+% memory into renderable Gaussian primitives, unifying pose estimation,
+% dense point-cloud reconstruction, and photorealistic rendering in one
+% model — without the accurate pose init / depth input / per-scene
+% optimization that conventional 3DGS-SLAM requires. Relevant to
+% Gaussian-LIC2 as a contemporary alternative paradigm: foundation-model-
+% driven (DUSt3R/MASt3R/VGGT lineage) Gaussian SLAM that replaces explicit
+% multi-sensor factor-graph estimation with learned adaptive memory +
+% submap loop closure, a direction Gaussian-LIC2's classical
+% LiDAR-visual-inertial CT estimation does not take but should cite as the
+% emerging learned-SLAM frontier.
+@article{deng2026awm3dfm,
+  title     = {Adaptive World Memory {3D} Foundation Model for Scalable {3D}
+               Mapping, Localization, and Rendering},
+  author    = {Deng, Tianchen and Shen, Guole and Shen, Yilin and Wu, Wenhua
+               and Fang, Yilin and Ma, Ziqi and Zhang, Tianjun and
+               Yuan, Shenghai and Burgard, Wolfram and Wang, Hesheng},
+  year      = {2026},
+  eprint    = {2609.21502},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url       = {https://arxiv.org/abs/2609.21502},
+  doi       = {10.48550/arXiv.2609.21502}
+}
+
+% PointSLAM++ — robust dense neural Gaussian point-cloud SLAM (AAAI 2026).
+% RGB-D system using a hierarchically constrained neural Gaussian
+% representation (two-tier primary/secondary anchors; ORB-feature point
+% cloud fused with depth into neural-Gaussian anchors decoded by an MLP)
+% plus progressive pose optimization (GICP + ORB reprojection in a
+% multi-scale pyramid, with global-feature relocalization on tracking
+% loss) and a dynamic neural representation graph that adapts Gaussian
+% node density to local geometric complexity. Embeds camera-view vectors
+% into anchor appearance for view-dependent lighting compensation.
+% Outperforms 3DGS-SLAM baselines (MonoGS, GS-ICP SLAM) in reconstruction
+% accuracy and rendering quality on Replica/TUM/ScanNet++. Relevant to
+% Gaussian-LIC2 as a current RGB-D 3DGS-SLAM SOTA that replaces the pure
+% differentiable-rendering tracking of MonoGS-style systems with a hybrid
+% GICP+ORB progressive pose optimizer — a tracking design choice
+% Gaussian-LIC2 (which offloads tracking to a FAST-LIVO2 LIVO frontend)
+% sidesteps, but which matters for the visual-only / RGB-D comparison
+% column and for the anchor-based Gaussian representation discussion.
+@inproceedings{wang2026pointslam2,
+  title     = {{PointSLAM++}: Robust Dense Neural {Gaussian} Point
+               Cloud-based {SLAM}},
+  author    = {Wang, Xu and Han, Boyao and Chen, Xiaojun and Liu, Ying and
+               Li, Ruihui},
+  booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
+  year      = {2026},
+  eprint    = {2601.11617},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url       = {https://arxiv.org/abs/2601.11617},
+  doi       = {10.48550/arXiv.2601.11617}
+}
+
+% GauS-SLAM — dense RGB-D SLAM with 2D Gaussian surfels (RA-L 2026).
+% Identifies that Gaussian-based tracking suffers geometry distortion under
+% novel viewpoints from (a) the center-depth model of 3D Gaussians and
+% (b) mutual interference between surfaces during depth blending. Proposes
+% a 2D-Gaussian-surfel incremental reconstruction with a Surface-aware
+% Depth Rendering mechanism (unbiased intersection depth + depth
+% adjustment + normalization) and a local-map design that dynamically
+% isolates visible surfaces during tracking, keeping tracking efficient as
+% Gaussian density grows. Front-end/back-end architecture with submap-based
+% global optimization. SOTA tracking (0.06 cm ATE on Replica) and rendering
+% (40.25 dB) on Replica/ScanNet/TUM/ScanNet++. Relevant to Gaussian-LIC2:
+% the 2D-surfel + surface-aware depth rendering is a concrete remedy for
+% the geometry-distortion / depth-blending ambiguity that any
+% Gaussian-SLAM tracker faces, and is directly transferable to a
+% LiDAR-visual setting where LiDAR depth can supervise the surface-aware
+% rendering; the local-map-isolation-for-tracking idea parallels
+% Gaussian-LIC2's keyframe-submap structure.
+@article{su2026gauslam,
+  title     = {{GauS-SLAM}: Dense {RGB-D} {SLAM} with {Gaussian} Surfels},
+  author    = {Su, Yongxin and Chen, Lin and Zhang, Kaiting and Zhao,
+               Zhongliang and Hou, Chenfeng and Yu, Ziping},
+  journal   = {IEEE Robotics and Automation Letters},
+  year      = {2026},
+  eprint    = {2505.01934},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url       = {https://arxiv.org/abs/2505.01934},
+  doi       = {10.48550/arXiv.2505.01934}
+}
+
+% Addendum 17 (2026-09-24): two newly surveyed related works.
+
+% Dual Covariance GS-SLAM — ICP-based 3DGS SLAM that decouples the single
+% shared Gaussian covariance into a rendering covariance (mapper-optimized
+% for photometric error) and a tracking covariance (derived from an RGB-D
+% sensor noise model via the structured-light range law), sharing one mean.
+% Tracking covariances also serve as KLT anchors for image corners,
+% supplying the tangent-plane constraint that depth lacks in
+% structure-less scenes. ~60 FPS on TUM/ScanNet/Replica + two outdoor
+% RealSense D435i sequences (wheeled + handheld), lowest drift among
+% evaluated 3DGS-based methods. Directly relevant to Gaussian-LIC2: the
+% render/track covariance decoupling is a principled fix for the
+% ill-conditioning that GS-ICP-style trackers (which Gaussian-LIC2's
+% LiDAR-initialized Gaussians could in principle be aligned with) suffer
+% when the mapper flattens covariances against surfaces; the
+% sensor-noise-derived tracking covariance is a recipe for encoding actual
+% LiDAR/depth measurement uncertainty into the registration, and the KLT
+% anchor idea is a visual complement to LiDAR-ICP constraints in
+% geometrically degenerate scenes. Cite in the tracking-uncertainty /
+% observability discussion and the ICP-based 3DGS-SLAM comparison.
+@article{tan2026dualcovgsslam,
+  title     = {{Dual Covariance Gaussian Splatting SLAM}: Decoupling
+               Rendering and Registration for Robust Real-Time Tracking},
+  author    = {Tan, Edward Beng Wai and Lam, Siew-Kei},
+  year      = {2026},
+  eprint    = {2609.25746},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2609.25746},
+  doi       = {10.48550/arXiv.2609.25746}
+}
+
+% ArborSplat — online semantic 3DGS SLAM for orchards. Tracks with
+% LiDAR odometry (scan-to-submap registration; Gaussian map does not feed
+% back into tracking) and optimizes appearance + semantics jointly on the
+% Gaussian map, constrained by class-specific height bands above a
+% RANSAC-fitted ground plane and a multi-view semantic point cloud that
+% rejects labels inconsistent with the local ground surface or monocular
+% depth (fixing thin-structure mislabeling). Class-constrained refinement
+% reserves Gaussian capacity for underrepresented classes (trunk/trellis/
+% fruit). SAM 3 open-vocabulary segmentation. ATE < 0.5 m on all 12
+% orchard traversals; beats SGS-SLAM / GS3LAM by 0.23–0.50 training-view
+% and 0.15–0.36 held-out mIoU at 1.7–7.5× speed; SemGauss-SLAM OOMs.
+% Relevant to Gaussian-LIC2: a contemporary LiDAR-odometry-frontended
+% 3DGS SLAM that decouples tracking from the Gaussian map (as
+% Gaussian-LIC2 does via FAST-LIVO2), demonstrating the
+% decoupled-frontend + Gaussian-mapping design beyond indoor RGB-D and
+% into outdoor unstructured environments; the class-constrained
+% densification is a capacity-allocation idea transferable to
+% Gaussian-LIC2's primitive growth policy when semantic priors are
+% available, and the thin-structure label-gating addresses a real
+% multi-view semantic-fusion failure mode. Cite in the
+% LiDAR-odometry-frontended GS-SLAM family and the semantic/capacity
+% discussion.
+@article{masini2026arborsplat,
+  title     = {{ArborSplat}: Online Semantic {Gaussian} Splatting {SLAM}
+               for Orchards},
+  author    = {Masini, Alessandro and Frosi, Matteo and Usuelli, Mirko and
+               Matteucci, Matteo},
+  year      = {2026},
+  eprint    = {2609.26315},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2609.26315},
+  doi       = {10.48550/arXiv.2609.26315}
+}
+
+% Addendum 18 (2026-09-25) — one newly surveyed related work.
+
+% Wanderland — real-to-sim framework for open-world embodied AI. Uses a
+% handheld multi-sensor 3D scanner (Livox Mid-360 LiDAR + IMU + RTK-GNSS +
+% two sync 4K fisheye RGB) and a LiDAR-inertial-visual (LIV) SLAM pipeline
+% (built on VINS-Mono / GVINS / FAST-LIO2) to produce metric-scale, globally
+% consistent point clouds and camera poses; 3DGS is initialized from the LIV
+% dense colored point cloud (~5M points/scene) and trained with a
+% depth-regularization that projects the initializing Gaussians to each pose
+% to get GT depth (rather than using monocular pseudo-depth). Collision meshes
+% are extracted from the LiDAR point cloud via voxelization + Marching Cubes
+% (not from 3DGS opacity, which is fragmented and metrically ungrounded).
+% Releases a 530-scene / 420K-frame / 3.8M-m² indoor-outdoor urban dataset and
+% shows that image-only video-3DGS pipelines (Vid2Sim, GaussGym) yield
+% non-metric poses, fragmented geometry, and degraded extrapolated views, and
+% that RL navigation training in geometrically unreliable environments can
+% *degrade* rather than improve the policy. CVPR 2026.
+% Relevant to Gaussian-LIC2: a flagship downstream consumer of
+% LiDAR-inertial-visual SLAM + 3DGS that empirically demonstrates why
+% LiDAR-anchored metric geometry is necessary for reliable simulation and
+% view synthesis versus pure-vision 3DGS — directly supporting
+% Gaussian-LIC2's core multi-sensor-fusion + Gaussian-mapping thesis. The
+% LIV-SLAM-as-metric-anchor + point-cloud-initialized + depth-regularized
+% 3DGS pipeline is a non-real-time counterpart to Gaussian-LIC2's real-time
+% tightly-coupled approach; the point-cloud-derived (not opacity-derived)
+% collision mesh is a transferable lesson on geometry sourcing. Cite in the
+% application / downstream-impact discussion and the LIV-SLAM + 3DGS
+% comparison.
+@article{liu2026wanderland,
+  title     = {{Wanderland}: Geometrically Grounded Simulation for
+               Open-World Embodied {AI}},
+  author    = {Liu, Xinhao and Li, Jiaqi and Deng, Youming and Chen, Ruxin
+               and Zhang, Yingjia and Ma, Yifei and Guo, Li and Li, Yiming
+               and Zhang, Jing and Feng, Chen},
+  year      = {2026},
+  eprint    = {2511.20620},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url       = {https://arxiv.org/abs/2511.20620},
+  doi       = {10.48550/arXiv.2511.20620},
+  note      = {CVPR 2026}
+}
+
+% ---------------------------------------------------------------------------
+% Addendum 19 (2026-09-25): Co-LIC2 cooperative-SLAM paper supporting entries
+% ---------------------------------------------------------------------------
+
+% GTSAM — smoothing and mapping library used for pose-graph optimization
+@misc{gtsam,
+  title        = {{GTSAM}: {Georgia} {Tech} {Smoothing} and {Mapping} library},
+  author       = {Dellaert, Frank and Kaess, Michael},
+  howpublished = {\url{https://gtsam.org}},
+  year         = {2024},
+  note         = {Version 4.2; iSAM2 incremental solver}
+}
+
+% ---------------------------------------------------------------------------
+% Addendum 20 (2026-09-26): four newly surveyed related works
+% ---------------------------------------------------------------------------
+
+% G-solver (Ceriola et al., RA-L Aug 2026) — fully Gaussian distributed
+% continuous-time SLAM combining Gaussian Belief Propagation with Gaussian
+% Process motion priors. Directly relevant to Gaussian-LIC2's
+% continuous-time trajectory formulation: an alternative to spline-based
+% CT-SLAM that trades B-spline knots for a GP prior with data-driven
+% hyperparameters, and uses GBP for decentralized/incremental solves
+% instead of centralized NLLS. Open-source: github.com/rvp-group/gsolver.
+% Relevant to Gaussian-LIC2: a contemporary continuous-time SLAM solver
+% that motivates the GP-vs-spline trajectory representation discussion and
+% the distributed/incremental optimization angle.
+@article{ceriola2026gsolver,
+  title     = {Breaking Time: A Fully {Gaussian} Framework for Distributed
+               and Continuous-Time {SLAM}},
+  author    = {Ceriola, Davide and Ferrari, Simone and Di Giammarino, Luca
+               and Brizi, Leonardo and Grisetti, Giorgio},
+  journal   = {IEEE Robotics and Automation Letters},
+  volume    = {11},
+  number    = {8},
+  pages     = {9247--9254},
+  year      = {2026},
+  eprint    = {2606.06250},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2606.06250},
+  doi       = {10.1109/LRA.2026.3703231}
+}
+
+% Pi3MOS-SLAM (Zhong et al., CVPR 2026) — monocular dynamic visual SLAM
+% that integrates a feed-forward reconstruction model (pi^3_mos, extending
+% pi3 with a Moving Object Segmentation head) with patch-based bundle
+% adjustment, using the learned 3D prior to filter dynamic regions and
+% supply a depth prior under uncertainty-aware weighting. Scale alignment
+% via patch BA resolves feed-forward model scale ambiguity. Open-source:
+% github.com/PRBonn/Pi3MOS-SLAM.
+% Relevant to Gaussian-LIC2: a CVPR 2026 vision-only dynamic-scene SLAM
+% that represents the feed-forward-prior + classical-BA hybrid paradigm;
+% Gaussian-LIC2's contribution is the tightly-coupled LIV sensor fusion
+% giving metric scale directly, removing the scale-ambiguity problem
+% Pi3MOS-SLAM must solve online. Cite in the dynamic-scene and
+% learning-prior SLAM discussion.
+@inproceedings{zhong2026pi3mosslam,
+  title     = {Dynamic Visual {SLAM} using a General {3D} Prior},
+  author    = {Zhong, Xingguang and Jin, Liren and Popovi{\'c}, Marija
+               and Behley, Jens and Stachniss, Cyrill},
+  booktitle = {Proceedings of the {IEEE/CVF} Conference on Computer Vision
+               and Pattern Recognition ({CVPR})},
+  year      = {2026},
+  eprint    = {2512.06868},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2512.06868},
+  doi       = {10.48550/arXiv.2512.06868}
+}
+
+% HI-SLAM2 (Zhang et al., IEEE T-RO 2025 / AAAI 2026) — geometry-aware
+% Gaussian SLAM for fast monocular scene reconstruction using RGB only.
+% Hybrid design: learning-based dense SLAM supplies depth as a proxy to
+% initialize and supervise a 3DGS map, with grid-based scale alignment of
+% monocular depth priors, monocular normal priors for surface quality,
+% and keyframe-pose-driven Gaussian deformation for instant loop-closure
+% map updates. Open-source: hi-slam2.github.io.
+% Relevant to Gaussian-LIC2: a strong monocular-only 3DGS-SLAM that
+% matches/surpasses RGB-D methods on Replica/ScanNet/ScanNet++ — the
+% counterpoint to Gaussian-LIC2's multi-sensor approach. Cite in the
+% RGB-only-vs-LIV 3DGS-SLAM comparison; the scale-alignment and
+% normal-prior ideas are transferable.
+@article{zhang2026hislam2,
+  title     = {{HI-SLAM2}: Geometry-Aware {Gaussian} {SLAM} for Fast
+               Monocular Scene Reconstruction},
+  author    = {Zhang, Wei and Cheng, Qing and Skuddis, David and Zeller,
+               Niclas and Cremers, Daniel and Haala, Norbert},
+  journal   = {IEEE Transactions on Robotics},
+  volume    = {41},
+  pages     = {6478--6493},
+  year      = {2025},
+  eprint    = {2411.17982},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2411.17982},
+  doi       = {10.1109/TRO.2025.3626627},
+  note      = {Also presented at AAAI 2026}
+}
+
+% M3 (Ren et al., arXiv Mar 2026) — streaming monocular Gaussian Splatting
+% SLAM coupling a multi-view foundation model (Pi3X extended with a dense
+% matching head, MASt3R-style) with a SLAM backend. Single feed-forward
+% inference over keyframes + incoming frame updates geometry and tracking
+% jointly; dynamic-region suppression and cross-inference intrinsic
+% alignment stabilize tracking. Reduces ATE RMSE 64.3% vs VGGT-SLAM 2.0,
+% +2.11 dB PSNR vs ARTDECO on ScanNet++.
+% Relevant to Gaussian-LIC2: a foundation-model-driven monocular GS-SLAM
+% representing the learned-correspondence paradigm; Gaussian-LIC2 provides
+% metric geometry from LiDAR-inertial fusion rather than learned priors.
+% Cite in the foundation-model-SLAM and monocular-vs-multisensor
+% 3DGS-SLAM discussion.
+@misc{ren2026m3,
+  title     = {{M3}: Dense Matching Meets Multi-View Foundation Models for
+               Monocular {Gaussian} Splatting {SLAM}},
+  author    = {Ren, Kerui and Li, Guanghao and Jiang, Changjian and Xu,
+               Yingxiang and Lu, Tao and Xu, Linning and Dong, Junting
+               and Pang, Jiangmiao and Yu, Mulin and Dai, Bo},
+  year      = {2026},
+  eprint    = {2603.16844},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url       = {https://arxiv.org/abs/2603.16844},
+  doi       = {10.48550/arXiv.2603.16844},
+  note      = {Project page: https://city-super.github.io/M3/}
+}
+
+% Addendum 21 (2026-09-27)
+
+% RawSLAM (Orozco González & Merino, arXiv Sep 2026) — the first online
+% Gaussian SLAM framework that tracks and maps directly on single-exposure
+% 16-bit linear HDR imagery. Architecture-agnostic HDR Gaussian Splatting
+% module (MLP-free logarithmic color parameterization + Reinhard
+% range-compressed photometric objective + structure-guided spatial
+% gradient weighting); outperforms a direct HDR adaptation of MonoGS in
+% both trajectory and reconstruction accuracy and transfers seamlessly to
+% SplaTAM, Gaussian SLAM, and DROID-W, eliminating their tracking failures
+% on challenging illumination sequences. Releases a 10-sequence RAW+depth+
+% IMU+OptiTrack dataset.
+% Relevant to Gaussian-LIC2: an HDR/imaging-condition robustness
+% reference for 3DGS-SLAM. Gaussian-LIC2's photometric loss operates on
+% 8-bit tonemapped LDR images and inherits the highlight-clipping /
+% shadow-quantization fragility RawSLAM targets; the log-color
+% parameterization and Reinhard loss are directly transferable to the
+% Gaussian-LIC2 rendering objective to harden it against extreme lighting.
+% Cite in the photometric-objective / robustness discussion.
+@misc{orozco2026rawslam,
+  title     = {{RawSLAM}: Online {HDR} {Gaussian} {SLAM} from Linear Radiance},
+  author    = {Orozco González, Marina and Merino, Luis},
+  year      = {2026},
+  eprint    = {2609.20589},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url       = {https://arxiv.org/abs/2609.20589},
+  doi       = {10.48550/arXiv.2609.20589},
+  note      = {Code and dataset to be released}
+}
+
+% Mono3DGS-SLAM (Wan, Wang, Xu, Gao, Wang; Appl. Sci. Sep 2026) — a
+% reliability-guided monocular Gaussian–TSDF reconstruction system.
+% Deterministic reliability gates select admissible observations; one
+% frozen scale jointly transports predicted depth, camera translation,
+% and length-valued mapping parameters into an internally consistent
+% canonical (non-metric) coordinate; a confidence-weighted colorized TSDF
+% stores the persistent surface while a capacity-bounded Gaussian layer
+% restores appearance detail over the fused surface. On Replica records
+% 0.249 cm mean ATE; full pipeline uses future observations (not
+% online/real-time). Hybrid Gaussian–SDF design adapted from GPS-SLAM.
+% Relevant to Gaussian-LIC2: a monocular-only hybrid Gaussian–SDF
+% counterpart that must solve online the scale ambiguity and reliability
+% gating that Gaussian-LIC2 sidesteps via LiDAR-inertial metric fusion.
+% The reliability-gated observation and canonical-dimensional-transport
+% ideas are transferable framings for any learned-prior front end.
+% Cite in the monocular-vs-multisensor and hybrid-geometry-representation
+% discussion.
+@article{wan2026mono3dgssslam,
+  title     = {{Mono3DGS-SLAM}: Reliability-Aware Geometric Canonicalization
+               for Monocular {Gaussian}--{TSDF} Reconstruction},
+  author    = {Wan, Yingcai and Wang, Baoyu and Xu, Jiqian and Gao, Yue and
+               Wang, Huaizhen},
+  journal   = {Applied Sciences},
+  volume    = {16},
+  number    = {19},
+  pages     = {9413},
+  year      = {2026},
+  doi       = {10.3390/app16199413},
+  url       = {https://www.mdpi.com/2076-3417/16/19/9413},
+  note      = {Special Issue Advances in Computer Vision and Digital Image
+               Processing}
+}
+
+% "Why does Deep Learning Improve Visual SLAM?" (Cioffi & Scaramuzza,
+% arXiv Jul 2026, v2 Sep 2026) — a controlled empirical study isolating
+% which components of DL-based V-SLAM drive its performance. Replaces
+% ORB-SLAM3's handcrafted descriptor matching with DROID-SLAM's learned
+% optical flow (ORB-SLAM3-OF) and adds learned uncertainty weighting
+% (ORB-SLAM3-OF-U). Finding: the success of DL-based V-SLAM hinges on
+% learned 2D data association and uncertainty, NOT the recurrent
+% architecture; a classical feed-forward system so equipped rivals
+% DROID-SLAM/DPVO/DPV-SLAM on TartanAir and outperforms them on
+% UZH-FPV. Open-source: github.com/uzh-rpg/why_does_deep_learning_improve_visual_slam.
+% Relevant to Gaussian-LIC2: a clarifying reference for the
+% learned-frontend-vs-classical-geometry design axis. Gaussian-LIC2's
+% frontend is classical geometric (LiDAR/visual/inertial factor graph),
+% and this work empirically supports the thesis that learned
+% correspondence + uncertainty — not recurrence — is what makes modern
+% learned V-SLAM robust; it frames where a learned visual frontend could
+% augment (not replace) the LIV fusion backend.
+% Cite in the learned-vs-geometric frontend and visual-frontend-design
+% discussion.
+@misc{cioffi2026whydl,
+  title     = {Why does Deep Learning Improve Visual {SLAM}?},
+  author    = {Cioffi, Giovanni and Scaramuzza, Davide},
+  year      = {2026},
+  eprint    = {2607.06023},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url       = {https://arxiv.org/abs/2607.06023},
+  doi       = {10.48550/arXiv.2607.06023},
+  note      = {Code: https://github.com/uzh-rpg/why_does_deep_learning_improve_visual_slam}
+}

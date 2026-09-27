@@ -1,0 +1,40 @@
+% ============================================
+% Appendix A: Submap Binary Format
+% ============================================
+\label{app:submap}
+
+A submap is serialized as a CBOR header followed by a Gaussian blob. The
+header carries:
+
+\begin{itemize}
+  \item \texttt{submap\_id}: \texttt{u64} = $(\text{node\_id} \ll 32) \,|\, \text{seq}$
+  \item \texttt{node\_id}: \texttt{u16}
+  \item \texttt{seq}: \texttt{u32}
+  \item \texttt{bbox\_w\_min}, \texttt{bbox\_w\_max}: $3 \times \texttt{f64}$, bounding box in $W_i$
+  \item \texttt{pose\_w\_b}: $7 \times \texttt{f64}$ (quaternion + translation) of the body at submap close, in $W_i$
+  \item \texttt{n\_gaussians}: \texttt{u32}
+  \item \texttt{version}: \texttt{u8}
+  \item \texttt{crc32}: \texttt{u32} over the Gaussian blob
+\end{itemize}
+
+The Gaussian blob is a structure-of-arrays, all arrays length
+\texttt{n\_gaussians}, entropy-coded with zstd:
+
+\begin{itemize}
+  \item \texttt{mean}: $3 \times \texttt{f16}$ per Gaussian, quantized to
+    \texttt{quantize\_cm} in the submap local frame (origin at
+    \texttt{bbox\_w\_min}).
+  \item \texttt{scale\_log}: $3 \times \texttt{f16}$ per Gaussian.
+  \item \texttt{rotation}: $4 \times \texttt{f16}$ per Gaussian (quaternion).
+  \item \texttt{opacity\_logit}: $1 \times \texttt{f16}$ per Gaussian.
+  \item \texttt{sh\_coef}: $k \times \texttt{f16}$ per Gaussian, where $k$
+    depends on the SH degree cap ($k = 3, 8, 15$ for degrees $0,1,2$).
+  \item \texttt{semantic\_id}: $1 \times \texttt{u8}$ per Gaussian (optional;
+    omitted if the node has no semantic segmenter).
+\end{itemize}
+
+The header is encoded with \texttt{tinycbor}; the Gaussian blob is a raw
+byte array compressed with zstd at the level chosen by the budget controller.
+On receipt, the receiver verifies the CRC32, decompresses, and applies the
+aligning transform $T_{W_h \leftarrow W_j}$ from
+Section~\ref{sec:registration} to the means and rotations before merging.

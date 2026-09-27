@@ -1,0 +1,25 @@
+% ============================================
+% Section: Conclusion
+% ============================================
+\label{sec:conclusion}
+
+We presented Co-LIC2, a cooperative SLAM system that extends single-platform
+LiDAR-Inertial-Visual Gaussian Splatting SLAM to a team of communicating
+moving platforms. The system generalizes the continuous-time multi-sensor
+fusion front-end of Coco-LIC and Gaussian-LIC2 to an arbitrary number of
+cameras and LiDARs per node, introduces a hierarchical hybrid communication
+architecture with cluster-head election and a bandwidth-aware submap
+publication protocol, and reconciles per-node Gaussian maps into a globally
+consistent photo-realistic map through Gaussian-to-Gaussian ICP registration,
+ownership-tagged confidence-weighted merging, and robust pose-graph
+optimization. A failure-mode analysis shows the system degrades gracefully to
+single-node Gaussian-LIC2 under total partition, and a bandwidth model
+demonstrates sub-linear per-link load growth with node count.
+
+The design is fully specified in a companion design document, and the
+implementation reuses the open-source Gaussian-LIC2 code base, preserving
+single-node behavior when the cooperative layer is disabled. An empirical
+evaluation on physical multi-rig hardware is the subject of ongoing work; this
+report fixes the system model and algorithms against which those results will
+be read. We believe Co-LIC2 is a concrete step toward practical cooperative
+photo-realistic mapping with heterogeneous multi-sensor teams.

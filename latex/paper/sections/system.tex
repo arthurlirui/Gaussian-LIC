@@ -1,0 +1,152 @@
+% ============================================
+% Section: System Model
+% ============================================
+\label{sec:system}
+
+Co-LIC2 consists of $N$ \emph{nodes} cooperating over a wireless network. Each
+node is a moving platform that runs a generalized Gaussian-LIC2 pipeline
+locally and exchanges compressed submaps with peers. This section formalizes
+the node model, the per-node multi-sensor fusion, the network topology, and the
+overall architecture.
+
+\subsection{Node Model}
+\label{sec:node}
+
+A node $i$ carries:
+\begin{itemize}
+  \item $N_c^{(i)} \geq 1$ cameras with partially overlapping fields of view;
+  \item $N_l^{(i)} \geq 1$ LiDARs of possibly different types (mechanical
+    spinning, solid-state, MEMS);
+  \item one or more IMUs, fused into a single virtual body-frame IMU;
+  \item an onboard edge GPU (e.g., Jetson Orin, RTX 4090);
+  \item a wireless interface (Wi-Fi 6/6E, 5G NR, or ad-hoc mesh).
+\end{itemize}
+
+Each node defines a \emph{body frame} $B_i$ anchored at its IMU center. Every
+sensor extrinsic is expressed as a rigid transform $T_{B_i \leftarrow S}$ from
+the sensor frame $S$ to $B_i$. The node's trajectory is the pose
+$\Twb^{(i)}(t)$ of $B_i$ in the node's \emph{local world frame} $W_i$,
+initialized at startup. Inter-node alignment is expressed as
+$T_{W_j \leftarrow W_i}$, estimated by the submap registration module
+(Section~\ref{sec:registration}).
+
+\subsection{Node Descriptor}
+\label{sec:descriptor}
+
+Each node advertises a signed, CBOR-encoded \emph{node descriptor} containing
+its sensor count, intrinsics, extrinsics, compute and comm tiers, and a
+public signing key. Descriptors are exchanged on join and verified before any
+data is merged. This enables capability-aware merging (a survey-grade LiDAR
+contributes higher-weight geometry than a toy-drone LiDAR) and prevents
+unauthorized nodes from polluting the map.
+
+\subsection{Per-Node Continuous-Time Fusion}
+\label{sec:ctfusion}
+
+The per-node front-end generalizes Coco-LIC \cite{lang2023coco} and
+Gaussian-LIC2 \cite{lang2026gaussian2} to $N_c$ cameras and $N_l$ LiDARs. The
+state is a non-uniform cubic B-spline over $\SEthree$ representing $\Twb^{(i)}(t)$,
+with control points placed adaptively based on IMU angular and linear
+acceleration magnitude, exactly as in Coco-LIC.
+
+The sliding-window Gauss-Newton solve stacks four residual classes:
+
+\paragraph{IMU residuals.} For each IMU measurement at time $t_k$,
+\begin{equation}
+  \mathbf{r}_{\text{IMU}}(t_k) =
+  \begin{bmatrix}
+    \mathbf{a}_k - \hat{\mathbf{a}}(t_k) \\
+    \boldsymbol{\omega}_k - \hat{\boldsymbol{\omega}}(t_k)
+  \end{bmatrix}_{\Sigma_{\text{IMU}}^{-1}},
+\end{equation}
+where $\hat{\mathbf{a}}(t_k)$ and $\hat{\boldsymbol{\omega}}(t_k)$ are derived
+from the spline's analytical first and second derivatives, as in Coco-LIC.
+
+\paragraph{LiDAR residuals.} For each LiDAR $l \in \{1,\dots,N_l\}$ and each
+point $\mathbf{p}_k^{(l)}$ acquired at time $t_k$, we transform the point into
+$W_i$ using the spline-evaluated pose at $t_k$ and register it against the
+local Gaussian map $\GaussianMap_i$ via a point-to-Gaussian residual:
+\begin{equation}
+  \mathbf{r}_{\text{LiDAR}}^{(l)}(t_k) =
+    \mathbf{n}^\top \bigl( \Twb^{(i)}(t_k)\, T_{B_i \leftarrow L_l}\, \mathbf{p}_k^{(l)} - \boldsymbol{\mu}_* \bigr),
+\end{equation}
+where $\boldsymbol{\mu}_*$ is the closest Gaussian mean in $\GaussianMap_i$
+and $\mathbf{n}$ the local surface normal estimated from the neighboring
+Gaussian covariances. This generalizes Gaussian-LIC2's single-LiDAR
+registration to $N_l$ independent LiDAR streams sharing the same spline.
+
+\paragraph{Camera residuals.} For each camera $c \in \{1,\dots,N_c\}$ and each
+keyframe at exposure mid-time $t_k$, a photometric residual is computed by
+rendering $\GaussianMap_i$ at the spline-evaluated pose and comparing against
+the observed image with an SSIM+L1 combination, exactly as in Gaussian-LIC2.
+
+\paragraph{Time-offset residuals.} Each sensor pair has an unknown time offset
+$\Delta t$ estimated jointly with the spline, using Coco-LIC's online
+formulation. With $N_c$ cameras and $N_l$ LiDARs there are
+$N_c + N_l$ offsets relative to the IMU, all estimated in the same solve.
+
+All residuals are weighted by their information matrices and solved in a
+sliding window with the B-spline motion prior, yielding the per-node trajectory
+and a locally photo-realistic Gaussian map $\GaussianMap_i$.
+
+\subsection{Network Topology: Hierarchical Hybrid}
+\label{sec:topology}
+
+We adopt a \emph{hierarchical hybrid} topology with three logical tiers
+(Figure~\ref{fig:topology}):
+
+\begin{itemize}
+  \item \textbf{Tier-0 (optional): an edge fusion server.} A fixed or
+    vehicle-mounted workstation that performs global map fusion, cross-cluster
+    loop-closure search, and provides a ground-truth anchor. Absent in ad-hoc
+    deployments; the system degrades to Tier-1 P2P.
+  \item \textbf{Tier-1: cluster heads.} Nodes self-elect cluster heads by a
+    deterministic score combining compute tier and link quality. A cluster head
+    merges submaps from its members, talks P2P to other heads, and uplinks to
+    the Tier-0 server if present.
+  \item \textbf{Tier-2: cluster members.} Plain nodes that run local
+    Gaussian-LIC2 odometry and publish compressed submaps to their head.
+\end{itemize}
+
+\begin{figure}[t]
+  \centering
+  \resizebox{\columnwidth}{!}{\input{figures/topology.tex}}
+  \caption{Hierarchical hybrid topology. An optional Tier-0 edge server fuses
+  cross-cluster submaps; cluster heads (Tier-1) merge their members' submaps and
+  talk P2P; cluster members (Tier-2) run local Gaussian-LIC2 and publish
+  submaps. On server loss the system degrades to Tier-1 P2P; on head loss,
+  members re-elect.}
+  \label{fig:topology}
+\end{figure}
+
+\paragraph{Cluster-head election.} Each node computes a score
+\begin{equation}
+  \text{score}(i) = w_c \cdot \text{compute\_tier}(i) + w_q \cdot \sqrt{\text{link\_quality}(i)} + w_s \cdot N_s^{(i)},
+\end{equation}
+where $N_s^{(i)} = N_c^{(i)} + N_l^{(i)}$ is the total sensor count, and
+$w_c, w_q, w_s$ are weights (defaults $w_c = 0.5, w_q = 0.4, w_s = 0.05$). The
+highest-scoring node in a 2-hop neighborhood becomes head; ties are broken by
+$\text{node\_id}$. Re-election triggers on heartbeat timeout (default $3$~s).
+
+\subsection{Software Architecture}
+\label{sec:software}
+
+Each node runs a ROS~2 / DDS component graph. The local pipeline is
+Gaussian-LIC2 with new cooperative components: a \emph{submap extractor} that
+carves a spatial sub-volume of Gaussians, a \emph{submap compressor} with a
+budget controller, a \emph{communication layer} (DDS with gRPC fallback), a
+\emph{map merger} that aligns and reconciles incoming submaps, a
+\emph{loop-closure agent}, and a \emph{coordinator} that handles discovery and
+election. Module responsibilities and reuse from Gaussian-LIC2 are tabulated in
+the companion design document.
+
+\begin{figure}[t]
+  \centering
+  \resizebox{\columnwidth}{!}{\input{figures/dataflow.tex}}
+  \caption{Per-node data flow. Sensor drivers feed the CT fusion front-end,
+  which produces a trajectory and updates the local Gaussian map. The submap
+  extractor compresses a spatial slice and publishes it; incoming submaps are
+  merged back into the local map; loop-closure constraints feed a pose graph
+  that broadcasts corrections.}
+  \label{fig:dataflow}
+\end{figure}

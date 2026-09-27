@@ -1,0 +1,160 @@
+% ============================================
+% Section: Communication and Data Sharing
+% ============================================
+\label{sec:communication}
+
+The communication layer is the heart of the cooperative system: it must move
+photo-realistic Gaussian maps between nodes over bandwidth-limited wireless
+links, stay consistent under packet loss and intermittent connectivity, and
+scale to many nodes without saturating any single link. This section specifies
+the transport, message catalogue, connection lifecycle, submap format, and
+bandwidth model.
+
+\subsection{Transport}
+\label{sec:transport}
+
+The default middleware is \textbf{DDS / ROS 2}, chosen for zero-copy
+intra-host transport, configurable QoS, and multicast-based discovery. Where
+DDS multicast is blocked (e.g., across subnets), the layer falls back to
+\textbf{gRPC} over TCP. Control messages use CBOR encoding; submap payloads use
+a custom binary format described in Section~\ref{sec:submap-format} and
+Appendix~\ref{app:submap}.
+
+Three QoS profiles are defined:
+\begin{itemize}
+  \item \emph{Control} (reliable, keep-last 10): HELLO, ELECTION, LEAVE.
+  \item \emph{Submap} (best-effort, keep-last 1): a stale submap is useless, so
+    we drop rather than queue.
+  \item \emph{Trajectory} (reliable, keep-last 1): pose stream must arrive in
+    order, but only the latest matters.
+\end{itemize}
+
+\subsection{Message Catalogue}
+\label{sec:messages}
+
+Table~\ref{tab:messages} lists the message types, their direction, frequency,
+payload, and reliability. The catalogue is intentionally small: every message
+has a clear owner and a single responsibility, which simplifies correctness
+reasoning.
+
+\begin{table}[t]
+  \centering
+  \caption{Communication message catalogue.}
+  \label{tab:messages}
+  \small
+  \begin{tabular}{lllll}
+    \toprule
+    Type & Direction & Freq. & Payload & Rel. \\
+    \midrule
+    HELLO        & node$\to$net   & on join   & NodeDescriptor    & rel. \\
+    HEARTBEAT    & node$\to$net   & 5 Hz      & id, pose, health  & BE   \\
+    POSE\_STREAM & node$\to$head  & 20 Hz     & spline knots      & rel. \\
+    SUBMAP\_PUSH & node$\to$head  & on close  & compressed submap & BE   \\
+    SUBMAP\_PULL & head$\to$node  & on demand & bbox query        & rel. \\
+    CONSTRAINT   & any$\to$any    & on loop   & SE3 + info        & rel. \\
+    MAP\_DELTA   & head$\to$node  & 1 Hz      & merged deltas     & BE   \\
+    ELECTION     & node$\to$net   & timeout   & candidate score   & rel. \\
+    LEAVE        & node$\to$net   & on exit   & id                & rel. \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Connection Lifecycle}
+\label{sec:lifecycle}
+
+\paragraph{Join.} A new node broadcasts HELLO with its signed descriptor.
+Existing nodes reply with their descriptors; the cluster head replies with the
+current cluster map digest and its $\text{node\_id}$.
+
+\paragraph{Calibration handshake.} If the new node's local world frame $W_i$
+is unaligned with the head's $W_h$, the head sends an initial prior
+$T_{W_h \leftarrow W_i}$ derived from a coarse GNSS / WiFi-RSSI / extrinsic
+prior, refined after the first submap exchange (Section~\ref{sec:registration}).
+
+\paragraph{Steady state.} The node streams POSE\_STREAM at 20~Hz and publishes
+SUBMAP\_PUSH on submap boundaries---every $S_{\text{sub}}$ meters of travel or
+$T_{\text{sub}}$ seconds, whichever comes first (defaults $S_{\text{sub}}=5$~m,
+$T_{\text{sub}}=3$~s).
+
+\paragraph{Link loss.} A node that loses the head for more than $3$~s enters
+\emph{autonomous mode}: it continues local Gaussian-LIC2, buffers submaps
+locally, and re-broadcasts HELLO every $1$~s. On reconnect, buffered submaps
+are flushed in chronological order. This satisfies the robustness goal: map
+quality stays within 5\% of the connected baseline after a 30~s outage.
+
+\paragraph{Leave / eviction.} LEAVE marks the departing node's submaps as
+``owned-but-absent''; they are kept for $T_{\text{keep}}=60$~s then garbage
+collected unless referenced by a loop constraint.
+
+\subsection{Submap Format}
+\label{sec:submap-format}
+
+A \emph{submap} is the unit of inter-node data sharing: a spatially bounded
+subset of a node's Gaussian map, exported on a submap boundary. It consists of
+a CBOR header carrying the submap id, owning node id, bounding box in $W_i$,
+the body pose at submap close, and a CRC32, followed by a structure-of-arrays
+Gaussian blob with means (f16, quantized to 1~cm in the submap local frame),
+log-scales, quaternion rotations, logit opacities, spherical harmonics
+coefficients (degree-capped), and optional semantic ids. The full binary
+layout is given in Appendix~\ref{app:submap}.
+
+\subsection{Compression and Budget Control}
+\label{sec:compression}
+
+The compressor exposes four knobs: SH degree (0--3), opacity prune threshold
+(0.005--0.05), spatial quantization (1--5~cm), and entropy coding (zstd level
+1--9). A \emph{budget controller} monitors a moving average of uplink
+throughput and picks the tightest combination that fits the per-node budget
+$B_{\text{budget}}$ for the current submap.
+
+\begin{table}[t]
+  \centering
+  \caption{Compression knobs and their effect.}
+  \label{tab:knobs}
+  \small
+  \begin{tabular}{lll}
+    \toprule
+    Knob & Range & Effect \\
+    \midrule
+    SH degree        & 0--3      & halves bytes/Gaussian per degree step \\
+    Opacity prune    & 0.005--0.05 & drops 1--5\% of Gaussians, $\approx$lossless \\
+    Spatial quant.   & 1--5 cm   & mean quantization error budget \\
+    Entropy coding   & zstd 1--9 & 2--4$\times$ on top of above \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+On a 20~Mbps Wi-Fi~6 link, a 5~m-travel submap with $\sim$50k Gaussians
+compresses to $\approx$3~MB at SH degree 2, 2~cm quantization, zstd-5, i.e.
+$\approx$1.2~s at budget---consistent with the real-time target.
+
+\subsection{Bandwidth Model}
+\label{sec:bandwidth}
+
+Let $N$ be the number of nodes, $g$ the per-submap Gaussian count, and $f_s$
+the submap publication rate. Per-node uplink is
+\begin{equation}
+  B_{\text{up}} = f_s \cdot \text{sizeof}(\text{compressed\_submap}(g)) \approx f_s \cdot g \cdot 24~\text{B},
+\end{equation}
+where 24~B is the compressed per-Gaussian cost at SH degree 2. A cluster head's
+downlink load is $(N-1) \cdot B_{\text{up}}$. For $N=8$, $g=50$k, $f_s=0.33$~Hz,
+the head sees $\approx$3.2~MB/s $\approx$26~Mbps. The head therefore requires a
+Wi-Fi~6 or 5G link, while member uplinks fit a 20~Mbps channel. Crucially,
+because the number of cluster heads grows as $\mathcal{O}(\sqrt{N})$ rather
+than $\mathcal{O}(N)$, total system bandwidth grows sub-linearly in $N$, which
+satisfies the scalability goal.
+
+\subsection{Communication Sequence}
+\label{sec:sequence}
+
+Figure~\ref{fig:sequence} illustrates the message exchange for a typical
+join--publish--merge--loop cycle.
+
+\begin{figure}[t]
+  \centering
+  \resizebox{\columnwidth}{!}{\input{figures/sequence.tex}}
+  \caption{Communication sequence: a new node joins, publishes submaps, the
+  head merges and emits map deltas, a loop closure generates a constraint, and
+  the pose-graph optimization broadcasts corrections.}
+  \label{fig:sequence}
+\end{figure}

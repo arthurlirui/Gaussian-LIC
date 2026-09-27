@@ -1,0 +1,66 @@
+% ============================================
+% Section: Introduction
+% ============================================
+Photo-realistic 3D mapping of large or complex environments from a single
+moving platform has matured rapidly. Systems such as Gaussian-LIC2
+\cite{lang2026gaussian2} couple continuous-time LiDAR-Inertial-Visual (LIV)
+odometry with 3D Gaussian Splatting (3DGS) \cite{kerbl20233dgs} to estimate an
+accurate trajectory and construct a photo-realistic Gaussian map in real time.
+A single platform, however, is fundamentally limited: it covers ground slowly,
+cannot observe occluded regions from behind, and offers no redundancy against
+sensor failure. Many realistic deployment scenarios---large-scale urban
+surveying, multi-robot disaster response, autonomous warehouse fleets---require
+\emph{multiple cooperative platforms} that share observations and maintain a
+\emph{single} shared scene model.
+
+Extending a single-platform LIV Gaussian SLAM system to a cooperative multi-node
+setting raises three intertwined challenges that, to our knowledge, no prior
+work addresses jointly:
+
+\begin{enumerate}
+  \item \textbf{Multi-sensor fusion at each node.} Real cooperative teams are
+    heterogeneous: a survey vehicle may carry one LiDAR and one camera, while a
+    drone may carry two cameras and a solid-state LiDAR. A unified fusion
+    front-end must ingest an arbitrary number of cameras and LiDARs against a
+    single continuous-time trajectory, with online estimation of every
+    inter-sensor time offset.
+  \item \textbf{Bandwidth-constrained data sharing.} A 3DGS map with
+    $\sim$10\textsuperscript{6} Gaussians is far too large to stream raw over
+    wireless links. Nodes must exchange compact, spatially bounded units and
+    reconcile them into a consistent global map.
+  \item \textbf{Global consistency under intermittent connectivity.} Links drop,
+    nodes join and leave, and clocks drift. The system must produce a globally
+    aligned photo-realistic map despite these disturbances, and degrade
+    gracefully to single-node operation when peers disappear.
+\end{enumerate}
+
+\paragraph{Contributions.} We make the following contributions:
+
+\begin{itemize}
+  \item A \emph{generalized continuous-time multi-camera, multi-LiDAR, multi-IMU
+    fusion front-end} (Section~\ref{sec:system}) that extends Coco-LIC
+    \cite{lang2023coco} and Gaussian-LIC2 to $N_c$ cameras and $N_l$ LiDARs per
+    node, with online time-offset estimation across all sensor pairs.
+  \item A \emph{hierarchical hybrid communication architecture}
+    (Section~\ref{sec:communication}) with cluster-head election, a submap
+    publication protocol, and a bandwidth budget controller that keeps per-node
+    uplink within a configurable cap while preserving map quality.
+  \item A \emph{cooperative mapping back-end} (Section~\ref{sec:mapping}) that
+    aligns incoming submaps via Gaussian-to-Gaussian ICP with descriptor and
+    feature-based fallbacks, merges ownership-tagged Gaussians with confidence
+    weighting, and maintains global consistency through a robust pose graph.
+  \item A \emph{failure-mode analysis} (Section~\ref{sec:discussion}) covering
+    head loss, link jitter, total partition, clock desync, and Byzantine nodes,
+    with documented detection and recovery responses.
+\end{itemize}
+
+The full system design, including module APIs, configuration parameters, and
+interface contracts, is documented in a companion design document
+(\texttt{latex/design/DESIGN.md}). This report focuses on the system model,
+protocol, and algorithms, and is intended as the basis for an experimental
+evaluation campaign.
+
+\paragraph{Scope.} This is a \emph{system design and algorithm report}. We
+describe the architecture and analyze its expected behavior analytically and
+through a bandwidth model; a full empirical evaluation on physical hardware is
+left for future work (Section~\ref{sec:discussion}).

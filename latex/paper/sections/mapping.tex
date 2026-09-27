@@ -1,0 +1,147 @@
+% ============================================
+% Section: Cooperative Mapping
+% ============================================
+\label{sec:mapping}
+
+Each node maintains a local 3DGS map $\GaussianMap_i$ built by the per-node
+front-end (Section~\ref{sec:ctfusion}). The cooperative back-end reconciles
+these local maps into a globally consistent photo-realistic map through four
+mechanisms: submap registration, Gaussian merge, pose-graph optimization, and
+loop closure.
+
+\subsection{Local Map and Ownership}
+\label{sec:local}
+
+The local map is identical to Gaussian-LIC2's: a 3DGS map densified by a
+zero-shot depth completer for LiDAR-blind areas, supervised by LiDAR geometry
+and camera photometry, with bounded scale and regularization. The only
+addition is that every Gaussian carries an \emph{owner} tag recording the
+$\text{node\_id}$ that created it. Ownership enables per-node pruning (a node
+leaving the network can offer its Gaussians to the head rather than have them
+orphaned) and is the basis for conflict resolution
+(Section~\ref{sec:conflict}).
+
+\subsection{Submap Registration}
+\label{sec:registration}
+
+When a head receives a submap $\submap_j$ from node $j$ expressed in $W_j$, it
+must estimate the aligning transform $T_{W_h \leftarrow W_j}$ into the head's
+frame. Three strategies are tried in escalating cost:
+
+\paragraph{(1) Descriptor prior.} If a coarse prior is available (GNSS, prior
+map, or initial handshake), it seeds the next step.
+
+\paragraph{(2) Gaussian-to-Gaussian ICP.} Register the incoming submap's
+Gaussian means against the head's current merged map using point-to-plane ICP,
+where the plane is the local surface normal estimated from the neighboring
+Gaussians' scale covariances. Each correspondence is weighted by the product of
+the two Gaussians' opacities and the planarity score
+$\kappa = \frac{\lambda_3 - \lambda_1}{\lambda_3}$ (eigenvalues of the
+Gaussian's scale covariance). Converges within 10 iterations when spatial
+overlap exceeds 30\%.
+
+\paragraph{(3) Feature-based fallback.} When overlap is below 30\%, we fall
+back to 2D feature matching between representative keyframes of the two nodes
+(stored as image descriptors in the submap header), recover $T$ via PnP +
+RANSAC, then refine with step (2).
+
+The output is an estimate $T_{W_h \leftarrow W_j}$ with an information matrix
+$\Omega$ derived from the ICP Hessian, emitted as an inter-node edge in the
+pose graph (Section~\ref{sec:pgo}).
+
+\subsection{Gaussian Map Merge}
+\label{sec:merge}
+
+Once aligned, incoming Gaussians are merged into the head's map:
+
+\begin{enumerate}
+  \item \textbf{Spatial dedup.} For each incoming Gaussian $g_{\text{in}}$,
+    query the map octree for existing Gaussians within
+    $\tau_d = 3 \cdot \bar{s}$, where $\bar{s}$ is the mean scale. If a
+    candidate $g_{\text{ex}}$ is found, \emph{fuse} the pair: the merged mean
+    is the opacity-weighted average, the scale and SH coefficients are
+    opacity-weighted averages, and the opacity is the sigmoid of the
+    logit-sum (mirroring the consolidation in GS-LIVM
+    \cite{xie2025gslivm} and LIV-GS \cite{xiao2025livgs}). If no candidate is
+    found, insert $g_{\text{in}}$.
+  \item \textbf{Ownership bookkeeping.} Merged Gaussians carry a list of
+    contributing $\text{owner}$ ids, so a node can later prune only its own
+    contributions.
+  \item \textbf{Map delta broadcast.} The head emits a MAP\_DELTA containing
+    only the changed Gaussians (new + fused), so member nodes can lazily
+    update their local copies for rendering and planning.
+\end{enumerate}
+
+\subsection{Pose-Graph Optimization}
+\label{sec:pgo}
+
+A robust pose graph is maintained across all nodes:
+
+\begin{itemize}
+  \item \textbf{Vertices:} per-node keyframe poses (one per submap close).
+  \item \textbf{Edges:}
+    \begin{itemize}
+      \item intra-node odometry edges, with information matrices from the
+        Gauss-Newton Hessian of the CT solve;
+      \item inter-node registration edges from Section~\ref{sec:registration};
+      \item loop-closure edges from Section~\ref{sec:loop}.
+    \end{itemize}
+\end{itemize}
+
+The graph is solved by GTSAM's iSAM2 incrementally on the cluster head, and at
+coarser granularity on the Tier-0 server. Solutions are pushed down as
+MAP\_DELTA corrections; member nodes apply a rigid per-submap correction to
+their owned Gaussians (exact for means and rotations; scale and SH are
+re-fitted locally over a short window).
+
+\subsection{Loop Closure}
+\label{sec:loop}
+
+Two complementary mechanisms:
+
+\paragraph{Geometric.} Submap registration with a low overlap threshold (10\%)
+is attempted against graph-distant submaps using the pose graph as a prior;
+success creates a loop edge.
+
+\paragraph{Visual.} A NetVLAD descriptor is computed per keyframe and
+broadcast to the head. The head maintains a DBoW2-style inverted index and
+queries candidate loops when descriptors match within threshold; verified
+loops emit PGO constraints.
+
+\subsection{Conflict Resolution}
+\label{sec:conflict}
+
+When two nodes observe the same region at different times and produce
+divergent Gaussian parameters (e.g., a parked car moved), we resolve the
+conflict by a \emph{confidence-weighted} rule:
+\begin{equation}
+  \text{confidence}(g) = \text{opacity}(g) \cdot \bigl(n_{\text{photo}}(g) + n_{\text{lidar}}(g)\bigr) \cdot w_{\text{sensor}}(\text{owner}(g)),
+\end{equation}
+where $w_{\text{sensor}}$ is a per-node quality weight from the node
+descriptor. Higher-confidence Gaussians dominate the merge; lower-confidence
+ones are demoted (opacity shrunk) and eventually pruned. This is a
+first-pass treatment of inter-node dynamics; a fuller dynamic-aware extension
+along the lines of RoSe-SLAM \cite{wang2026roseslam} and Dynamic-LIVO
+\cite{zhang2026dynamiclivo} is left for future work.
+
+\subsection{Algorithm Summary}
+
+\begin{algorithm}[t]
+\caption{Per-node cooperative loop (one iteration).}
+\label{alg:coop}
+\begin{algorithmic}[1]
+\State Acquire multi-cam, multi-LiDAR, IMU data with timestamps.
+\State Stack IMU, LiDAR, camera, time-offset residuals; solve sliding-window
+       Gauss-Newton on the B-spline. \Comment{Section~\ref{sec:ctfusion}}
+\State Update local Gaussian map $\GaussianMap_i$; densify blind areas.
+\State \textbf{if} submap boundary reached \textbf{then}
+  \State \quad Extract spatial sub-volume; compress under budget.
+  \State \quad Publish SUBMAP\_PUSH to cluster head.
+\State \textbf{end if}
+\State Receive incoming submaps and MAP\_DELTA from head.
+\State Align incoming submaps (Sec.~\ref{sec:registration}); merge
+       Gaussians (Sec.~\ref{sec:merge}); emit PGO constraints.
+\State Apply PGO corrections to owned Gaussians.
+\State Render \& supervise next frame.
+\end{algorithmic}
+\end{algorithm}

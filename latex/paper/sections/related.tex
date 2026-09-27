@@ -1,0 +1,79 @@
+% ============================================
+% Section: Related Work
+% ============================================
+Our system sits at the intersection of four research threads: (i) LiDAR-Inertial
+-Visual Gaussian SLAM, (ii) continuous-time multi-sensor fusion, (iii)
+collaborative / multi-agent SLAM, and (iv) multi-camera / multi-LiDAR
+odometry. We summarize the closest works and position Co-LIC2 relative to each.
+
+\subsection{LiDAR-Inertial-Visual Gaussian Splatting SLAM}
+Gaussian-LIC2 \cite{lang2026gaussian2} and its conference version
+\cite{lang2025gaussian} are the direct ancestors of this work: a real-time
+LIV Gaussian Splatting SLAM system built on the Coco-LIC continuous-time
+odometry backbone \cite{lang2023coco}. GS-LIVM \cite{xie2025gslivm} uses
+Gaussian Process Regression to densify sparse LiDAR; LIVE-GS / GSFusion
+\cite{park2026livegs} introduces a dual surfel+Gaussian map with loop closure.
+LIV-GS \cite{xiao2025livgs} registers LiDAR scans directly against the Gaussian
+map. Real-Time LiDAR GS-SLAM \cite{tak2026realtime} is a pure-LiDAR
+variant. LIT-GS \cite{shi2026litgs} replaces RGB with thermal for illumination
+robustness. None of these systems consider \emph{multiple cooperating
+platforms}: each assumes a single moving rig. Co-LIC2 adopts the single-node
+pipeline of Gaussian-LIC2 wholesale as its per-node front-end and adds the
+cooperative layer on top.
+
+\subsection{Continuous-Time Multi-Sensor Fusion}
+Coco-LIC \cite{lang2023coco} introduced non-uniform B-spline estimation over
+$\SEthree$ for tightly-coupled LIV odometry with online time-offset
+calibration, and is the odometry backbone reused here. Ctrl-VIO
+\cite{lang2022ctrlvio} applies CT B-splines to rolling-shutter VIO. Wildcat
+\cite{ramezani2022wildcat} performs online CT LiDAR-inertial SLAM. RESPLE
+\cite{cao2025resple} gives recursive B-spline LiDAR odometry. CT-VoxelMap
+\cite{zhao2026ctvoxelmap} uses Lie-group B-splines for CT-LIO. Co-LIC2
+generalizes Coco-LIC's residual stack from one camera and one LiDAR to $N_c$
+and $N_l$, treating the sensor count as a parameter of the same Gauss-Newton
+solve.
+
+\subsection{Collaborative and Multi-Agent Gaussian SLAM}
+CGS-SLAM \cite{deambrogi2026cgsslam} is the closest contemporary: a
+collaborative Gaussian Splatting SLAM for multi-agent reconstruction, using
+metric monocular depth and VGGT-based alignment. GRAND-SLAM
+\cite{thomas2025grandslam} addresses globally consistent large-scale
+multi-agent Gaussian SLAM with local optimization and loop closure.
+MCGS-SLAM \cite{cao2026mcgsslam} is a multi-camera Gaussian SLAM framework for
+high-fidelity mapping. These works establish that multi-agent Gaussian SLAM is
+feasible, but they target \emph{visual-only} or \emph{RGB-D} agents and assume
+relatively benign network conditions. Co-LIC2 differs in (a) carrying LiDAR
+and IMU per node, which gives metric scale and robustness to textureless
+regions, and (b) explicitly modeling a bandwidth-limited, lossy wireless
+network with cluster-head election and graceful degradation.
+
+\subsection{Multi-Camera and Multi-LiDAR Odometry}
+FAST-LIVO2 \cite{zheng2024fastlivo2} is a tightly-coupled LIV odometry system
+that supports multi-camera and multi-LiDAR configurations; R3LIVE
+\cite{lin2024r3live} provides a LIV odometry baseline. FAST-LIO2
+\cite{xu2022fastlio2} is the canonical LiDAR-inertial odometry. MCGS-SLAM
+\cite{cao2026mcgsslam} demonstrates multi-camera Gaussian mapping. Co-LIC2
+borrows the multi-sensor calibration and time-offset estimation ideas from
+FAST-LIVO2 but integrates them into the CT B-spline framework of Coco-LIC
+rather than a discrete-keyframe one, which is essential for the seamless
+submap extraction at arbitrary times that our cooperative protocol relies on.
+
+\subsection{Dynamic and Robust Scenes}
+RoSe-SLAM \cite{wang2026roseslam} handles dynamic monocular videos with
+semantic-aware Gaussian Splatting. Dynamic-LIVO \cite{zhang2026dynamiclivo}
+adds spatio-temporal normals for dynamic-aware LIVO. SGAD-SLAM
+\cite{hu2026sgad} tracks pixel-aligned Gaussians along rays for scalable
+dynamic scenes. While Co-LIC2's per-node front-end inherits Gaussian-LIC2's
+static-scene assumption, the cooperative layer must additionally handle
+\emph{inter-node dynamic conflict} (two nodes observing the same region at
+different times); our confidence-weighted merge rule (Section~\ref{sec:merge})
+is a first step, and we discuss dynamic-aware extensions as future work.
+
+\subsection{Distributed Systems for Robotics}
+The communication architecture draws on standard practice from ROS 2 / DDS for
+real-time robotics middleware, and on pose-graph optimization with GTSAM
+\cite{gtsam} and iSAM2 for incremental inference. The cluster-head election
+and heartbeat mechanism are inspired by group communication protocols in
+distributed systems. We do not claim novelty in these components individually;
+the contribution is their integration into a Gaussian SLAM system with
+bandwidth-aware submap exchange.

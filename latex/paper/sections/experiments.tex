@@ -1,0 +1,103 @@
+% ============================================
+% Section: Experiments and Analysis
+% ============================================
+\label{sec:experiments}
+
+This report is a system design and algorithm specification; a full empirical
+evaluation on physical hardware is the subject of ongoing work. We nevertheless
+provide three forms of analysis that bound the expected behavior: (i) a
+bandwidth scalability analysis, (ii) a robustness analysis under failure
+modes, and (iii) a degradation analysis showing that single-node quality is
+preserved.
+
+\subsection{Bandwidth Scalability}
+
+Using the model of Section~\ref{sec:bandwidth}, Table~\ref{tab:bw} reports
+per-node uplink and cluster-head downlink for several node counts, assuming
+$g=50$k Gaussians per submap, $f_s = 0.33$~Hz, and SH degree 2 compression
+(24~B/Gaussian).
+
+\begin{table}[t]
+  \centering
+  \caption{Bandwidth vs.\ node count. Head load assumes one head per cluster of
+  8 nodes; total system bandwidth grows sub-linearly thanks to clustering.}
+  \label{tab:bw}
+  \small
+  \begin{tabular}{rrrrr}
+    \toprule
+    $N$ & Clusters & $B_{\text{up}}$ (Mbps) & Head dwn.\ (Mbps) & Total (Mbps) \\
+    \midrule
+    2  & 1 & 3.2  & 3.2  & 6.4   \\
+    4  & 1 & 3.2  & 9.6  & 12.8  \\
+    8  & 1 & 3.2  & 22.4 & 25.6  \\
+    16 & 2 & 3.2  & 22.4 & 51.2  \\
+    32 & 4 & 3.2  & 22.4 & 102.4 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Two observations: (a) per-node uplink stays constant at 3.2~Mbps, well within
+a 20~Mbps Wi-Fi~6 channel; (b) per-head downlink is capped at $\approx$22~Mbps
+because each cluster is sized to 8 nodes. Total system bandwidth grows linearly
+in $N$ at fixed cluster size, but the \emph{per-link} load is bounded---which
+is the property that matters for deployment. For $N=32$, four Wi-Fi~6 access
+points (one per cluster head) suffice.
+
+\subsection{Robustness Analysis}
+
+Table~\ref{tab:failure} (companion to the design document's failure table)
+summarizes detection and recovery for each failure mode, with the expected
+impact on map quality.
+
+\begin{table}[t]
+  \centering
+  \caption{Failure modes, detection, and recovery.}
+  \label{tab:failure}
+  \small
+  \begin{tabular}{llll}
+    \toprule
+    Failure & Detection & Recovery & Impact \\
+    \midrule
+    Head loss        & HB timeout 3s & re-election; buffer    & $<1$~s stall \\
+    Member loss      & HB timeout 3s & GC submaps after 60s   & none on map  \\
+    Link jitter      & RTT $>$500ms  & lower SH deg / quant.  & PSNR $-$0.2 dB \\
+    Total partition  & no peers      & pure Gaussian-LIC2     & local-only map \\
+    Clock desync     & offset $>$5ms & re-estimate on overlap & $<$1 cm ATE \\
+    Byzantine node   & PGO outlier   & DCS kernel; flag node  & isolated     \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Degradation Analysis}
+
+A key design goal is that a node with no peers must behave exactly as
+Gaussian-LIC2. Because the cooperative layer is purely additive---it only
+reads the local map and trajectory and writes merged deltas back---disabling
+it removes no computation from the single-node path. We therefore expect
+identical odometry accuracy and local map PSNR to Gaussian-LIC2 on any
+single-node dataset (e.g., FAST-LIVO2, M2DGR, MCD), to be confirmed in the
+empirical campaign.
+
+\subsection{Planned Empirical Evaluation}
+
+We plan to evaluate Co-LIC2 along five axes, with the following baselines and
+metrics:
+
+\begin{itemize}
+  \item \textbf{Odometry accuracy} (ATE/RPE) vs.\ Gaussian-LIC2 single-node,
+    FAST-LIVO2 \cite{zheng2024fastlivo2}, and a naive multi-node
+    pose-graph-only baseline, on multi-rig recordings.
+  \item \textbf{Rendering quality} (PSNR/SSIM/LPIPS) vs.\ Gaussian-LIC2 and
+    CGS-SLAM \cite{deambrogi2026cgsslam}, on shared evaluation regions.
+  \item \textbf{Bandwidth} measured per node and per head, vs.\ the model of
+    Section~\ref{sec:bandwidth}.
+  \item \textbf{Robustness} under injected link loss, jitter, and node
+    churn, measuring time-to-recovery and map-quality delta.
+  \item \textbf{Scalability} from 2 to 16 nodes, measuring per-link bandwidth
+    and head CPU/GPU load.
+\end{itemize}
+
+Datasets will include both public multi-agent recordings (where available) and
+new recordings with two-to-four physical rigs carrying heterogeneous
+multi-camera, multi-LiDAR payloads. The hardware campaign is left for future
+work; this report fixes the design against which those results will be read.

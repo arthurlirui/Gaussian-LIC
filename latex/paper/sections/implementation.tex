@@ -1,0 +1,63 @@
+% ============================================
+% Section: Implementation
+% ============================================
+\label{sec:implementation}
+
+Co-LIC2 is implemented as an extension of the open-source Gaussian-LIC2 code
+base, preserving the single-node pipeline and adding cooperative components.
+
+\paragraph{Build and dependencies.} The per-node front-end reuses
+Gaussian-LIC2's dependencies unchanged: ROS 2 / DDS, OpenCV 4.7 with CUDA,
+LibTorch, TensorRT 8.6, CUDA 11.7, and the Coco-LIC B-spline library. The
+cooperative layer adds: gRPC for cross-subnet fallback transport, CBOR
+encoding via \texttt{tinycbor}, zstd for entropy coding, GTSAM for pose-graph
+optimization, and DBoW2 / NetVLAD for visual loop closure. All additions are
+optional CMake toggles, so a single-node build remains a faithful
+Gaussian-LIC2.
+
+\paragraph{Component layout.} New components are added under a dedicated
+\texttt{src/coop/} directory, one module per file:
+\begin{itemize}
+  \item \texttt{coordinator} --- discovery and cluster-head election;
+  \item \texttt{submap\_extractor} --- spatial sub-volume carving;
+  \item \texttt{submap\_compressor} --- budget-controlled Gaussian compression;
+  \item \texttt{comm\_layer} --- DDS / gRPC transport;
+  \item \texttt{map\_merger} --- inter-node registration and merge;
+  \item \texttt{loop\_closure\_agent} --- geometric and visual loop detection;
+  \item \texttt{pose\_graph} --- GTSAM / iSAM2 incremental PGO.
+\end{itemize} Each is a ROS 2 component with a documented interface
+(see the design document for API sketches). The generalized multi-sensor
+front-end modifies only the residual-stacking code in Coco-LIC's
+\texttt{spline\_estimator}, parameterizing the sensor counts.
+
+\paragraph{Configuration.} All cooperative parameters are exposed as ROS 2
+parameters with the defaults listed in Table~\ref{tab:config}, allowing
+per-deployment tuning without recompilation.
+
+\begin{table}[t]
+  \centering
+  \caption{Cooperative configuration parameters and defaults.}
+  \label{tab:config}
+  \small
+  \begin{tabular}{lll}
+    \toprule
+    Parameter & Default & Meaning \\
+    \midrule
+    $S_{\text{sub}}$       & 5 m    & submap spatial size \\
+    $T_{\text{sub}}$       & 3 s    & submap temporal size \\
+    $B_{\text{budget}}$    & 20 Mbps & per-node uplink budget \\
+    $\tau_d$               & $3\bar{s}$ & Gaussian dedup radius \\
+    $T_{\text{heartbeat}}$ & 200 ms & heartbeat period \\
+    $T_{\text{head\_to}}$  & 3 s    & head-loss detection \\
+    $T_{\text{keep}}$      & 60 s   & orphan submap GC delay \\
+    SH degree max          & 2      & max SH degree on the wire \\
+    quantize               & 2 cm   & mean quantization \\
+    loop overlap min       & 10\%   & min overlap for loop attempt \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Backward compatibility.} With the cooperative layer disabled
+(\texttt{coop\_enabled:=false}), the system runs the unmodified Gaussian-LIC2
+pipeline, satisfying the goal of no regression on existing single-node
+datasets.

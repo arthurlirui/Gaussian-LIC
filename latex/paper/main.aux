@@ -1,0 +1,214 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{lang2026gaussian2}
+\citation{kerbl20233dgs}
+\citation{lang2023coco}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Contributions.}{1}{section*.1}\protected@file@percent }
+\citation{lang2026gaussian2}
+\citation{lang2025gaussian}
+\citation{lang2023coco}
+\citation{xie2025gslivm}
+\citation{park2026livegs}
+\citation{xiao2025livgs}
+\citation{tak2026realtime}
+\citation{shi2026litgs}
+\citation{lang2023coco}
+\citation{lang2022ctrlvio}
+\citation{ramezani2022wildcat}
+\citation{cao2025resple}
+\citation{zhao2026ctvoxelmap}
+\citation{deambrogi2026cgsslam}
+\citation{thomas2025grandslam}
+\citation{cao2026mcgsslam}
+\@writefile{toc}{\contentsline {paragraph}{Scope.}{2}{section*.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}LiDAR-Inertial-Visual Gaussian Splatting SLAM}{2}{subsection.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Continuous-Time Multi-Sensor Fusion}{2}{subsection.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Collaborative and Multi-Agent Gaussian SLAM}{2}{subsection.2.3}\protected@file@percent }
+\citation{zheng2024fastlivo2}
+\citation{lin2024r3live}
+\citation{xu2022fastlio2}
+\citation{cao2026mcgsslam}
+\citation{wang2026roseslam}
+\citation{zhang2026dynamiclivo}
+\citation{hu2026sgad}
+\citation{gtsam}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Multi-Camera and Multi-LiDAR Odometry}{3}{subsection.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Dynamic and Robust Scenes}{3}{subsection.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.6}Distributed Systems for Robotics}{3}{subsection.2.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}System Model}{3}{section.3}\protected@file@percent }
+\newlabel{sec:system}{{3}{3}{System Model}{section.3}{}}
+\newlabel{sec:system@cref}{{[section][3][]3}{[1][3][]3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Node Model}{3}{subsection.3.1}\protected@file@percent }
+\newlabel{sec:node}{{3.1}{3}{Node Model}{subsection.3.1}{}}
+\newlabel{sec:node@cref}{{[subsection][1][3]3.1}{[1][3][]3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Node Descriptor}{3}{subsection.3.2}\protected@file@percent }
+\newlabel{sec:descriptor}{{3.2}{3}{Node Descriptor}{subsection.3.2}{}}
+\newlabel{sec:descriptor@cref}{{[subsection][2][3]3.2}{[1][3][]3}}
+\citation{lang2023coco}
+\citation{lang2026gaussian2}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Per-Node Continuous-Time Fusion}{4}{subsection.3.3}\protected@file@percent }
+\newlabel{sec:ctfusion}{{3.3}{4}{Per-Node Continuous-Time Fusion}{subsection.3.3}{}}
+\newlabel{sec:ctfusion@cref}{{[subsection][3][3]3.3}{[1][4][]4}}
+\@writefile{toc}{\contentsline {paragraph}{IMU residuals.}{4}{section*.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{LiDAR residuals.}{4}{section*.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Camera residuals.}{4}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Time-offset residuals.}{4}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Network Topology: Hierarchical Hybrid}{4}{subsection.3.4}\protected@file@percent }
+\newlabel{sec:topology}{{3.4}{4}{Network Topology: Hierarchical Hybrid}{subsection.3.4}{}}
+\newlabel{sec:topology@cref}{{[subsection][4][3]3.4}{[1][4][]4}}
+\@writefile{toc}{\contentsline {paragraph}{Cluster-head election.}{4}{section*.8}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Hierarchical hybrid topology. An optional Tier-0 edge server fuses cross-cluster submaps; cluster heads (Tier-1) merge their members' submaps and talk P2P; cluster members (Tier-2) run local Gaussian-LIC2 and publish submaps. On server loss the system degrades to Tier-1 P2P; on head loss, members re-elect.}}{5}{figure.caption.7}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:topology}{{1}{5}{Hierarchical hybrid topology. An optional Tier-0 edge server fuses cross-cluster submaps; cluster heads (Tier-1) merge their members' submaps and talk P2P; cluster members (Tier-2) run local Gaussian-LIC2 and publish submaps. On server loss the system degrades to Tier-1 P2P; on head loss, members re-elect}{figure.caption.7}{}}
+\newlabel{fig:topology@cref}{{[figure][1][]1}{[1][4][]5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Software Architecture}{5}{subsection.3.5}\protected@file@percent }
+\newlabel{sec:software}{{3.5}{5}{Software Architecture}{subsection.3.5}{}}
+\newlabel{sec:software@cref}{{[subsection][5][3]3.5}{[1][4][]5}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Communication and Data Sharing}{5}{section.4}\protected@file@percent }
+\newlabel{sec:communication}{{4}{5}{Communication and Data Sharing}{section.4}{}}
+\newlabel{sec:communication@cref}{{[section][4][]4}{[1][5][]5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Transport}{5}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:transport}{{4.1}{5}{Transport}{subsection.4.1}{}}
+\newlabel{sec:transport@cref}{{[subsection][1][4]4.1}{[1][5][]5}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Per-node data flow. Sensor drivers feed the CT fusion front-end, which produces a trajectory and updates the local Gaussian map. The submap extractor compresses a spatial slice and publishes it; incoming submaps are merged back into the local map; loop-closure constraints feed a pose graph that broadcasts corrections.}}{6}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:dataflow}{{2}{6}{Per-node data flow. Sensor drivers feed the CT fusion front-end, which produces a trajectory and updates the local Gaussian map. The submap extractor compresses a spatial slice and publishes it; incoming submaps are merged back into the local map; loop-closure constraints feed a pose graph that broadcasts corrections}{figure.caption.9}{}}
+\newlabel{fig:dataflow@cref}{{[figure][2][]2}{[1][5][]6}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Communication message catalogue.}}{6}{table.caption.10}\protected@file@percent }
+\newlabel{tab:messages}{{1}{6}{Communication message catalogue}{table.caption.10}{}}
+\newlabel{tab:messages@cref}{{[table][1][]1}{[1][6][]6}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Message Catalogue}{6}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:messages}{{4.2}{6}{Message Catalogue}{subsection.4.2}{}}
+\newlabel{sec:messages@cref}{{[subsection][2][4]4.2}{[1][5][]6}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Connection Lifecycle}{6}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:lifecycle}{{4.3}{6}{Connection Lifecycle}{subsection.4.3}{}}
+\newlabel{sec:lifecycle@cref}{{[subsection][3][4]4.3}{[1][6][]6}}
+\@writefile{toc}{\contentsline {paragraph}{Join.}{6}{section*.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Calibration handshake.}{6}{section*.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Steady state.}{6}{section*.13}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Link loss.}{6}{section*.14}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Compression knobs and their effect.}}{7}{table.caption.16}\protected@file@percent }
+\newlabel{tab:knobs}{{2}{7}{Compression knobs and their effect}{table.caption.16}{}}
+\newlabel{tab:knobs@cref}{{[table][2][]2}{[1][7][]7}}
+\@writefile{toc}{\contentsline {paragraph}{Leave / eviction.}{7}{section*.15}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Submap Format}{7}{subsection.4.4}\protected@file@percent }
+\newlabel{sec:submap-format}{{4.4}{7}{Submap Format}{subsection.4.4}{}}
+\newlabel{sec:submap-format@cref}{{[subsection][4][4]4.4}{[1][7][]7}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Compression and Budget Control}{7}{subsection.4.5}\protected@file@percent }
+\newlabel{sec:compression}{{4.5}{7}{Compression and Budget Control}{subsection.4.5}{}}
+\newlabel{sec:compression@cref}{{[subsection][5][4]4.5}{[1][7][]7}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Bandwidth Model}{7}{subsection.4.6}\protected@file@percent }
+\newlabel{sec:bandwidth}{{4.6}{7}{Bandwidth Model}{subsection.4.6}{}}
+\newlabel{sec:bandwidth@cref}{{[subsection][6][4]4.6}{[1][7][]7}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.7}Communication Sequence}{7}{subsection.4.7}\protected@file@percent }
+\newlabel{sec:sequence}{{4.7}{7}{Communication Sequence}{subsection.4.7}{}}
+\newlabel{sec:sequence@cref}{{[subsection][7][4]4.7}{[1][7][]7}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Cooperative Mapping}{7}{section.5}\protected@file@percent }
+\newlabel{sec:mapping}{{5}{7}{Cooperative Mapping}{section.5}{}}
+\newlabel{sec:mapping@cref}{{[section][5][]5}{[1][7][]7}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Communication sequence: a new node joins, publishes submaps, the head merges and emits map deltas, a loop closure generates a constraint, and the pose-graph optimization broadcasts corrections.}}{8}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:sequence}{{3}{8}{Communication sequence: a new node joins, publishes submaps, the head merges and emits map deltas, a loop closure generates a constraint, and the pose-graph optimization broadcasts corrections}{figure.caption.17}{}}
+\newlabel{fig:sequence@cref}{{[figure][3][]3}{[1][7][]8}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Local Map and Ownership}{8}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:local}{{5.1}{8}{Local Map and Ownership}{subsection.5.1}{}}
+\newlabel{sec:local@cref}{{[subsection][1][5]5.1}{[1][7][]8}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Submap Registration}{8}{subsection.5.2}\protected@file@percent }
+\newlabel{sec:registration}{{5.2}{8}{Submap Registration}{subsection.5.2}{}}
+\newlabel{sec:registration@cref}{{[subsection][2][5]5.2}{[1][8][]8}}
+\@writefile{toc}{\contentsline {paragraph}{(1) Descriptor prior.}{8}{section*.18}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(2) Gaussian-to-Gaussian ICP.}{8}{section*.19}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(3) Feature-based fallback.}{8}{section*.20}\protected@file@percent }
+\citation{xie2025gslivm}
+\citation{xiao2025livgs}
+\citation{wang2026roseslam}
+\citation{zhang2026dynamiclivo}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Gaussian Map Merge}{9}{subsection.5.3}\protected@file@percent }
+\newlabel{sec:merge}{{5.3}{9}{Gaussian Map Merge}{subsection.5.3}{}}
+\newlabel{sec:merge@cref}{{[subsection][3][5]5.3}{[1][9][]9}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Pose-Graph Optimization}{9}{subsection.5.4}\protected@file@percent }
+\newlabel{sec:pgo}{{5.4}{9}{Pose-Graph Optimization}{subsection.5.4}{}}
+\newlabel{sec:pgo@cref}{{[subsection][4][5]5.4}{[1][9][]9}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Loop Closure}{9}{subsection.5.5}\protected@file@percent }
+\newlabel{sec:loop}{{5.5}{9}{Loop Closure}{subsection.5.5}{}}
+\newlabel{sec:loop@cref}{{[subsection][5][5]5.5}{[1][9][]9}}
+\@writefile{toc}{\contentsline {paragraph}{Geometric.}{9}{section*.21}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Visual.}{9}{section*.22}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}Conflict Resolution}{9}{subsection.5.6}\protected@file@percent }
+\newlabel{sec:conflict}{{5.6}{9}{Conflict Resolution}{subsection.5.6}{}}
+\newlabel{sec:conflict@cref}{{[subsection][6][5]5.6}{[1][9][]9}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Per-node cooperative loop (one iteration).}}{10}{algorithm.1}\protected@file@percent }
+\newlabel{alg:coop}{{1}{10}{Per-node cooperative loop (one iteration)}{algorithm.1}{}}
+\newlabel{alg:coop@cref}{{[algorithm][1][]1}{[1][9][]10}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.7}Algorithm Summary}{10}{subsection.5.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Implementation}{10}{section.6}\protected@file@percent }
+\newlabel{sec:implementation}{{6}{10}{Implementation}{section.6}{}}
+\newlabel{sec:implementation@cref}{{[section][6][]6}{[1][9][]10}}
+\@writefile{toc}{\contentsline {paragraph}{Build and dependencies.}{10}{section*.23}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Component layout.}{10}{section*.24}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Configuration.}{10}{section*.25}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Backward compatibility.}{10}{section*.27}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Experiments and Analysis}{10}{section.7}\protected@file@percent }
+\newlabel{sec:experiments}{{7}{10}{Experiments and Analysis}{section.7}{}}
+\newlabel{sec:experiments@cref}{{[section][7][]7}{[1][10][]10}}
+\citation{zheng2024fastlivo2}
+\citation{deambrogi2026cgsslam}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Cooperative configuration parameters and defaults.}}{11}{table.caption.26}\protected@file@percent }
+\newlabel{tab:config}{{3}{11}{Cooperative configuration parameters and defaults}{table.caption.26}{}}
+\newlabel{tab:config@cref}{{[table][3][]3}{[1][10][]11}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Bandwidth vs.\ node count. Head load assumes one head per cluster of 8 nodes; total system bandwidth grows sub-linearly thanks to clustering.}}{11}{table.caption.28}\protected@file@percent }
+\newlabel{tab:bw}{{4}{11}{Bandwidth vs.\ node count. Head load assumes one head per cluster of 8 nodes; total system bandwidth grows sub-linearly thanks to clustering}{table.caption.28}{}}
+\newlabel{tab:bw@cref}{{[table][4][]4}{[1][10][]11}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Bandwidth Scalability}{11}{subsection.7.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Robustness Analysis}{11}{subsection.7.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Degradation Analysis}{11}{subsection.7.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}Planned Empirical Evaluation}{11}{subsection.7.4}\protected@file@percent }
+\citation{wang2026roseslam}
+\citation{zhang2026dynamiclivo}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Failure modes, detection, and recovery.}}{12}{table.caption.29}\protected@file@percent }
+\newlabel{tab:failure}{{5}{12}{Failure modes, detection, and recovery}{table.caption.29}{}}
+\newlabel{tab:failure@cref}{{[table][5][]5}{[1][11][]12}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Discussion}{12}{section.8}\protected@file@percent }
+\newlabel{sec:discussion}{{8}{12}{Discussion}{section.8}{}}
+\newlabel{sec:discussion@cref}{{[section][8][]8}{[1][12][]12}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Design Trade-offs}{12}{subsection.8.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Limitations}{12}{subsection.8.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Static-scene assumption.}{12}{section*.30}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{No empirical validation yet.}{12}{section*.31}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Security is minimal.}{12}{section*.32}\protected@file@percent }
+\bibstyle{IEEEtran}
+\bibdata{../bib/references}
+\bibcite{lang2026gaussian2}{1}
+\bibcite{kerbl20233dgs}{2}
+\bibcite{lang2023coco}{3}
+\bibcite{lang2025gaussian}{4}
+\bibcite{xie2025gslivm}{5}
+\@writefile{toc}{\contentsline {paragraph}{Heterogeneous clocks.}{13}{section*.33}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.3}Open Questions}{13}{subsection.8.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9}Conclusion}{13}{section.9}\protected@file@percent }
+\newlabel{sec:conclusion}{{9}{13}{Conclusion}{section.9}{}}
+\newlabel{sec:conclusion@cref}{{[section][9][]9}{[1][13][]13}}
+\bibcite{park2026livegs}{6}
+\bibcite{xiao2025livgs}{7}
+\bibcite{tak2026realtime}{8}
+\bibcite{shi2026litgs}{9}
+\bibcite{lang2022ctrlvio}{10}
+\bibcite{ramezani2022wildcat}{11}
+\bibcite{cao2025resple}{12}
+\bibcite{zhao2026ctvoxelmap}{13}
+\bibcite{deambrogi2026cgsslam}{14}
+\bibcite{thomas2025grandslam}{15}
+\bibcite{cao2026mcgsslam}{16}
+\bibcite{zheng2024fastlivo2}{17}
+\bibcite{lin2024r3live}{18}
+\bibcite{xu2022fastlio2}{19}
+\bibcite{wang2026roseslam}{20}
+\bibcite{zhang2026dynamiclivo}{21}
+\bibcite{hu2026sgad}{22}
+\bibcite{gtsam}{23}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Submap Binary Format}{15}{appendix.A}\protected@file@percent }
+\newlabel{app:submap}{{A}{15}{Submap Binary Format}{appendix.A}{}}
+\newlabel{app:submap@cref}{{[appendix][1][2147483647]A}{[1][15][]15}}
+\gdef \@abspage@last{15}

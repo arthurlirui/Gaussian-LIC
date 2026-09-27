@@ -1,0 +1,75 @@
+% ============================================
+% Section: Discussion
+% ============================================
+\label{sec:discussion}
+
+\subsection{Design Trade-offs}
+
+The hierarchical hybrid topology is the central design choice and deserves
+explicit justification. A purely centralized topology (one fusion server plus
+$N$ clients) is simplest and gives a globally optimal map at each step, but it
+introduces a single point of failure and a server uplink bottleneck that grows
+as $\mathcal{O}(N)$. A purely decentralized P2P topology (full mesh) has no
+single point of failure and low latency, but requires $\mathcal{O}(N^2)$ links
+and offers no natural place for global consistency. The hierarchical hybrid
+captures most of the simplicity of centralization within each cluster while
+keeping inter-cluster communication sparse, and it degrades to P2P when the
+optional Tier-0 server is absent. The cost is added protocol complexity
+(election, heartbeat, submap routing), which we judge acceptable given the
+robustness gain.
+
+A second trade-off is the choice of \emph{3DGS as the shared map
+representation}. Alternatives include a neural radiance field (NeRF) per node,
+or a voxel hash plus a separate Gaussian layer. We chose 3DGS for continuity
+with Gaussian-LIC2 (maximizing code reuse and rendering quality), the
+existence of mature compression knobs (SH truncation, opacity pruning,
+quantization), and the fact that Gaussians are naturally additive and
+mergeable---properties a NeRF does not share. The cost is per-Gaussian
+bandwidth, which the budget controller manages.
+
+\subsection{Limitations}
+
+\paragraph{Static-scene assumption.} The per-node front-end inherits
+Gaussian-LIC2's static-scene assumption. The confidence-weighted merge rule
+(Section~\ref{sec:conflict}) is a first-pass treatment of inter-node dynamics
+but is not a substitute for proper dynamic-object segmentation across nodes.
+A dynamic-aware extension, drawing on RoSe-SLAM \cite{wang2026roseslam} and
+Dynamic-LIVO \cite{zhang2026dynamiclivo}, is the most important next step.
+
+\paragraph{No empirical validation yet.} This report presents the design and
+analytical bounds only. The bandwidth model assumes ideal compression ratios
+and ignores packet-loss retransmission overhead; the robustness claims assume
+the failure detectors fire within their nominal timeouts. Both will be tested
+in the planned campaign.
+
+\paragraph{Security is minimal.} Signed node descriptors prevent unauthorized
+merging, but there is no sybil resistance, no replay protection, and no
+confidentiality. A deployment in an untrusted environment would need
+additional cryptographic machinery (authenticated routing, per-submap
+signatures, encrypted transport).
+
+\paragraph{Heterogeneous clocks.} Online time-offset estimation handles
+intra-node clock offsets, but inter-node clock synchronization relies on
+overlapping submap registration. Nodes with no spatial overlap for extended
+periods may drift in their relative time estimates, degrading merge quality.
+
+\subsection{Open Questions}
+
+Several questions are deferred to future iterations:
+
+\begin{itemize}
+  \item \textbf{Dynamic cluster-head handoff.} How to migrate merged state
+    when a head moves out of range without stalling the cluster.
+  \item \textbf{Cross-node dynamic consensus.} A per-node dynamic-object
+    segmenter (RoSe-SLAM-style) plus a cross-node consensus protocol to agree
+    on which Gaussians represent moving objects and should be excluded from
+    the static map.
+  \item \textbf{Energy budget on UAV nodes.} The compressor cost versus
+    communication cost trade-off is deployment-specific; UAVs are energy-bound
+    and may prefer coarser submaps to save radio power.
+  \item \textbf{5G QoS measurement.} A measurement campaign on a real 5G NR
+    link to characterize per-flow QoS and tune the budget controller.
+  \item \textbf{Sybil resistance.} A decentralized identity mechanism
+    (e.g., proof-of-work on node join, or a trusted authority-issued
+    certificate) to prevent map poisoning by sybil nodes.
+\end{itemize}
