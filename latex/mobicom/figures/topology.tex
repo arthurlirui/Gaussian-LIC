@@ -1,0 +1,72 @@
+% Topology figure for Co-LIC2 paper (MobiCom edition)
+% Hierarchical hybrid: Tier-0 edge server, Tier-1 cluster heads (P2P), Tier-2 members
+% Shows degradation pathways and link types
+\begin{tikzpicture}[
+  font=\footnotesize,
+  >=Stealth,
+  node distance=0.5cm and 1.0cm,
+  tier0/.style={draw, rounded corners, fill=blue!12, minimum width=3.5cm, minimum height=0.7cm, align=center},
+  tier1/.style={draw, rounded corners, fill=green!15, minimum width=2.2cm, minimum height=0.7cm, align=center},
+  tier2/.style={draw, rounded corners, fill=orange!12, minimum width=1.8cm, minimum height=0.6cm, align=center},
+  bus/.style={very thick, gray},
+  link/.style={->, thick},
+  wlink/.style={<->, thick, green!50!black},
+  uplink/.style={->, thick, blue!60!black},
+  degrade/.style={->, thick, dashed, red!50!black},
+]
+
+% Tier-0
+\node[tier0] (server) {Tier-0: Edge Fusion Server\\(optional, mode A only)};
+
+% Tier-1 bus
+\node[draw, dashed, rounded corners, fill=gray!5, minimum width=12cm, minimum height=0.8cm,
+      below=0.8cm of server] (bus1) {};
+\node[anchor=west, font=\tiny\bfseries] at ($(bus1.west)+(0.3,0.2)$) {Inter-Cluster P2P Bus (DDS / gRPC, AC\_BE)};
+
+% Cluster heads
+\node[tier1, below=0.4cm of bus1.west, xshift=1.4cm] (h1) {Cluster Head 1};
+\node[tier1, below=0.4cm of bus1.center] (h2) {Cluster Head 2};
+\node[tier1, below=0.4cm of bus1.east, xshift=-1.4cm] (h3) {Cluster Head 3};
+
+% P2P links between heads
+\draw[bus, <->] (h1.north) -- ($(bus1.south -| h1.north)$);
+\draw[bus, <->] (h2.north) -- ($(bus1.south -| h2.north)$);
+\draw[bus, <->] (h3.north) -- ($(bus1.south -| h3.north)$);
+\draw[wlink] (h1.east) -- (h2.west) node[midway, above, font=\tiny] {P2P (AC\_BE)};
+\draw[wlink] (h2.east) -- (h3.west) node[midway, above, font=\tiny] {P2P (AC\_BE)};
+
+% Uplink from bus to server
+\draw[uplink] (server.south) -- ($(bus1.north -| server.south)$)
+  node[midway, right, font=\tiny] {compressed uplink (AC\_BK)};
+
+% Degradation annotations
+\draw[degrade] (server.east) to[bend left=30] node[midway, above, font=\tiny\bfseries] {mode A→B: server loss} ($(h3.north east)+(0,0.3)$);
+
+% Tier-2 members
+\node[tier2, below=0.7cm of h1] (m1a) {Node 1};
+\node[tier2, below=0.6cm of m1a] (m1b) {Node 2};
+\node[tier2, below=0.7cm of h2] (m2a) {Node 3};
+\node[tier2, below=0.6cm of m2a] (m2b) {Node 4};
+\node[tier2, below=0.7cm of h3] (m3a) {Node 5};
+\node[tier2, below=0.6cm of m3a] (m3b) {Node 6};
+
+% Member -> head links with QoS annotation
+\draw[link, red!60!black] (m1a.north) -- (h1.south) node[midway, right, font=\tiny] {pose(VO)};
+\draw[link, orange!70!black] (m1b.north) -- (m1a.south) node[midway, right, font=\tiny] {sub(BK)};
+\draw[link, red!60!black] (m2a.north) -- (h2.south);
+\draw[link, orange!70!black] (m2b.north) -- (m2a.south);
+\draw[link, red!60!black] (m3a.north) -- (h3.south);
+\draw[link, orange!70!black] (m3b.north) -- (m3a.south);
+
+% Degradation arrow from members to auto mode
+\node[anchor=north, font=\tiny\bfseries, red!50!black] at ($(m2b.south)+(0,-0.3)$) {mode B→C: total partition $\rightarrow$ autonomous};
+
+% Legend
+\node[draw, fill=blue!12, rounded corners, minimum width=1.2cm, font=\tiny, anchor=west]
+  at ($(server.north east)+(0.3,0.3)$) (l1) {Tier-0};
+\node[draw, fill=green!15, rounded corners, minimum width=1.2cm, font=\tiny, anchor=west]
+  at (l1.east) (l2) {Tier-1};
+\node[draw, fill=orange!12, rounded corners, minimum width=1.2cm, font=\tiny, anchor=west]
+  at (l2.east) (l3) {Tier-2};
+
+\end{tikzpicture}

@@ -1,0 +1,409 @@
+% =========================================================================
+% MobiCom / mobile-computing related work bibliography for Co-LIC2
+% Collected via Doubao web search on 2026-09-27
+% Focus: collaborative/multi-agent SLAM at the edge, bandwidth-efficient map
+%        sharing, edge-assisted perception, cooperative inference, distributed
+%        Gaussian SLAM. These complement the Gaussian-LIC2 survey bib.
+% =========================================================================
+
+% ---------------------------------------------------------------------------
+% 1. Edge-assisted / collaborative visual SLAM (MobiCom / MobiSys / NSDI)
+% ---------------------------------------------------------------------------
+
+% Map++ — MobiCom 2024, user-participatory visual SLAM with efficient map
+% expansion and sharing; metadata-based overlap check, redundancy control.
+@inproceedings{zhang2024mapp,
+  title     = {{Map++}: Towards User-Participatory Visual {SLAM} Systems with
+               Efficient Map Expansion and Sharing},
+  author    = {Zhang, Xinran and Zhu, Hanqi and Duan, Yifan and Zhang, Wuyang
+               and Shangguan, Longfei and Zhang, Yu and Ji, Jianmin and
+               Zhang, Yanyong},
+  booktitle = {Proceedings of the 30th Annual International Conference on
+               Mobile Computing and Networking (MobiCom)},
+  year      = {2024},
+  publisher = {ACM},
+  doi       = {10.1145/3636534.3649386},
+  eprint    = {2411.02553},
+  archivePrefix = {arXiv}
+}
+
+% SwarmMap — NSDI 2022, scaling up real-time collaborative visual SLAM at the
+% edge; change-log sync, priority-aware scheduler, lean map backbone.
+@inproceedings{xu2022swarmmap,
+  title     = {{SwarmMap}: Scaling Up Real-time Collaborative Visual {SLAM}
+               at the Edge},
+  author    = {Xu, Jingao and Cao, Hao and Yang, Zheng and Shangguan, Longfei
+               and Zhang, Jialin and He, Xiaowu and Liu, Yunhao},
+  booktitle = {19th USENIX Symposium on Networked Systems Design and
+               Implementation (NSDI)},
+  year      = {2022},
+  pages     = {977--994},
+  publisher = {USENIX Association}
+}
+
+% AutoCast — MobiSys 2022, scalable infrastructure-less cooperative
+% perception for distributed collaborative driving.
+@inproceedings{qiu2022autocast,
+  title     = {{AutoCast}: Scalable Infrastructure-Less Cooperative Perception
+               for Distributed Collaborative Driving},
+  author    = {Qiu, Hang and Huang, Po-Han and Asavisanu, Namo and Liu,
+               Xiaochen and Psounis, Konstantinos and Govindan, Ramesh},
+  booktitle = {Proceedings of the 20th Annual International Conference on
+               Mobile Systems, Applications and Services (MobiSys)},
+  year      = {2022},
+  publisher = {ACM},
+  doi       = {10.1145/3498361.3538915}
+}
+
+% SPINN — MobiCom 2020, synergistic progressive inference of neural networks
+% over device and cloud.
+@inproceedings{laskaridis2020spinn,
+  title     = {{SPINN}: Synergistic Progressive Inference of Neural Networks
+               over Device and Cloud},
+  author    = {Laskaridis, Stefanos and Venieris, Stylianos I. and Almeida,
+               M{\'a}rio and Leontiadis, Ilias and Lane, Nicholas D.},
+  booktitle = {Proceedings of the 26th Annual International Conference on
+               Mobile Computing and Networking (MobiCom)},
+  year      = {2020},
+  publisher = {ACM},
+  doi       = {10.1145/3372224.3380896}
+}
+
+% CoEdge — IEEE/ACM ToN 2021, cooperative DNN inference with adaptive
+% workload partitioning over heterogeneous edge devices.
+@article{zeng2021coedge,
+  title   = {{CoEdge}: Cooperative {DNN} Inference with Adaptive Workload
+             Partitioning over Heterogeneous Edge Devices},
+  author  = {Zeng, Liekang and Chen, Xu and Zhou, Zhi and Yang, Lei and
+             Zhang, Junshan},
+  journal = {IEEE/ACM Transactions on Networking},
+  volume  = {29},
+  number  = {5},
+  pages   = {2081--2095},
+  year    = {2021},
+  doi     = {10.1109/TNET.2021.3089305}
+}
+
+% AdaMap — SEC 2023, high-scalable real-time cooperative perception at the
+% edge with assured percentile end-to-end latency.
+@inproceedings{liu2023adamap,
+  title     = {{AdaMap}: High-Scalable Real-Time Cooperative Perception at
+               the Edge},
+  author    = {Liu, Li-Yu Daisy and Xue, Yongjie and Zhang, Yuru and
+               Chen, Dawei and Han, Kyungtae},
+  booktitle = {2023 IEEE/ACM Symposium on Edge Computing (SEC)},
+  year      = {2023},
+  pages     = {253--267},
+  doi       = {10.1109/SEC57671.2023.00025}
+}
+
+% ---------------------------------------------------------------------------
+% 2. Collaborative / multi-agent SLAM (robotics & vision venues)
+% ---------------------------------------------------------------------------
+
+% CCM-SLAM — JFR 2019, robust and efficient centralized collaborative
+% monocular SLAM for robotic teams.
+@article{schmuck2019ccmslam,
+  title   = {{CCM-SLAM}: Robust and Efficient Centralized Collaborative
+             Monocular Simultaneous Localization and Mapping for Robotic Teams},
+  author  = {Schmuck, Patrik and Chli, Margarita},
+  journal = {Journal of Field Robotics},
+  volume  = {36},
+  number  = {4},
+  pages   = {763--781},
+  year    = {2019},
+  doi     = {10.1002/rob.21853}
+}
+
+% CVI-SLAM — RA-L 2018, collaborative visual-inertial SLAM.
+@article{karrer2018cvislam,
+  title   = {{CVI-SLAM} --- Collaborative Visual-Inertial {SLAM}},
+  author  = {Karrer, Marco and Schmuck, Patrik and Chli, Margarita},
+  journal = {IEEE Robotics and Automation Letters},
+  volume  = {3},
+  number  = {4},
+  pages   = {2762--2769},
+  year    = {2018},
+  doi     = {10.1109/LRA.2018.2844409}
+}
+
+% Swarm-SLAM — RA-L 2024, sparse decentralized collaborative SLAM framework
+% for multi-robot systems.
+@article{lajoie2024swarmslam,
+  title   = {{Swarm-SLAM}: Sparse Decentralized Collaborative Simultaneous
+             Localization and Mapping Framework for Multi-Robot Systems},
+  author  = {Lajoie, Pierre-Yves and Ramtoula, Belkacem and Chang, Yun and
+             Carlone, Luca and Beltrame, Giovanni},
+  journal = {IEEE Robotics and Automation Letters},
+  volume  = {9},
+  number  = {1},
+  pages   = {475--482},
+  year    = {2024},
+  doi     = {10.1109/LRA.2023.3330350}
+}
+
+% CP-SLAM — NeurIPS 2024, collaborative neural point-based SLAM system.
+@inproceedings{hu2024cpslam,
+  title     = {{CP-SLAM}: Collaborative Neural Point-Based {SLAM} System},
+  author    = {Hu, Jiarui and Mao, Mao and Bao, Hujun and Zhang, Guofeng and
+               Cui, Zhaopeng},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2024}
+}
+
+% MNE-SLAM — CVPR 2025, multi-agent neural SLAM for mobile robots;
+% distributed mapping/tracking, intra-to-inter loop closure, multi-submap
+% fusion; releases the INS multi-agent dataset.
+@inproceedings{deng2025mneslam,
+  title     = {{MNE-SLAM}: Multi-Agent Neural {SLAM} for Mobile Robots},
+  author    = {Deng, Tianchen and Shen, Guole and Xun, Chen and Yuan, Shenghai
+               and Jin, Tongxin and Shen, Hongming},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and
+               Pattern Recognition (CVPR)},
+  year      = {2025},
+  doi       = {10.1109/CVPR52734.2025.00146}
+}
+
+% Robust collaborative VI-SLAM for mobile AR — TVCG 2024, centralized
+% multi-agent VI-SLAM with submap fusion and global-map feedback.
+@article{pan2024robust,
+  title   = {Robust Collaborative Visual-Inertial {SLAM} for Mobile
+             Augmented Reality},
+  author  = {Pan, Xiaokun and Huang, Gan and Zhang, Ziyang and Li, Jinyu and
+             Bao, Hujun and Zhang, Guofeng},
+  journal = {IEEE Transactions on Visualization and Computer Graphics},
+  volume  = {30},
+  number  = {11},
+  pages   = {7354--7363},
+  year    = {2024},
+  doi     = {10.1109/TVCG.2024.3456152}
+}
+
+% Collaborative VI-SLAM on multiple smartphones — ICRA 2021.
+@inproceedings{liu2021colabvislam,
+  title     = {Collaborative Visual Inertial {SLAM} for Multiple Smart Phones},
+  author    = {Liu, Jialing and Liu, Ruyu and Chen, Kaiqi and Zhang, Jianhua
+               and Guo, Dongyan},
+  booktitle = {2021 IEEE International Conference on Robotics and Automation
+               (ICRA)},
+  year      = {2021},
+  pages     = {11614--11620},
+  doi       = {10.1109/ICRA48506.2021.9561946}
+}
+
+% Covins — decentralized SLAM with a centralized server back-end, used by Map++.
+@article{schmuck2021covins,
+  title   = {{Covins}: Visual-Inertial {SLAM} for Centralized Collaboration},
+  author  = {Schmuck, Patrik and Zanger, Ugur and Karrer, Marco and
+             Schmuck, Mona and Chli, Margarita},
+  journal = {arXiv preprint arXiv:2111.04262},
+  year    = {2021},
+  eprint  = {2111.04262},
+  archivePrefix = {arXiv}
+}
+
+% ---------------------------------------------------------------------------
+% 3. Multi-agent Gaussian Splatting SLAM (already partly in references.bib;
+%    re-listed here for self-contained MobiCom bib where keys differ).
+% ---------------------------------------------------------------------------
+
+% CGS-SLAM — multi-agent Gaussian Splatting SLAM for reconstruction.
+@article{deambrogi2026cgsslam_mob,
+  title   = {{CGS-SLAM}: Collaborative {Gaussian} Splatting based {SLAM} for
+             Multi-Agent Reconstruction},
+  author  = {de Ambrogi, Jean-Daniel and Chetouani, Aladine and Nguyen, Vincent
+             and Chateigner, Aur{\'e}lien},
+  journal = {arXiv preprint arXiv:2608.26868},
+  year    = {2026},
+  eprint  = {2608.26868},
+  archivePrefix = {arXiv}
+}
+
+% GRAND-SLAM — multi-agent large-scale 3DGS-SLAM with loop closure.
+@article{thomas2025grandslam_mob,
+  title   = {{GRAND-SLAM}: Local Optimization for Globally Consistent
+             Large-Scale Multi-Agent {Gaussian} {SLAM}},
+  author  = {Thomas, Annika and Sonawalla, Aneesa and Rose, Alex and
+             How, Jonathan P.},
+  journal = {IEEE Robotics and Automation Letters},
+  volume  = {10},
+  number  = {12},
+  pages   = {13129--13136},
+  year    = {2025},
+  doi     = {10.1109/LRA.2025.3623026}
+}
+
+% ---------------------------------------------------------------------------
+% 4. Foundations reused by the MobiCom draft (kept here so the MobiCom bib is
+%    self-contained if the survey bib is unavailable).
+% ---------------------------------------------------------------------------
+
+% 3D Gaussian Splatting.
+@article{kerbl20233dgs_mob,
+  title   = {{3D} {Gaussian} Splatting for Real-Time Radiance Field Rendering},
+  author  = {Kerbl, Bernhard and Kopanas, Georgios and Leimk{\"u}hler, Thomas
+             and Drettakis, George},
+  journal = {ACM Transactions on Graphics},
+  volume  = {42},
+  number  = {4},
+  pages   = {1--14},
+  year    = {2023},
+  doi     = {10.1145/3592433}
+}
+
+% Gaussian-LIC2 — the single-node ancestor.
+@article{lang2026gaussian2_mob,
+  title   = {{Gaussian-LIC2}: {LiDAR-Inertial-Camera} {Gaussian} Splatting {SLAM}},
+  author  = {Lang, Xiaolei and Lv, Jiajun and Tang, Kai and Li, Laijian and
+             Huang, Jianxin and Liu, Lina and Liu, Yong and Zuo, Xingxing},
+  journal = {The International Journal of Robotics Research},
+  year    = {2026},
+  eprint  = {2507.04004},
+  archivePrefix = {arXiv}
+}
+
+% Coco-LIC — the CT odometry backend.
+@article{lang2023coco_mob,
+  title   = {{Coco-LIC}: Continuous-Time Tightly-Coupled {LiDAR-Inertial-Camera}
+             Odometry using Non-Uniform {B-spline}},
+  author  = {Lang, Xiaolei and Chen, Chao and Tang, Kai and Ma, Yukai and
+             Lv, Jiajun and Liu, Yong and Zuo, Xingxing},
+  journal = {IEEE Robotics and Automation Letters},
+  volume  = {8},
+  number  = {11},
+  pages   = {7074--7081},
+  year    = {2023},
+  doi     = {10.1109/LRA.2023.3326544}
+}
+
+% FAST-LIVO2 — tightly-coupled LIV odometry supporting multi-cam/multi-LiDAR.
+@article{zheng2024fastlivo2_mob,
+  title   = {{FAST-LIVO2}: Fast, Direct {LiDAR-Inertial-Visual} Odometry},
+  author  = {Zheng, Chunran and Zhu, Wei and Xu, Yuanxin and Zhang, Mingkun
+             and Zhao, Wei and Hong, Sheng and Zhang, Fu and Qin, Tong and
+             Shen, Shaojie},
+  journal = {IEEE Transactions on Robotics},
+  volume  = {41},
+  pages   = {4253--4268},
+  year    = {2024},
+  doi     = {10.1109/TRO.2024.3524492}
+}
+
+% GTSAM — pose-graph optimization library.
+@misc{gtsam_mob,
+  title        = {{GTSAM}: {Georgia} {Tech} {Smoothing} and {Mapping} library},
+  author       = {Dellaert, Frank and Kaess, Michael},
+  howpublished = {\url{https://gtsam.org}},
+  year         = {2024},
+  note         = {Version 4.2; iSAM2 incremental solver}
+}
+
+% ---------------------------------------------------------------------------
+% 5. Wireless protocol and scheduling references (added 2026-09-28)
+% ---------------------------------------------------------------------------
+
+% IEEE 802.11e — QoS enhancement, EDCA.
+@article{ieee80211e,
+  title   = {{IEEE} Standard for Information Technology---Telecommunications
+             and Information Exchange Between Systems---Local and Metropolitan
+             Area Networks---Specific Requirements---{Part} 11: Wireless {LAN}
+             {MAC} and {PHY} Specifications---{Amendment} 8: {MAC} {QoS}
+             Enhancements},
+  author  = {{IEEE Computer Society}},
+  journal = {IEEE Std 802.11e-2005},
+  year    = {2005},
+  doi     = {10.1109/IEEESTD.2005.97890}
+}
+
+% DRAGON — deadline-aware transport protocol, NSDI 2023.
+@inproceedings{hou2023dragon,
+  title     = {{DRAGON}: Deadline-Guaranteed and Receiver-Adaptive Transport
+               Protocol for Data Center Applications},
+  author    = {Hou, Zhizhou and Li, Wenxue and Li, Yuliang and Tian, Chen and
+               Shen, Haiyang and Zhou, Yajun and Wang, Yi},
+  booktitle = {20th USENIX Symposium on Networked Systems Design and
+               Implementation (NSDI)},
+  year      = {2023},
+  pages     = {591--608},
+  publisher = {USENIX Association}
+}
+
+% PIAS — information-agnostic flow scheduling, SIGCOMM 2015.
+@inproceedings{bai2015pias,
+  title     = {{PIAS}: Practical Information-Agnostic Flow Scheduling for
+               Commodity Data Centers},
+  author    = {Bai, Wei and Chen, Li and Li, Kai and Wu, Haitao and Tian, Chen
+               and Dong, Weiyan and Liang, Haohao},
+  booktitle = {Proceedings of the 2015 ACM Conference on Special Interest Group
+               on Data Communication (SIGCOMM)},
+  year      = {2015},
+  pages     = {455--468},
+  doi       = {10.1145/2785956.2787478}
+}
+
+% NetVLAD — place recognition descriptor, CVPR 2016.
+@inproceedings{arandjelovic2016netvlad,
+  title     = {{NetVLAD}: {CNN} Architecture for Weakly Supervised Place
+               Recognition},
+  author    = {Arandjelovi{\'c}, Relja and Gronat, Petr and Torii, Akihiko and
+               Pajdla, Tom{\'a}{\v{s}} and Sivic, Josef},
+  booktitle = {Proceedings of the IEEE Conference on Computer Vision and
+               Pattern Recognition (CVPR)},
+  year      = {2016},
+  pages     = {5297--5307},
+  doi       = {10.1109/CVPR.2016.572}
+}
+
+% RaptorQ — IETF RFC 6330, fountain code for reliable bulk transfer.
+@misc{rfc6330raptorq,
+  title     = {{RFC} 6330: {RaptorQ} Forward Error Correction Scheme for Object
+               Delivery},
+  author    = {Luby, Michael and Shokrollahi, Amin and Watson, Mark and
+               Stockhammer, Thomas and Minder, Lorenz},
+  howpublished = {IETF RFC 6330},
+  year      = {2011},
+  doi       = {10.17487/RFC6330}
+}
+
+% ---------------------------------------------------------------------------
+% 6. Dataset and evaluation references (added 2026-09-28)
+% ---------------------------------------------------------------------------
+
+% M2DGR — ground robot dataset with LiDAR+stereo+IMU, ICRA 2022.
+@inproceedings{yin2022m2dgr,
+  title     = {{M2DGR}: A Multi-Sensor and Multi-Scenario {SLAM} Dataset for
+               Ground Robots},
+  author    = {Yin, Jie and Li, Ang and Li, Tao and Yu, Wenxian and Zou, Danping},
+  booktitle = {2022 IEEE International Conference on Robotics and Automation
+               (ICRA)},
+  year      = {2022},
+  pages     = {1151--1158},
+  doi       = {10.1109/ICRA46639.2022.9811382}
+}
+
+% MCD — urban driving dataset, RA-L 2024.
+@article{nguyen2024mcd,
+  title   = {{MCD}: Diverse Large-Scale Multi-Campus Dataset for Robot
+             Perception},
+  author  = {Nguyen, Thien-Minh and Yuan, Shenghai and Cao, Muqing and
+             Nguyen, Thien Hoang and Xie, Lihua},
+  journal = {IEEE Robotics and Automation Letters},
+  volume  = {9},
+  number  = {3},
+  pages   = {1549--1556},
+  year    = {2024},
+  doi     = {10.1109/LRA.2024.3349847}
+}
+
+% TUM RGB-D benchmark — standard SLAM evaluation tools, IJRR 2012.
+@article{zhang2018tum,
+  title   = {A Benchmark for the Evaluation of {RGB-D} {SLAM} Systems},
+  author  = {Sturm, J{\"u}rgen and Engelhard, Nikolas and Endres, Felix and
+             Burgard, Wolfram and Cremers, Daniel},
+  journal = {The International Journal of Robotics Research},
+  volume  = {31},
+  number  = {5},
+  pages   = {647--666},
+  year    = {2012},
+  doi     = {10.1177/0278364911430414}
+}

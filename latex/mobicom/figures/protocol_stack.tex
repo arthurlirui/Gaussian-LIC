@@ -1,0 +1,57 @@
+% Co-LIC2 protocol stack diagram
+% Shows mapping from four traffic streams to EDCA access categories
+\begin{tikzpicture}[
+  font=\footnotesize,
+  >=Stealth,
+  node distance=0.4cm and 0.6cm,
+  layer/.style={draw, rounded corners, minimum width=8.0cm, minimum height=0.8cm, align=center},
+  stream/.style={draw, rounded corners, minimum width=1.6cm, minimum height=0.6cm, align=center},
+  arr/.style={->, thick},
+]
+
+% Application layer
+\node[layer, fill=blue!8] (app) at (0,0) {Application Framing (CBOR + common header)};
+
+% Four streams
+\node[stream, fill=red!15, below=0.8cm of app.west, xshift=1.1cm] (pose) {Pose Stream\\(AC\_VO)};
+\node[stream, fill=yellow!15, right=0.3cm of pose] (ctrl) {Control Stream\\(AC\_VI)};
+\node[stream, fill=green!12, right=0.3cm of ctrl] (kf) {Keyframe Stream\\(AC\_BE)};
+\node[stream, fill=cyan!10, right=0.3cm of kf] (sub) {Submap Stream\\(AC\_BK)};
+
+% Transport policies
+\node[layer, fill=gray!8, below=0.8cm of ctrl, minimum height=1.1cm] (transport) at (0,-3.0) 
+  {Transport Policies: FEC · Deadline-Aware Pacing · ARQ · Fragmentation};
+
+% 802.11e MAC
+\node[layer, fill=purple!8, below=0.8cm of transport] (mac) 
+  {802.11e EDCA MAC (AIFSN, CW\textsubscript{min/max}, TXOP)};
+
+% Wireless PHY
+\node[layer, fill=orange!10, below=0.8cm of mac] (phy) 
+  {802.11ax PHY (OFDMA, 2$\times$2 MIMO, 80 MHz)};
+
+% Arrows: app -> streams
+\draw[arr] (app.south -| pose.north) -- (pose.north);
+\draw[arr] (app.south -| ctrl.north) -- (ctrl.north);
+\draw[arr] (app.south -| kf.north) -- (kf.north);
+\draw[arr] (app.south -| sub.north) -- (sub.north);
+
+% Streams -> transport
+\draw[arr] (pose.south) -- (transport.north -| pose.south);
+\draw[arr] (ctrl.south) -- (transport.north -| ctrl.south);
+\draw[arr] (kf.south) -- (transport.north -| kf.south);
+\draw[arr] (sub.south) -- (transport.north -| sub.south);
+
+% Transport -> MAC
+\draw[arr] (transport.south) -- (mac.north);
+
+% MAC -> PHY
+\draw[arr] (mac.south) -- (phy.north);
+
+% QoS annotations on the right
+\node[anchor=west, font=\tiny\bfseries, red!60!black] at ($(pose.east)+(0.2,0)$) {Lat:$<$50ms};
+\node[anchor=west, font=\tiny\bfseries, yellow!60!black] at ($(ctrl.east)+(0.2,0)$) {Lat:$<$100ms};
+\node[anchor=west, font=\tiny\bfseries, green!50!black] at ($(kf.east)+(0.2,0)$) {Lat:$<$500ms};
+\node[anchor=west, font=\tiny\bfseries, cyan!50!black] at ($(sub.east)+(0.2,0)$) {Lat:$<$2s};
+
+\end{tikzpicture}

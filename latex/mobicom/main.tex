@@ -1,0 +1,176 @@
+% Co-LIC2: Cooperative Multi-Node Photo-Realistic Gaussian SLAM
+%    with QoS-Aware Multi-Stream Wireless Protocol
+% MobiCom submission template (ACM acmart, sigconf)
+% Compile: pdflatex main && bibtex main && pdflatex main && pdflatex main
+\documentclass[sigconf, 10pt, review, anonymous]{acmart}
+
+%% Rights / conference metadata (placeholder for submission; replace on acceptance)
+\setcopyright{none}
+\acmConference[MobiCom '27]{The 33rd Annual International Conference on Mobile Computing and Networking}{2027}{TBD}
+\acmYear{2027}
+\acmDOI{XXXXXXX.XXXXXXX}
+\acmISBN{978-1-4503-XXXX-X/27/XX}
+
+%% Math and graphics
+\usepackage{amsmath,amsfonts}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{subcaption}
+\usepackage{multirow}
+%% Fix acmart + amssymb conflict for \Bbbk
+\let\Bbbk\relax
+\usepackage{amssymb}
+
+%% Algorithms
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+%% TikZ for diagrams
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,calc,fit,shapes.geometric,backgrounds,decorations.pathreplacing,patterns}
+
+%% Listings for code/format snippets
+\usepackage{listings}
+\usepackage{xcolor}
+
+%% Custom commands
+\newcommand{\SEthree}{SE(3)}
+\newcommand{\Twb}{T_{W\leftarrow B}}
+\newcommand{\GaussianMap}{\mathcal{G}}
+\newcommand{\submap}{\mathcal{S}}
+\newcommand{\Npv}{\text{NPV}}
+\newcommand{\Bbudget}{B_{\text{budget}}}
+\newcommand{\coap}{\texttt{CoAP} }
+\newcommand{\dds}{\texttt{DDS} }
+\newcommand{\grpc}{\texttt{gRPC} }
+
+\begin{document}
+
+\title{Co-LIC2: Cooperative Multi-Node Photo-Realistic Gaussian SLAM\\with QoS-Aware Multi-Stream Wireless Protocol}
+
+\author{Anonymous Author 1}
+\affiliation{%
+  \institution{Anonymous Institution}
+  \city{Anonymous City}
+  \country{Anonymous Country}}
+\email{anon1@example.com}
+
+\author{Anonymous Author 2}
+\affiliation{%
+  \institution{Anonymous Institution}
+  \city{Anonymous City}
+  \country{Anonymous Country}}
+\email{anon2@example.com}
+
+\author{Anonymous Author 3}
+\affiliation{%
+  \institution{Anonymous Institution}
+  \city{Anonymous City}
+  \country{Anonymous Country}}
+\email{anon3@example.com}
+
+\renewcommand{\shortauthors}{Anonymous}
+
+\begin{abstract}
+We present Co-LIC2, a cooperative multi-node LiDAR-inertial-visual Gaussian
+Splatting SLAM system in which multiple mobile platforms communicate over
+bandwidth-limited, lossy wireless networks to jointly construct a single
+globally consistent photo-realistic 3D map. Co-LIC2 makes three contributions to
+the intersection of mobile computing and robotic perception. First, we design a
+\textbf{QoS-aware multi-stream wireless protocol} that multiplexes four traffic
+classes---real-time pose streams, bulk submap transfers, reference keyframes,
+and control messages---with differentiated reliability, latency, and priority.
+Second, we introduce a \textbf{submap-aware adaptive compression scheduler} that
+jointly optimizes spherical-harmonics truncation, spatial quantization, and
+entropy-coding level under a hard bandwidth budget while maximizing
+view-dependent rendering quality through a novel Number-of-Gaussians-Per-View
+(NPV) metric. Third, we propose a \textbf{hierarchical hybrid network
+architecture} with dynamic cluster-head election, multi-hop submap routing, and
+graceful degradation pathways that maintain map consistency under intermittent
+connectivity, node churn, and total network partition. We provide a detailed
+protocol specification, analytical bounds on bandwidth scalability and
+end-to-end latency, and a failure-mode recovery analysis. Co-LIC2's
+communication layer is designed for Wi-Fi~6/6E and 5G~NR deployments, supporting
+2--32 heterogeneous nodes with per-node uplink as low as 3.2~Mbps and per-cluster
+inter-node submap merge latency under 2~s.
+\end{abstract}
+
+\begin{CCSXML}
+<ccs2012>
+ <concept>
+  <concept_id>10003033.10003079.10003083</concept_id>
+  <concept_desc>Networks~Network protocol design</concept_desc>
+  <concept_significance>500</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10003033.10003079.10003082</concept_id>
+  <concept_desc>Networks~Wireless access networks</concept_desc>
+  <concept_significance>500</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10003120.10003121.10003122</concept_id>
+  <concept_desc>Computer systems organization~Embedded and cyber-physical systems</concept_desc>
+  <concept_significance>300</concept_significance>
+ </concept>
+ <concept>
+  <concept_id>10010147.10010178.10010187</concept_id>
+  <concept_desc>Computing methodologies~Computer vision</concept_desc>
+  <concept_significance>300</concept_significance>
+ </concept>
+</ccs2012>
+\end{CCSXML}
+
+\ccsdesc[500]{Networks~Network protocol design}
+\ccsdesc[500]{Networks~Wireless access networks}
+\ccsdesc[300]{Computer systems organization~Embedded and cyber-physical systems}
+\ccsdesc[300]{Computing methodologies~Computer vision}
+
+\keywords{collaborative SLAM, Gaussian splatting, wireless protocol design,
+QoS-aware streaming, multi-agent systems, edge computing, bandwidth-efficient
+map sharing, hierarchical network topology}
+
+\maketitle
+
+\section{Introduction}
+\input{sections/introduction}
+
+\section{Related Work}
+\input{sections/related}
+
+\section{System Model and Wireless Channel}
+\input{sections/system}
+
+\section{Hierarchical Cooperative Network Architecture}
+\input{sections/network}
+
+\section{Multi-Stream QoS-Aware Communication Protocol}
+\input{sections/protocol}
+
+\section{Adaptive Submap Compression and Scheduling}
+\input{sections/compression}
+
+\section{Cooperative Pose-Graph SLAM Backend}
+\input{sections/mapping}
+
+\section{Experimental Evaluation}
+\input{sections/experiments}
+
+\section{Implementation}
+\input{sections/implementation}
+
+\section{Discussion}
+\input{sections/discussion}
+
+\section{Conclusion}
+\input{sections/conclusion}
+
+\bibliographystyle{ACM-Reference-Format}
+\bibliography{mobicom_refs,../bib/references}
+
+\appendix
+\section{Submap Binary Format Specification}
+\input{sections/appendix}
+\section{Protocol State Machine}
+\input{sections/appendix_protocol}
+
+\end{document}

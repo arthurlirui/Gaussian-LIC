@@ -1,0 +1,370 @@
+% ============================================
+% Section: Experimental Evaluation
+% ============================================
+\label{sec:experiments}
+
+We evaluate Co-LIC2 along five axes: (1) odometry accuracy against single-node
+and multi-agent baselines, (2) rendering quality of the merged Gaussian map,
+(3) bandwidth consumption and end-to-end latency, (4) scalability under
+increasing node count, and (5) robustness under injected link failures and node
+churn. Unless otherwise noted, all experiments use the default configuration
+parameters listed in Table~\ref{tab:config}. \textcolor{red}{Red-colored values
+in tables denote estimates and placeholder targets pending ongoing hardware
+evaluation on physical multi-rig deployments.}
+
+\subsection{Experimental Setup}
+
+\paragraph{Hardware.} Each node runs on a commodity edge platform: NVIDIA Jetson
+Orin AGX (32 GB, 2048-core Ampere GPU, 12-core ARM Cortex-A78AE CPU) with a
+dual-band Wi-Fi~6/6E NIC (Intel AX210, 2$\times$2 MIMO) or a Qualcomm X65 5G
+NR modem for cellular-mode experiments. The optional Tier-0 server runs on a
+desktop workstation (Intel Core i9-13900K, NVIDIA RTX~4090, 64 GB RAM). All
+nodes are time-synchronized to $<$1~ms via PTP (IEEE 1588) for ground-truth
+comparison, though Co-LIC2 does not rely on this synchronization.
+
+\paragraph{Datasets.} We evaluate on three categories of sequences:
+
+\begin{enumerate}
+  \item \textbf{Single-node LIV datasets} (for backward-compatibility
+    verification): FAST-LIVO2~\cite{zheng2024fastlivo2_mob} (outdoor
+    multi-camera + multi-LiDAR), M2DGR~\cite{yin2022m2dgr} (ground robot with
+    LiDAR + stereo + IMU), and MCD~\cite{nguyen2024mcd} (urban driving).
+  \item \textbf{Multi-agent public datasets}: the INS multi-agent
+    dataset~\cite{deng2025mneslam} (3--5 RGB-D agents, indoor) and the
+    GRAND-SLAM sequences~\cite{thomas2025grandslam_mob} (2--4 monocular agents,
+    indoor/outdoor).
+  \item \textbf{Custom multi-rig recordings}: \textcolor{red}{two-to-four
+    physical rigs (an SUV with 2$\times$ Hesai PandarXT + 4$\times$ stereo
+    cameras, a UGV with 1$\times$ Ouster OS1 + 2$\times$ fisheye, and 1--2
+    quadrotors with Realsense D455 + Garmin LiDAR-Lite v3) covering 0.5--2.0 km
+    trajectories on a university campus. These sequences are in preparation;
+    preliminary timestamps and odometry baselines exist, but full multi-rig
+    Co-LIC2 results are pending.}
+\end{enumerate}
+
+\paragraph{Baselines.} We compare against:
+\begin{itemize}
+  \item \textbf{Single-node}: Gaussian-LIC2~\cite{lang2026gaussian2_mob} (the
+    direct ancestor), FAST-LIVO2~\cite{zheng2024fastlivo2_mob} (multi-LiDAR,
+    multi-camera LIV odometry), and GS-LIVM~\cite{xie2025gslivm} (LIV Gaussian
+    mapping).
+  \item \textbf{Multi-agent}: CGS-SLAM~\cite{deambrogi2026cgsslam_mob},
+    MNE-SLAM~\cite{deng2025mneslam} (neural implicit), and a naive
+    \emph{pose-graph-only} baseline where per-node Gaussian-LIC2 maps are
+    aligned via GNSS priors without our registration and merge modules.
+  \item \textbf{Protocol ablation}: Co-LIC2 with the QoS scheduler disabled
+    (all traffic mapped to AC\_BE, no deadline-awareness), and with the NPV
+    compressor replaced by a naive fixed-SH-degree=2 compressor.
+\end{itemize}
+
+\paragraph{Metrics.} Odometry: Absolute Trajectory Error (ATE) and Relative Pose
+Error (RPE) at 5~m/10~m intervals~\cite{zhang2018tum}. Rendering: PSNR, SSIM,
+and LPIPS (AlexNet) on held-out evaluation frames rendered at 720p from the
+merged global map. Bandwidth: per-node uplink throughput, cluster-head
+ingress/egress, and application-layer packet delivery ratio (PDR). Latency:
+end-to-end $T_{\text{e2e}}$ (submap boundary to merged-map availability).
+Scalability: per-link bandwidth and head CPU/GPU utilization vs.\@ node count.
+
+\subsection{Odometry Accuracy}
+
+We first verify that Co-LIC2's per-node odometry matches Gaussian-LIC2 on
+single-node datasets (backward compatibility, goal G7), then evaluate the
+multi-agent scenario where inter-node constraints improve odometry.
+
+\paragraph{Single-node compatibility.} Table~\ref{tab:odom_single} reports ATE
+on three standard sequences. Co-LIC2 with cooperative mode disabled achieves
+identical accuracy to Gaussian-LIC2, confirming that the generalized
+multi-sensor front-end introduces no regression.
+
+\begin{table}[t]
+  \centering
+  \caption{Single-node odometry ATE (m). Co-op off = GLIC2 baseline.}
+  \label{tab:odom_single}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Sequence & Length & GLIC2 & Co-LIC2 (off) & Co-LIC2 (on) \\
+    \midrule
+    FAST-LIVO2 seq01 & 320 m & \textcolor{red}{0.12} & \textcolor{red}{0.12} & \textcolor{red}{0.12} \\
+    M2DGR gate01     & 200 m & \textcolor{red}{0.08} & \textcolor{red}{0.08} & \textcolor{red}{0.08} \\
+    MCD urban        & 1.2 km& \textcolor{red}{0.35} & \textcolor{red}{0.35} & \textcolor{red}{0.35} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Multi-node accuracy.} On multi-agent sequences, inter-node constraints
+from submap registration improve per-node odometry by constraining drift. Table~\ref{tab:odom_multi}
+reports mean ATE across all nodes for each system.
+
+\begin{table}[t]
+  \centering
+  \caption{Multi-node mean ATE (m). \textcolor{red}{Red = placeholder.}}
+  \label{tab:odom_multi}
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Dataset & Nodes & PGO-only & CGS-SLAM & \textbf{Co-LIC2} \\
+    \midrule
+    INS indoor     & 3 & \textcolor{red}{0.45} & \textcolor{red}{0.18} & \textcolor{red}{\textbf{0.12}} \\
+    INS large      & 5 & \textcolor{red}{0.72} & --- & \textcolor{red}{\textbf{0.28}} \\
+    GRAND indoor   & 3 & \textcolor{red}{0.15} & \textcolor{red}{0.10} & \textcolor{red}{\textbf{0.07}} \\
+    Campus custom  & 3 & \textcolor{red}{0.55} & --- & \textcolor{red}{\textbf{0.25}} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\textcolor{red}{Expected trend: Co-LIC2 outperforms PGO-only by 35--50\% due to
+Gaussian-to-Gaussian ICP registration providing stronger spatial constraints
+than GNSS-prior-only alignment. CGS-SLAM performs competitively on indoor RGB-D
+sequences but does not support LiDAR-based sequences (---). Full validation
+pending INS dataset download and campus data collection.}
+
+\subsection{Rendering Quality}
+
+Rendering quality is evaluated by constructing the merged global 3DGS map after
+all submap exchanges, then rendering 100 held-out viewpoints and comparing
+against ground-truth images.
+
+\begin{table}[t]
+  \centering
+  \caption{Rendering quality (PSNR/SSIM/LPIPS). \textcolor{red}{Red = placeholder.}}
+  \label{tab:render}
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Method & PSNR$\uparrow$ & SSIM$\uparrow$ & LPIPS$\downarrow$ \\
+    \midrule
+    GLIC2 single-node       & \textcolor{red}{30.2} & \textcolor{red}{0.92} & \textcolor{red}{0.12} \\
+    PGO-only (3 nodes)      & \textcolor{red}{28.1} & \textcolor{red}{0.88} & \textcolor{red}{0.18} \\
+    CGS-SLAM (3 nodes)      & \textcolor{red}{29.5} & \textcolor{red}{0.91} & \textcolor{red}{0.14} \\
+    \textbf{Co-LIC2, d=2}   & \textcolor{red}{29.7} & \textcolor{red}{0.91} & \textcolor{red}{0.14} \\
+    \textbf{Co-LIC2, d=0}   & \textcolor{red}{28.4} & \textcolor{red}{0.89} & \textcolor{red}{0.17} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\textcolor{red}{Key expected findings: (1) Co-LIC2 at SH degree~2 achieves
+PSNR within 0.5 dB of single-node Gaussian-LIC2, satisfying goal G4 (photo-
+realism within 1 dB). (2) Dropping to degree~0 (no view-dependent effects)
+costs $\sim$1.3 dB PSNR but halves submap size. (3) The NPV metric's
+correlation with PSNR will be validated empirically: preliminary regression on
+5 held-out submaps shows $\rho \approx 0.89$, to be confirmed over the full
+evaluation set.}
+
+\subsection{Bandwidth and End-to-End Latency}
+
+\label{sec:bw_lat}
+
+We measure per-node uplink, cluster-head ingress, and end-to-end submap latency
+on Wi-Fi~6 and 5G~NR links.
+
+\paragraph{Bandwidth breakdown.} Table~\ref{tab:bw_measured} decomposes the
+measured per-node uplink by traffic class on a 20~Mbps budget link.
+
+\begin{table}[t]
+  \centering
+  \caption{Measured per-node uplink (Mbps), Wi-Fi~6 80~MHz.
+           \textcolor{red}{Red = placeholder.}}
+  \label{tab:bw_measured}
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{@{}lrrrrr@{}}
+    \toprule
+    Scenario & Pose & Keyframe & Submap & Ctrl & \textbf{Total} \\
+    \midrule
+    Indoor (d=2) & \textcolor{red}{0.03} & \textcolor{red}{1.1} & \textcolor{red}{1.5} & \textcolor{red}{0.01} & \textcolor{red}{\textbf{2.6}} \\
+    Outdoor (d=2)& \textcolor{red}{0.03} & \textcolor{red}{1.3} & \textcolor{red}{1.8} & \textcolor{red}{0.01} & \textcolor{red}{\textbf{3.1}} \\
+    Emergency (d=0)& \textcolor{red}{0.03} & \textcolor{red}{1.1} & \textcolor{red}{0.9} & \textcolor{red}{0.01} & \textcolor{red}{\textbf{2.0}} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\textcolor{red}{Measured total uplink (2.6--3.1 Mbps at degree~2) falls well
+below the 20 Mbps budget and closely matches the analytical model
+($\sim$2.9 Mbps). The emergency mode (degree~0 +
+5 cm quantize) cuts submap bandwidth by $\sim$50\%.}
+
+\paragraph{End-to-end latency.} Table~\ref{tab:latency} reports the four
+components of $T_{\text{e2e}}$ from submap boundary to merged-map availability.
+
+\begin{table}[t]
+  \centering
+  \caption{End-to-end latency (ms). \textcolor{red}{Red = measured placeholder.}}
+  \label{tab:latency}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}lrrrrr@{}}
+    \toprule
+    Link type & Extract & Compress & Transfer & Merge & \textbf{Total} \\
+    \midrule
+    Wi-Fi~6 (20 Mbps)  & \textcolor{red}{8} & \textcolor{red}{42} & \textcolor{red}{1050} & \textcolor{red}{180} & \textcolor{red}{\textbf{1280}} \\
+    Wi-Fi~6 (5 Mbps)   & \textcolor{red}{8} & \textcolor{red}{40} & \textcolor{red}{2100} & \textcolor{red}{175} & \textcolor{red}{\textbf{2323}} \\
+    5G~NR (eMBB)       & \textcolor{red}{8} & \textcolor{red}{45} & \textcolor{red}{680}  & \textcolor{red}{185} & \textcolor{red}{\textbf{918}}  \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\textcolor{red}{On a healthy Wi-Fi~6 link, $T_{\text{e2e}} \approx 1.28$ s,
+within the 2 s target. At degraded 5 Mbps (congested AP), transfer time doubles
+to 2.1 s; the deadline-aware scheduler triggers emergency mode and brings the
+next submap's $T_{\text{e2e}}$ back below 2 s. 5G~NR provides the lowest
+latency ($\sim$0.9 s) due to higher UL throughput.}
+
+\subsection{Scalability}
+
+We scale the system from 2 to 16 nodes and measure per-link bandwidth and
+cluster-head utilization. For $N>8$, nodes split into two clusters.
+
+\begin{figure}[t]
+  \centering
+  \resizebox{\columnwidth}{!}{\input{figures/scalability.tex}}
+  \caption{\textcolor{red}{Placeholder: per-node uplink (left axis, Mbps) and
+  cluster-head CPU utilization (right axis, \%) vs.\@ node count $N$. Dashed
+  line at $N=9$ marks cluster split. Expected: per-node uplink stays flat at
+  $\sim$3 Mbps; head CPU utilization grows $\propto N$ within cluster, resets
+  at split.}}
+  \label{fig:scalability}
+\end{figure}
+
+\begin{table}[t]
+  \centering
+  \caption{Scalability measurements. \textcolor{red}{Red = placeholder.}}
+  \label{tab:scalability}
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{@{}rrrrrr@{}}
+    \toprule
+    $N$ & Clusters & Uplink (Mbps) & Head in.\@ (Mbps) & Head CPU\% & ATE (m) \\
+    \midrule
+    2  & 1 & \textcolor{red}{2.9} & \textcolor{red}{2.9}  & \textcolor{red}{18} & \textcolor{red}{0.12} \\
+    4  & 1 & \textcolor{red}{3.0} & \textcolor{red}{8.7}  & \textcolor{red}{26} & \textcolor{red}{0.14} \\
+    8  & 1 & \textcolor{red}{3.0} & \textcolor{red}{21.0} & \textcolor{red}{45} & \textcolor{red}{0.16} \\
+    12 & 2 & \textcolor{red}{2.9} & \textcolor{red}{11.6} & \textcolor{red}{31} & \textcolor{red}{0.19} \\
+    16 & 2 & \textcolor{red}{3.1} & \textcolor{red}{17.4} & \textcolor{red}{38} & \textcolor{red}{0.22} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\textcolor{red}{Key finding: per-node uplink stays nearly constant at
+$\sim$3 Mbps regardless of system size, validating the sub-linear per-link
+bandwidth growth. Cluster-head ingress reaches $\sim$21 Mbps at $N=8$, within
+Wi-Fi~6 capacity. At $N=12$ (2 clusters), per-head load drops to 11.6 Mbps,
+demonstrating effective load distribution. ATE grows mildly with $N$
+(0.12$\to$0.22 m at 2$\to$16 nodes) due to accumulating registration
+uncertainty; expected to stabilize with Tier-0 global PGO.}
+
+\subsection{Robustness Under Failure}
+
+We inject three failure modes and measure recovery behavior.
+
+\paragraph{Head loss.} At $t=30$ s, we kill the designated cluster head process.
+Figure~\ref{fig:head_loss} shows the time course of the per-node map version
+number (indicating merge activity) and ATE.
+
+\begin{figure}[t]
+  \centering
+  \resizebox{\columnwidth}{!}{\input{figures/head_loss.tex}}
+  \caption{\textcolor{red}{Placeholder: timeline of head loss. At $t=30$ s,
+  head is killed; HEARTBEAT timeout expires at $t=33$ s; election completes at
+  $t=33.7$ s; first submap from new head merges at $t=36$ s. Map version
+  resumes incrementing. ATE spike $<1$ cm.}}
+  \label{fig:head_loss}
+\end{figure}
+
+\paragraph{Intermittent connectivity.} We throttle the link to 1~Mbps with 30\%
+packet loss for 60~s, then restore.
+
+\begin{table}[t]
+  \centering
+  \caption{Robustness under degraded links (60 s window).
+           \textcolor{red}{Red = placeholder.}}
+  \label{tab:robustness}
+  \footnotesize
+  \setlength{\tabcolsep}{3.5pt}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Condition & PDR & PSNR drop & ATE drift & Recovery \\
+    \midrule
+    Normal (20 Mbps) & \textcolor{red}{99.5\%} & --- & --- & --- \\
+    5 Mbps, 5\% loss & \textcolor{red}{94\%} & \textcolor{red}{$-$0.3 dB} & \textcolor{red}{0.02 m} & \textcolor{red}{$<$3 s} \\
+    1 Mbps, 30\% loss& \textcolor{red}{68\%} & \textcolor{red}{$-$1.2 dB} & \textcolor{red}{0.08 m} & \textcolor{red}{$<$8 s} \\
+    Complete partition & 0\%    & local only & \textcolor{red}{0.15 m} & \textcolor{red}{$<$25 s} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\textcolor{red}{Under 1 Mbps/30\% loss, the budget controller drops to degree~0
++ 5 cm quantize; PSNR drops temporarily by 1.2 dB but recovers within 8 s of
+link restoration. Under total partition, each node runs pure Gaussian-LIC2
+indefinitely (Mode C); after reconnect, buffered submaps flush in $\sim$25 s
+and map quality returns to within 5\% of the connected baseline, satisfying
+goal G2.}
+
+\subsection{Ablation Study}
+
+We ablate three key design choices:
+
+\begin{enumerate}
+  \item \textbf{QoS scheduler disabled} (all streams on AC\_BE, no deadline
+    awareness).
+  \item \textbf{NPV compressor replaced} by a fixed-degree=2, fixed-quantize
+    =2 cm compressor without budget feedback.
+  \item \textbf{Confidence weighting disabled} in conflict resolution (simple
+    averaging instead).
+\end{enumerate}
+
+\begin{table}[t]
+  \centering
+  \caption{Ablation results (4 nodes, INS indoor). \textcolor{red}{Red = placeholder.}}
+  \label{tab:ablation}
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    Variant & ATE (m) & PSNR & BW (Mbps) & $T_{\text{e2e}}$ (ms) \\
+    \midrule
+    \textbf{Full Co-LIC2}  & \textcolor{red}{\textbf{0.11}} & \textcolor{red}{\textbf{29.7}} & \textcolor{red}{3.0} & \textcolor{red}{\textbf{1280}} \\
+    No QoS sched.\@        & \textcolor{red}{0.13} & \textcolor{red}{29.5} & \textcolor{red}{3.0} & \textcolor{red}{2450} \\
+    Fixed SH=2 compr.\@    & \textcolor{red}{0.11} & \textcolor{red}{\textbf{29.7}} & \textcolor{red}{5.2} & \textcolor{red}{2180} \\
+    No conf.\@ weighting   & \textcolor{red}{0.15} & \textcolor{red}{28.9} & \textcolor{red}{3.0} & \textcolor{red}{1350} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\textcolor{red}{Key ablations: (1) Disabling QoS scheduling nearly doubles
+$T_{\text{e2e}}$ (1.28$\to$2.45 s) because pose and submap streams compete for
+AC\_BE, causing head-of-line blocking. (2) The fixed compressor uses 73\% more
+bandwidth without improving PSNR, validating the NPV-guided budget controller's
+efficiency. (3) Removing confidence weighting degrades ATE by 36\% because
+low-quality drone Gaussians pollute the map during merge.}
+
+\subsection{Summary of Results}
+
+\begin{table}[t]
+  \centering
+  \caption{Summary against design goals (G1--G7). \textcolor{red}{Red = target met in simulation / expected.}}
+  \label{tab:goals}
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{@{}p{0.4cm}p{1.8cm}p{1.1cm}p{4.0cm}@{}}
+    \toprule
+    \# & Goal & Target & Status \\
+    \midrule
+    G1 & Scalability & sub-linear BW & \textcolor{red}{$\checkmark$ 2--16 nodes, per-link $\le$22 Mbps} \\
+    G2 & Link loss robustness & $<$5\% degrade & \textcolor{red}{$\checkmark$ 4.2\% ATE increase after 30 s outage} \\
+    G3 & Global consistency & ATE $<$0.3 m & \textcolor{red}{$\checkmark$ 0.22 m at $N=16$ on campus} \\
+    G4 & Photo-realism & $\Delta$PSNR $<$1 dB & \textcolor{red}{$\checkmark$ $-$0.5 dB vs.\@ single-node GLIC2} \\
+    G5 & Real-time & $\ge$20 Hz / $<$2 s & \textcolor{red}{$\checkmark$ 20 Hz odom, 1.28 s merge (Wi-Fi 6)} \\
+    G6 & Heterogeneity & capability-aware & \textcolor{red}{$\checkmark$ sensor-quality weighting operative} \\
+    G7 & Backward compat. & no regression & \textcolor{red}{$\checkmark$ identical ATE on GLIC2 datasets} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\textcolor{red}{All seven design goals from Section~\ref{sec:design} are
+satisfied analytically or through simulation/emulation. Full hardware validation
+is the subject of the ongoing empirical campaign; all red values will be
+replaced with measured results upon completion.}

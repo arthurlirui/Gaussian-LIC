@@ -1,0 +1,51 @@
+% Communication sequence diagram for Co-LIC2 (MobiCom edition)
+% Join -> publish -> merge -> loop -> PGO correction with EDCA AC labels
+\begin{tikzpicture}[
+  font=\scriptsize,
+  >=Stealth,
+  actor/.style={draw, rounded corners, minimum width=2.0cm, minimum height=0.5cm, align=center, fill=gray!8},
+  msg/.style={->, thick},
+  msgd/.style={->, thick, dashed},
+]
+
+% Actors (vertical lifelines)
+\node[actor] (n) at (0,0) {Node $i$};
+\node[actor] (h) at (5,0) {Cluster Head};
+\node[actor] (o) at (10,0) {Other Members};
+
+\draw[dashed, gray] (n.south) -- ++(0,-7.0);
+\draw[dashed, gray] (h.south) -- ++(0,-7.0);
+\draw[dashed, gray] (o.south) -- ++(0,-7.0);
+
+% Time flows downward
+% Join phase
+\draw[msg, purple!60!black] (0,-0.8) -- (5,-1.0) 
+  node[midway, above, font=\tiny] {1. HELLO (NodeDescriptor) [VI]};
+\draw[msg, purple!60!black] (5,-1.4) -- (0,-1.6) 
+  node[midway, above, font=\tiny] {2. cluster digest + head\_id [VI]};
+
+% Steady state
+\draw[msg, red!60!black] (0,-2.3) -- (5,-2.5) 
+  node[midway, above, font=\tiny] {3. POSE\_STREAM @20Hz [VO]};
+\draw[msg, orange!70!black] (0,-3.0) -- (5,-3.2) 
+  node[midway, above, font=\tiny] {4. SUBMAP\_PUSH (compressed) [BK]};
+
+% Merge + delta broadcast
+\draw[msg, orange!70!black] (5,-3.8) -- (0,-4.0) 
+  node[midway, above, font=\tiny] {5. SUBMAP\_ACK [VI]};
+\draw[msg, orange!70!black] (5,-4.4) -- (10,-4.6) 
+  node[midway, above, font=\tiny] {5'. MAP\_DELTA to peers [BK]};
+
+% Keyframe and loop closure
+\draw[msg, green!50!black] (0,-5.1) -- (5,-5.3) 
+  node[midway, above, font=\tiny] {6. KEYFRAME (1Hz) [BE]};
+\draw[msgd, green!60!black] (10,-5.8) -- (5,-6.0) 
+  node[midway, above, font=\tiny] {7. CONSTRAINT (visual loop) [VI]};
+
+% PGO correction
+\draw[msg, purple!60!black] (5,-6.5) -- (0,-6.7) 
+  node[midway, above, font=\tiny] {8. MAP\_DELTA (PGO correction) [BK]};
+\draw[msg, purple!60!black] (5,-6.9) -- (10,-7.1) 
+  node[midway, above, font=\tiny] {8'. PGO correction [BK]};
+
+\end{tikzpicture}

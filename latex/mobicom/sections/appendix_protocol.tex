@@ -1,0 +1,99 @@
+% ============================================
+% Appendix B: Protocol Finite State Machines
+% ============================================
+\label{app:fsm}
+
+We provide the complete finite state machines for the three most complex
+protocol interactions.
+
+\subsection{Election State Machine}
+
+\begin{figure}[h]
+  \centering
+  \begin{tikzpicture}[
+    font=\footnotesize,
+    >=Stealth,
+    state/.style={draw, rounded corners, minimum width=1.8cm, minimum height=0.6cm, align=center, fill=gray!10},
+    trans/.style={->, thick},
+  ]
+    \node[state] (follower) {\footnotesize FOLLOWER};
+    \node[state, below left=1.2cm and 0.8cm of follower] (candidate) {\footnotesize CANDIDATE};
+    \node[state, below right=1.2cm and 0.8cm of follower] (head) {\footnotesize HEAD};
+    
+    \draw[trans] (follower) -- (candidate) node[midway, left, font=\tiny] {head timeout};
+    \draw[trans] (candidate) -- (head) node[midway, right, font=\tiny] {score wins};
+    \draw[trans] (candidate) -- (follower) node[midway, above right, font=\tiny] {higher score};
+    \draw[trans] (head) -- (follower) node[midway, right, font=\tiny] {higher score join};
+    \draw[trans, loop above] (follower) to (follower);
+    \draw[trans, loop below] (head) to (head);
+  \end{tikzpicture}
+  \caption{Cluster-head election FSM. All nodes start as FOLLOWER.
+  On head heartbeat timeout, transition to CANDIDATE and broadcast ELECTION.
+  If self.score is highest, become HEAD. If a head with higher score appears,
+  demote to FOLLOWER.}
+  \label{fig:election_fsm}
+\end{figure}
+
+\subsection{Submap Transfer FSM (Sender Side)}
+
+\begin{figure}[h]
+  \centering
+  \begin{tikzpicture}[
+    font=\footnotesize,
+    >=Stealth,
+    state/.style={draw, rounded corners, minimum width=1.5cm, minimum height=0.55cm, align=center, fill=gray!10},
+    trans/.style={->, thick},
+  ]
+    \node[state] (idle) {\footnotesize IDLE};
+    \node[state, right=1.5cm of idle] (tx) {\footnotesize TX\_ACTIVE};
+    \node[state, right=1.5cm of tx] (wait) {\footnotesize WAIT\_ACK};
+    
+    \draw[trans] (idle) -- (tx);
+    \draw[trans] (tx) -- (wait);
+    \draw[trans] (wait) -- (idle);
+    \draw[trans] (wait) edge[loop above] (wait);
+    \draw[trans] (tx) edge[loop below] (tx);
+  \end{tikzpicture}
+  \caption{Submap transfer FSM (sender side). On SUBMAP\_NACK, re-send missing
+  chunks up to 3 times; on 3rd failure, mark submap as failed and notify
+  application layer to re-extract at higher compression.}
+  \label{fig:submap_fsm}
+\end{figure}
+
+\subsection{Connection Lifecycle}
+
+The connection lifecycle has five phases:
+
+\begin{enumerate}
+  \item \textbf{Discovery (0--500 ms).} Node broadcasts HELLO with signed
+    NodeDescriptor. Existing nodes reply; head sends cluster digest.
+  \item \textbf{Calibration handshake (0--2 s).} If $W_i$ unaligned, head sends
+    coarse $T_{W_h\leftarrow W_i}$ prior. Refined after first submap exchange.
+  \item \textbf{Steady state (indefinite).} POSE\_STREAM at 20 Hz,
+    SUBMAP\_PUSH on boundaries, KEYFRAME at 1 Hz, MAP\_DELTA from head at 1 Hz.
+  \item \textbf{Autonomous mode (on link loss).} HEARTBEAT timeout over 3 s:
+    buffer submaps locally, broadcast HELLO every 1 s. On reconnect, flush
+    buffered submaps in chronological order.
+  \item \textbf{Leave (on exit).} Send LEAVE; head marks node's submaps as
+    owned-but-absent, kept time $T_{\text{keep}}=60$ s, then garbage collected
+    unless referenced by loop constraints.
+\end{enumerate}
+
+\subsection{Map Consistency Guarantees}
+
+Co-LIC2 provides the following consistency guarantees under the protocol:
+
+\begin{itemize}
+  \item \textbf{Monotonic map version.} MAP\_DELTA carries sequential version
+    numbers. A member only applies delta $v$ if its local version is $v-1$.
+    Lagging members pull full snapshots.
+  \item \textbf{Submap idempotency.} Globally unique submap IDs prevent
+    duplicate merge. The head maintains a set of recently merged IDs and
+    discards duplicates.
+  \item \textbf{PGO convergence.} iSAM2 incrementally updates the graph;
+    PGO corrections are applied as rigid submap transforms, guaranteeing
+    that a submap's internal geometry is preserved.
+  \item \textbf{Orphan timeout.} Absent-node submaps are kept for 60 s,
+    then garbage collected. If a loop constraint references an orphan
+    submap, it is preserved until the constraint is removed.
+\end{itemize}

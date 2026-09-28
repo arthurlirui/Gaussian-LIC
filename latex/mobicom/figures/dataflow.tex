@@ -1,0 +1,81 @@
+% Data-flow figure for Co-LIC2 (MobiCom edition)
+% Per-node pipeline with wireless QoS annotations — compact version
+\begin{tikzpicture}[
+  font=\fontsize{6}{7.2}\selectfont,
+  >=Stealth,
+  node distance=0.3cm and 0.5cm,
+  box/.style={draw, rounded corners, minimum width=1.8cm, minimum height=0.5cm, align=center, inner sep=2pt},
+  sens/.style={box, fill=gray!8},
+  core/.style={box, fill=blue!10},
+  map/.style={box, fill=green!12},
+  coop/.style={box, fill=orange!15},
+  pgo/.style={box, fill=purple!12},
+  arr/.style={->, thick},
+]
+
+% Sensor column
+\node[sens] (cam) {Cameras $\times N_c$};
+\node[sens, below=0.25cm of cam] (lid) {LiDARs $\times N_l$};
+\node[sens, below=0.25cm of lid] (imu) {IMU};
+
+% Sync
+\node[box, fill=gray!12, right=0.5cm of lid] (sync) {Sync \&\\Timestamper};
+
+% CT fusion
+\node[core, right=0.5cm of sync] (ct) {CT B-spline\\Fusion};
+
+% Trajectory + local map
+\node[box, fill=yellow!12, above right=0.2cm and 0.5cm of ct] (traj) {Trajectory $\Twb(t)$};
+\node[map, below right=0.2cm and 0.5cm of ct] (gmap) {Local Gaussian\\Map $\GaussianMap_i$};
+
+% Submap publish path
+\node[coop, right=0.5cm of gmap] (ext) {Submap\\Extractor};
+\node[coop, right=0.5cm of ext] (cmp) {Budget-Aware\\Compressor};
+\node[coop, right=0.5cm of cmp] (qos) {QoS\\Classifier};
+\node[coop, right=0.5cm of qos] (comm) {Wireless\\Transport};
+
+% Incoming merge path
+\node[coop, below=0.8cm of comm] (minc) {Incoming\\Messages};
+\node[coop, left=0.5cm of minc] (merge) {Map\\Merger};
+\node[pgo, left=0.5cm of merge] (pgo) {Pose Graph\\(iSAM2)};
+
+% Correction
+\node[box, fill=red!8, below=0.8cm of pgo] (corr) {Apply PGO\\Correction};
+\node[coop, below=0.3cm of merge] (loop) {Loop-Closure\\Agent};
+
+% Edges: sensors -> sync
+\draw[arr] (cam.east) -- (sync.west);
+\draw[arr] (lid.east) -- (sync.west);
+\draw[arr] (imu.east) -- (sync.west);
+
+% sync -> ct
+\draw[arr] (sync.east) -- (ct.west);
+
+% ct outputs
+\draw[arr] (ct.east) -- (traj.west);
+\draw[arr] (ct.east) -- (gmap.west);
+
+% Publish path
+\draw[arr] (traj.east) to[bend left=12] (ext.north);
+\draw[arr] (gmap.east) -- (ext.west);
+\draw[arr] (ext.east) -- (cmp.west);
+\draw[arr] (cmp.east) -- (qos.west);
+\draw[arr] (qos.east) -- (comm.west);
+
+% Incoming path
+\draw[arr] (minc.west) -- (merge.east);
+\draw[arr] (merge.west) -- (pgo.east);
+\draw[arr] (pgo.south) -- (corr.north);
+
+% Feedback to map
+\draw[arr, dashed, red!60!black] (corr.east) to[bend right=20] (gmap.south);
+\draw[arr, dashed, blue!60!black] (merge.north) to[bend left=8] (gmap.south east);
+
+% Loop closure
+\draw[arr, dashed, purple!60!black] (loop.north) -- (merge.south);
+\draw[arr, dashed, purple!60!black] (loop.west) -- (pgo.south east);
+
+% EDCA annotations on output
+\node[font=\fontsize{5}{6}\selectfont\bfseries, anchor=south, red!60!black] at (comm.north) {pose[VO] sub[BK] kf[BE] ctrl[VI]};
+
+\end{tikzpicture}

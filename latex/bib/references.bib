@@ -1802,3 +1802,72 @@
   doi       = {10.48550/arXiv.2607.06023},
   note      = {Code: https://github.com/uzh-rpg/why_does_deep_learning_improve_visual_slam}
 }
+
+% Addendum 22 — 2026-09-28
+% VIGS-SLAM (Zhu, Zhang, Li, Haala, Pollefeys, Barath; ETH Zurich +
+% U. Stuttgart + Microsoft; arXiv:2512.02293 v2 13 Mar 2026, ECCV 2026
+% LNCS 17055 pp. 322–341). A tightly-coupled visual-INERTIAL 3DGS SLAM
+% system — the gap Gaussian-LIC2 leaves open on the inertial side of
+% pure-visual GS-SLAM. Uses a sliding-window dense bundle adjustment
+% that jointly optimizes per-keyframe pose, per-pixel disparity, and IMU
+% states (velocity + gyro/accelerometer biases), with a ConvGRU learned
+% dense-correspondence frontend, robust IMU initialization, time-varying
+% bias modeling, and loop closure with consistent Gaussian updates.
+% Evaluated on five challenging datasets (incl. FAST-LIVO2 Retail) and
+% shown to outperform SOTA 3DGS-SLAM under motion blur / low texture /
+% exposure variation. Code to be released. Relevant to Gaussian-LIC2 as
+% the leading visual-inertial (no-LiDAR) contemporary GS-SLAM: it
+% validates the value of inertial coupling for tracking robustness but
+% still relies on learned monocular depth priors rather than metric
+% LiDAR scale, the gap Gaussian-LIC2's LIV fusion closes. Cite in the
+% visual-inertial GS-SLAM and learned-frontend discussion.
+@inproceedings{zhu2026vigsslam,
+  title     = {{VIGS-SLAM}: Visual Inertial {Gaussian Splatting} {SLAM}},
+  author    = {Zhu, Zihan and Zhang, Wei and Li, Moyang and Haala, Norbert
+               and Pollefeys, Marc and Barath, Daniel},
+  booktitle = {Computer Vision -- {ECCV} 2026},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {17055},
+  pages     = {322--341},
+  year      = {2026},
+  publisher = {Springer},
+  doi       = {10.1007/978-3-032-37261-1_19},
+  eprint    = {2512.02293},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2512.02293},
+  note      = {ECCV 2026; code to be made public}
+}
+
+% Elevator-VIGS (Zhou, Zhu, Zhang, Luo, Haala, Pollefeys; U. Zürich +
+% ETH Zürich + U. Stuttgart + Microsoft; arXiv:2609.23491, 20 Sep 2026).
+% Extends VIGS-SLAM with a per-keyframe "transport state" (elevator rise
+% + vertical velocity) in dense visual-inertial BA to handle the frame
+% conflict inside a moving elevator: the camera sees only motion
+% relative to the elevator while the IMU senses world-relative motion.
+% Estimates robot pose in the elevator frame and elevator motion in the
+% world frame, holds the transport state fixed through optimization,
+% then folds the rise into poses after the ride; uses a zero-shot
+% VLM + depth-network ride detector. Records real + simulated elevator
+% sequences with laser-measured floor-to-floor GT heights; SOTA on both,
+% and keeps VIGS-SLAM's SOTA on four elevator-free benchmarks. Relevant
+% to Gaussian-LIC2 as a moving-platform / degenerate-motion robustness
+% reference for visual-inertial GS-SLAM — the multi-floor / non-rigid-
+% platform case is one Gaussian-LIC2's LIV fusion would also face in
+% indoor deployment, and the transport-state idea is a candidate
+% formulation for any platform-motion decoupling in cooperative nodes.
+% Cite in the robustness / degenerate-motion and platform-motion
+% discussion.
+@misc{zhou2026elevatorvigs,
+  title     = {{Elevator-VIGS}: Separating Elevator Motion from Robot
+               Motion in Visual-Inertial {Gaussian Splatting} {SLAM}},
+  author    = {Zhou, Rui and Zhu, Zihan and Zhang, Wei and Luo, Zizhou
+               and Haala, Norbert and Pollefeys, Marc},
+  year      = {2026},
+  eprint    = {2609.23491},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2609.23491},
+  doi       = {10.48550/arXiv.2609.23491},
+  note      = {Project page: https://ruizhou-cn.github.io/elevator-vigs/}
+}

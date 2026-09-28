@@ -1,0 +1,45 @@
+% Placeholder: scalability chart
+% Shows per-node uplink and head CPU% vs node count N
+% Red frame = placeholder for measured data
+\begin{tikzpicture}[
+  font=\footnotesize,
+  >=Stealth,
+]
+  % Placeholder box
+  \fill[red!8] (0,0) rectangle (7.0,3.8);
+  \draw[red!60!black, very thick, dashed] (0,0) rectangle (7.0,3.8);
+  
+  % Axes
+  \draw[->, thick] (0.8,0.5) -- (0.8,3.3) node[above] {Bandwidth (Mbps)};
+  \draw[->, thick] (0.8,0.5) -- (6.5,0.5) node[right] {$N$ (nodes)};
+  
+  % X-axis labels
+  \foreach \x/\label in {1.5/2, 2.4/4, 3.3/8, 4.2/12, 5.1/16} {
+    \draw (\x,0.5) -- (\x,0.4) node[below] {\label};
+  }
+  
+  % Y-axis labels (left)
+  \foreach \y/\label in {1.0/0, 1.8/2, 2.6/4} {
+    \draw (0.8,\y) -- (0.7,\y) node[left] {\label};
+  }
+  
+  % Right Y-axis for CPU%
+  \draw[->, thick, blue!60!black] (6.5,0.5) -- (6.5,3.3) node[above, blue!60!black] {CPU\%};
+  \foreach \y/\label in {1.0/0, 1.8/25, 2.6/50} {
+    \draw (6.5,\y) -- (6.6,\y) node[right, blue!60!black, font=\tiny] {\label};
+  }
+  
+  % Placeholder curves (dashed)
+  \draw[red!60!black, very thick, densely dotted] plot coordinates {(1.5,2.4)(2.4,2.4)(3.3,2.5)(4.2,2.4)(5.1,2.5)};
+  \draw[blue!60!black, very thick, densely dotted] plot coordinates {(1.5,1.4)(2.4,1.8)(3.3,2.5)(4.2,1.6)(5.1,2.2)};
+  
+  % Annotation
+  \node[red!60!black, font=\large\bfseries] at (3.65,2.2) {\textsc{placeholder}};
+  \node[font=\tiny, red!60!black] at (3.65,1.8) {(measured data pending)};
+  
+  % Legend
+  \draw[red!60!black, very thick, densely dotted] (1.2,3.1) -- (1.8,3.1)
+    node[right, font=\tiny, black] {Uplink/node};
+  \draw[blue!60!black, very thick, densely dotted] (1.2,2.9) -- (1.8,2.9)
+    node[right, font=\tiny, black] {Head CPU\%};
+\end{tikzpicture}

@@ -1,0 +1,282 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{kerbl20233dgs}
+\citation{lang2026gaussian2,lang2025gaussian,xie2025gslivm,park2026livegs}
+\citation{deambrogi2026cgsslam_mob,thomas2025grandslam_mob,deng2025mneslam}
+\citation{lang2026gaussian2}
+\@writefile{toc}{\contentsline {section}{Abstract}{1}{section*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\citation{ieee80211e}
+\citation{hou2023dragon}
+\citation{bai2015pias}
+\citation{xu2022swarmmap}
+\citation{zhang2024mapp}
+\citation{liu2023adamap}
+\citation{xu2022swarmmap}
+\citation{zhang2024mapp}
+\citation{schmuck2021covins}
+\citation{lajoie2024swarmslam}
+\citation{deambrogi2026cgsslam_mob}
+\citation{thomas2025grandslam_mob}
+\citation{deng2025mneslam}
+\citation{hu2024cpslam}
+\citation{lang2023coco_mob}
+\citation{lang2026gaussian2_mob}
+\citation{zheng2024fastlivo2_mob}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Wireless QoS and Multi-Stream Protocols}{2}{subsection.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Edge-Assisted Collaborative SLAM}{2}{subsection.2.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Multi-Agent Gaussian and Neural SLAM}{2}{subsection.2.3}\protected@file@percent }
+\citation{lang2023coco}
+\citation{lang2026gaussian2}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Multi-Sensor Continuous-Time Odometry}{3}{subsection.2.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Positioning}{3}{subsection.2.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}System Model and Wireless Channel}{3}{section.3}\protected@file@percent }
+\newlabel{sec:system}{{3}{3}{System Model and Wireless Channel}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Node Model}{3}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Wireless Channel Model}{3}{subsection.3.2}\protected@file@percent }
+\newlabel{sec:channel}{{3.2}{3}{Wireless Channel Model}{subsection.3.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Scenario A --- Wi-Fi 6/6E infrastructure.}{3}{section*.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Scenario B --- 5G NR.}{3}{section*.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Link quality metric.}{3}{section*.7}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Design Goals}{3}{subsection.3.3}\protected@file@percent }
+\newlabel{sec:design}{{3.3}{3}{Design Goals}{subsection.3.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Co-LIC2 design goals.}}{4}{table.caption.8}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:goals_list}{{1}{4}{Co-LIC2 design goals}{table.caption.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Per-Node Continuous-Time Multi-Sensor Fusion}{4}{subsection.3.4}\protected@file@percent }
+\newlabel{sec:ctfusion}{{3.4}{4}{Per-Node Continuous-Time Multi-Sensor Fusion}{subsection.3.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{IMU residuals.}{4}{section*.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{LiDAR residuals.}{4}{section*.10}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Camera residuals.}{4}{section*.11}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Time-offset residuals.}{4}{section*.12}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Traffic Characterization}{4}{subsection.3.5}\protected@file@percent }
+\newlabel{sec:traffic}{{3.5}{4}{Traffic Characterization}{subsection.3.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Traffic classes and QoS requirements.}}{4}{table.caption.13}\protected@file@percent }
+\newlabel{tab:traffic}{{2}{4}{Traffic classes and QoS requirements}{table.caption.13}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Topology comparison for cooperative Gaussian SLAM.}}{4}{table.caption.14}\protected@file@percent }
+\newlabel{tab:topology}{{3}{4}{Topology comparison for cooperative Gaussian SLAM}{table.caption.14}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Hierarchical Cooperative Network Architecture}{4}{section.4}\protected@file@percent }
+\newlabel{sec:network}{{4}{4}{Hierarchical Cooperative Network Architecture}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Design Rationale and Topology Selection}{4}{subsection.4.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Three Degradation Modes}{4}{subsection.4.2}\protected@file@percent }
+\citation{lang2026gaussian2}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Hierarchical hybrid architecture. Tier-0 (optional): Edge Fusion Server for global map consolidation. Tier-1: cluster heads exchange submaps over an inter-cluster P2P bus. Tier-2: member nodes run local Gaussian-LIC2 and publish compressed submaps to their head. On server loss the system degrades to Tier-1 P2P; on head loss, members re-elect.}}{5}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:topology}{{1}{5}{Hierarchical hybrid architecture. Tier-0 (optional): Edge Fusion Server for global map consolidation. Tier-1: cluster heads exchange submaps over an inter-cluster P2P bus. Tier-2: member nodes run local Gaussian-LIC2 and publish compressed submaps to their head. On server loss the system degrades to Tier-1 P2P; on head loss, members re-elect}{figure.caption.15}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Cluster-Head Election Protocol}{5}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:election}{{4.3}{5}{Cluster-Head Election Protocol}{subsection.4.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Score function.}{5}{section*.16}\protected@file@percent }
+\newlabel{eq:score}{{7}{5}{Score function}{equation.4.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{Election state machine.}{5}{section*.17}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Stability mechanisms.}{5}{section*.18}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Cluster-head election protocol (per node).}}{5}{algorithm.1}\protected@file@percent }
+\newlabel{alg:election}{{1}{5}{Cluster-head election protocol (per node)}{algorithm.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Multi-Hop Submap Routing}{5}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Routing table.}{5}{section*.19}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Store-and-forward.}{5}{section*.20}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Submap dedup.}{5}{section*.21}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Multi-Stream QoS-Aware Communication Protocol}{5}{section.5}\protected@file@percent }
+\newlabel{sec:protocol}{{5}{5}{Multi-Stream QoS-Aware Communication Protocol}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Protocol Stack Overview}{5}{subsection.5.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Co-LIC2 protocol stack. Four traffic streams at the application layer are mapped to 802.11e EDCA access categories and further differentiated by application-layer FEC, deadline-aware pacing, and priority-weighted transport.}}{6}{figure.caption.22}\protected@file@percent }
+\newlabel{fig:protocol_stack}{{2}{6}{Co-LIC2 protocol stack. Four traffic streams at the application layer are mapped to 802.11e EDCA access categories and further differentiated by application-layer FEC, deadline-aware pacing, and priority-weighted transport}{figure.caption.22}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Stream transport policies.}}{6}{table.caption.23}\protected@file@percent }
+\newlabel{tab:transport}{{4}{6}{Stream transport policies}{table.caption.23}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Stream Definitions and Transport Policies}{6}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Pose stream (AC\_VO).}{6}{section*.24}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {2}{\ignorespaces Deadline-aware submap scheduling (per scheduling epoch).}}{6}{algorithm.2}\protected@file@percent }
+\newlabel{alg:scheduler}{{2}{6}{Deadline-aware submap scheduling (per scheduling epoch)}{algorithm.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Control stream (AC\_VI).}{6}{section*.25}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Keyframe stream (AC\_BE).}{6}{section*.26}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Submap stream (AC\_BK).}{6}{section*.27}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Deadline-Aware Submap Scheduler}{6}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Problem formulation.}{6}{section*.28}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Scheduling algorithm.}{6}{section*.29}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Communication message catalogue. Stream in ( ).}}{7}{table.caption.32}\protected@file@percent }
+\newlabel{tab:messages}{{5}{7}{Communication message catalogue. Stream in ( )}{table.caption.32}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Application-Layer Reliability}{7}{subsection.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{SUBMAP transaction state machine.}{7}{section*.30}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{MAP\_DELTA consistency.}{7}{section*.31}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.5}Message Catalogue}{7}{subsection.5.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.6}Communication Sequence}{7}{subsection.5.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Adaptive Submap Compression and Scheduling}{7}{section.6}\protected@file@percent }
+\newlabel{sec:compression}{{6}{7}{Adaptive Submap Compression and Scheduling}{section.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Communication sequence: node joins (HELLO), publishes pose stream and submaps, head merges and emits MAP\_DELTA, loop closure generates a CONSTRAINT, PGO correction propagates to all members. AC tags indicate EDCA queue assignment.}}{7}{figure.caption.33}\protected@file@percent }
+\newlabel{fig:sequence}{{3}{7}{Communication sequence: node joins (HELLO), publishes pose stream and submaps, head merges and emits MAP\_DELTA, loop closure generates a CONSTRAINT, PGO correction propagates to all members. AC tags indicate EDCA queue assignment}{figure.caption.33}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Submap Extraction}{7}{subsection.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}NPV Quality Metric}{7}{subsection.6.2}\protected@file@percent }
+\newlabel{sec:npv}{{6.2}{7}{NPV Quality Metric}{subsection.6.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Definition.}{7}{section*.34}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Justification.}{7}{section*.35}\protected@file@percent }
+\citation{lang2026gaussian2}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Compression knobs (post-entropy-coding).}}{8}{table.caption.36}\protected@file@percent }
+\newlabel{tab:knobs}{{6}{8}{Compression knobs (post-entropy-coding)}{table.caption.36}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Compression Knobs}{8}{subsection.6.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}Joint Optimization}{8}{subsection.6.4}\protected@file@percent }
+\newlabel{eq:opt}{{12}{8}{Joint Optimization}{equation.6.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.5}Budget Controller}{8}{subsection.6.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Cooperative Pose-Graph SLAM Backend}{8}{section.7}\protected@file@percent }
+\newlabel{sec:mapping}{{7}{8}{Cooperative Pose-Graph SLAM Backend}{section.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Local Map and Ownership}{8}{subsection.7.1}\protected@file@percent }
+\newlabel{sec:local}{{7.1}{8}{Local Map and Ownership}{subsection.7.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.2}Inter-Node Submap Registration}{8}{subsection.7.2}\protected@file@percent }
+\newlabel{sec:registration}{{7.2}{8}{Inter-Node Submap Registration}{subsection.7.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{(1) Coarse prior.}{8}{section*.37}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(2) Gaussian-to-Gaussian ICP.}{8}{section*.38}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{(3) Visual feature fallback.}{8}{section*.39}\protected@file@percent }
+\citation{xie2025gslivm}
+\citation{xiao2025livgs}
+\citation{gtsam_mob}
+\citation{arandjelovic2016netvlad}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.3}Gaussian Map Merge}{9}{subsection.7.3}\protected@file@percent }
+\newlabel{sec:merge}{{7.3}{9}{Gaussian Map Merge}{subsection.7.3}{}}
+\@writefile{toc}{\contentsline {paragraph}{Spatial deduplication.}{9}{section*.40}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Map delta broadcast.}{9}{section*.41}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.4}Pose-Graph Optimization}{9}{subsection.7.4}\protected@file@percent }
+\newlabel{sec:pgo}{{7.4}{9}{Pose-Graph Optimization}{subsection.7.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.5}Loop Closure}{9}{subsection.7.5}\protected@file@percent }
+\newlabel{sec:loop}{{7.5}{9}{Loop Closure}{subsection.7.5}{}}
+\@writefile{toc}{\contentsline {paragraph}{Geometric.}{9}{section*.42}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Visual.}{9}{section*.43}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {3}{\ignorespaces Cooperative pose-graph SLAM (head-side, per received submap).}}{9}{algorithm.3}\protected@file@percent }
+\newlabel{alg:coop}{{3}{9}{Cooperative pose-graph SLAM (head-side, per received submap)}{algorithm.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.6}Conflict Resolution}{9}{subsection.7.6}\protected@file@percent }
+\newlabel{sec:conflict}{{7.6}{9}{Conflict Resolution}{subsection.7.6}{}}
+\newlabel{eq:confidence}{{13}{9}{Conflict Resolution}{equation.7.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.7}Algorithm Summary}{9}{subsection.7.7}\protected@file@percent }
+\newlabel{sec:alg}{{7.7}{9}{Algorithm Summary}{subsection.7.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Experimental Evaluation}{9}{section.8}\protected@file@percent }
+\newlabel{sec:experiments}{{8}{9}{Experimental Evaluation}{section.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.1}Experimental Setup}{9}{subsection.8.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Hardware.}{9}{section*.44}\protected@file@percent }
+\citation{zheng2024fastlivo2_mob}
+\citation{yin2022m2dgr}
+\citation{nguyen2024mcd}
+\citation{deng2025mneslam}
+\citation{thomas2025grandslam_mob}
+\citation{lang2026gaussian2_mob}
+\citation{zheng2024fastlivo2_mob}
+\citation{xie2025gslivm}
+\citation{deambrogi2026cgsslam_mob}
+\citation{deng2025mneslam}
+\citation{zhang2018tum}
+\@writefile{toc}{\contentsline {paragraph}{Datasets.}{10}{section*.45}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Baselines.}{10}{section*.46}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Metrics.}{10}{section*.47}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Single-node odometry ATE (m). Co-op off = GLIC2 baseline.}}{10}{table.caption.49}\protected@file@percent }
+\newlabel{tab:odom_single}{{7}{10}{Single-node odometry ATE (m). Co-op off = GLIC2 baseline}{table.caption.49}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Multi-node mean ATE (m). \textcolor {red}{Red = placeholder.}}}{10}{table.caption.51}\protected@file@percent }
+\newlabel{tab:odom_multi}{{8}{10}{Multi-node mean ATE (m). \textcolor {red}{Red = placeholder.}}{table.caption.51}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.2}Odometry Accuracy}{10}{subsection.8.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Single-node compatibility.}{10}{section*.48}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Multi-node accuracy.}{10}{section*.50}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.3}Rendering Quality}{10}{subsection.8.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Rendering quality (PSNR/SSIM/LPIPS). \textcolor {red}{Red = placeholder.}}}{11}{table.caption.52}\protected@file@percent }
+\newlabel{tab:render}{{9}{11}{Rendering quality (PSNR/SSIM/LPIPS). \textcolor {red}{Red = placeholder.}}{table.caption.52}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Measured per-node uplink (Mbps), Wi-Fi\nonbreakingspace 6 80\nonbreakingspace MHz. \textcolor {red}{Red = placeholder.}}}{11}{table.caption.54}\protected@file@percent }
+\newlabel{tab:bw_measured}{{10}{11}{Measured per-node uplink (Mbps), Wi-Fi~6 80~MHz. \textcolor {red}{Red = placeholder.}}{table.caption.54}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces End-to-end latency (ms). \textcolor {red}{Red = measured placeholder.}}}{11}{table.caption.56}\protected@file@percent }
+\newlabel{tab:latency}{{11}{11}{End-to-end latency (ms). \textcolor {red}{Red = measured placeholder.}}{table.caption.56}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.4}Bandwidth and End-to-End Latency}{11}{subsection.8.4}\protected@file@percent }
+\newlabel{sec:bw_lat}{{8.4}{11}{Bandwidth and End-to-End Latency}{subsection.8.4}{}}
+\@writefile{toc}{\contentsline {paragraph}{Bandwidth breakdown.}{11}{section*.53}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{End-to-end latency.}{11}{section*.55}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces \textcolor {red}{Placeholder: per-node uplink (left axis, Mbps) and cluster-head CPU utilization (right axis, \%) vs.\spacefactor \@m {} node count $N$. Dashed line at $N=9$ marks cluster split. Expected: per-node uplink stays flat at $\sim $3 Mbps; head CPU utilization grows $\propto N$ within cluster, resets at split.}}}{11}{figure.caption.57}\protected@file@percent }
+\newlabel{fig:scalability}{{4}{11}{\textcolor {red}{Placeholder: per-node uplink (left axis, Mbps) and cluster-head CPU utilization (right axis, \%) vs.\@ node count $N$. Dashed line at $N=9$ marks cluster split. Expected: per-node uplink stays flat at $\sim $3 Mbps; head CPU utilization grows $\propto N$ within cluster, resets at split.}}{figure.caption.57}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Scalability measurements. \textcolor {red}{Red = placeholder.}}}{11}{table.caption.58}\protected@file@percent }
+\newlabel{tab:scalability}{{12}{11}{Scalability measurements. \textcolor {red}{Red = placeholder.}}{table.caption.58}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.5}Scalability}{11}{subsection.8.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.6}Robustness Under Failure}{11}{subsection.8.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Head loss.}{11}{section*.59}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Intermittent connectivity.}{11}{section*.61}\protected@file@percent }
+\citation{lang2026gaussian2}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces \textcolor {red}{Placeholder: timeline of head loss. At $t=30$ s, head is killed; HEARTBEAT timeout expires at $t=33$ s; election completes at $t=33.7$ s; first submap from new head merges at $t=36$ s. Map version resumes incrementing. ATE spike $<1$ cm.}}}{12}{figure.caption.60}\protected@file@percent }
+\newlabel{fig:head_loss}{{5}{12}{\textcolor {red}{Placeholder: timeline of head loss. At $t=30$ s, head is killed; HEARTBEAT timeout expires at $t=33$ s; election completes at $t=33.7$ s; first submap from new head merges at $t=36$ s. Map version resumes incrementing. ATE spike $<1$ cm.}}{figure.caption.60}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {13}{\ignorespaces Robustness under degraded links (60 s window). \textcolor {red}{Red = placeholder.}}}{12}{table.caption.62}\protected@file@percent }
+\newlabel{tab:robustness}{{13}{12}{Robustness under degraded links (60 s window). \textcolor {red}{Red = placeholder.}}{table.caption.62}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {14}{\ignorespaces Ablation results (4 nodes, INS indoor). \textcolor {red}{Red = placeholder.}}}{12}{table.caption.63}\protected@file@percent }
+\newlabel{tab:ablation}{{14}{12}{Ablation results (4 nodes, INS indoor). \textcolor {red}{Red = placeholder.}}{table.caption.63}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.7}Ablation Study}{12}{subsection.8.7}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {15}{\ignorespaces Summary against design goals (G1--G7). \textcolor {red}{Red = target met in simulation / expected.}}}{12}{table.caption.64}\protected@file@percent }
+\newlabel{tab:goals}{{15}{12}{Summary against design goals (G1--G7). \textcolor {red}{Red = target met in simulation / expected.}}{table.caption.64}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {8.8}Summary of Results}{12}{subsection.8.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9}Implementation}{12}{section.9}\protected@file@percent }
+\newlabel{sec:implementation}{{9}{12}{Implementation}{section.9}{}}
+\@writefile{toc}{\contentsline {paragraph}{Build and dependencies.}{12}{section*.65}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Component layout.}{12}{section*.66}\protected@file@percent }
+\citation{wang2026roseslam}
+\@writefile{lot}{\contentsline {table}{\numberline {16}{\ignorespaces Key configuration parameters.}}{13}{table.caption.68}\protected@file@percent }
+\newlabel{tab:config}{{16}{13}{Key configuration parameters}{table.caption.68}{}}
+\@writefile{toc}{\contentsline {paragraph}{Configuration.}{13}{section*.67}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Backward compatibility.}{13}{section*.69}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Testing plan.}{13}{section*.70}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {10}Discussion}{13}{section.10}\protected@file@percent }
+\newlabel{sec:discussion}{{10}{13}{Discussion}{section.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.1}Design Decisions}{13}{subsection.10.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Why a new application-layer protocol?}{13}{section*.71}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Why cluster-head election instead of a static topology?}{13}{section*.72}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Why NPV as the compression objective?}{13}{section*.73}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.2}Limitations}{13}{subsection.10.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Static-scene assumption.}{13}{section*.74}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Wi-Fi\nonbreakingspace 6 EDCA dependence.}{13}{section*.75}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{No cryptographic confidentiality.}{13}{section*.76}\protected@file@percent }
+\bibstyle{ACM-Reference-Format}
+\bibdata{mobicom_refs,../bib/references}
+\bibcite{arandjelovic2016netvlad}{{1}{2016}{{Arandjelovi{\'c} et~al\mbox  {.}}}{{}}}
+\bibcite{bai2015pias}{{2}{2015}{{Bai et~al\mbox  {.}}}{{}}}
+\bibcite{deambrogi2026cgsslam_mob}{{3}{2026}{{de~Ambrogi et~al\mbox  {.}}}{{}}}
+\bibcite{gtsam_mob}{{4}{2024}{{Dellaert and Kaess}}{{}}}
+\bibcite{deng2025mneslam}{{5}{2025}{{Deng et~al\mbox  {.}}}{{}}}
+\bibcite{hou2023dragon}{{6}{2023}{{Hou et~al\mbox  {.}}}{{}}}
+\bibcite{hu2024cpslam}{{7}{2024}{{Hu et~al\mbox  {.}}}{{}}}
+\bibcite{ieee80211e}{{8}{2005}{{IEEE Computer Society}}{{}}}
+\bibcite{kerbl20233dgs}{{9}{2023}{{Kerbl et~al\mbox  {.}}}{{}}}
+\bibcite{lajoie2024swarmslam}{{10}{2024}{{Lajoie et~al\mbox  {.}}}{{}}}
+\bibcite{lang2023coco_mob}{{11}{2023a}{{Lang et~al\mbox  {.}}}{{}}}
+\@writefile{toc}{\contentsline {paragraph}{Head scalability ceiling.}{14}{section*.77}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {10.3}Open Questions}{14}{subsection.10.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {11}Conclusion}{14}{section.11}\protected@file@percent }
+\newlabel{sec:conclusion}{{11}{14}{Conclusion}{section.11}{}}
+\@writefile{toc}{\contentsline {section}{References}{14}{section*.79}\protected@file@percent }
+\bibcite{lang2023coco}{{12}{2023b}{{Lang et~al\mbox  {.}}}{{}}}
+\bibcite{lang2025gaussian}{{13}{2025}{{Lang et~al\mbox  {.}}}{{}}}
+\bibcite{lang2026gaussian2}{{14}{2026a}{{Lang et~al\mbox  {.}}}{{}}}
+\bibcite{lang2026gaussian2_mob}{{15}{2026b}{{Lang et~al\mbox  {.}}}{{}}}
+\bibcite{liu2023adamap}{{16}{2023}{{Liu et~al\mbox  {.}}}{{}}}
+\bibcite{nguyen2024mcd}{{17}{2024}{{Nguyen et~al\mbox  {.}}}{{}}}
+\bibcite{park2026livegs}{{18}{2026}{{Park et~al\mbox  {.}}}{{}}}
+\bibcite{schmuck2021covins}{{19}{2021}{{Schmuck et~al\mbox  {.}}}{{}}}
+\bibcite{zhang2018tum}{{20}{2012}{{Sturm et~al\mbox  {.}}}{{}}}
+\bibcite{thomas2025grandslam_mob}{{21}{2025}{{Thomas et~al\mbox  {.}}}{{}}}
+\bibcite{wang2026roseslam}{{22}{2026}{{Wang et~al\mbox  {.}}}{{}}}
+\bibcite{xiao2025livgs}{{23}{2025}{{Xiao et~al\mbox  {.}}}{{}}}
+\bibcite{xie2025gslivm}{{24}{2025}{{Xie et~al\mbox  {.}}}{{}}}
+\bibcite{xu2022swarmmap}{{25}{2022}{{Xu et~al\mbox  {.}}}{{}}}
+\bibcite{yin2022m2dgr}{{26}{2022}{{Yin et~al\mbox  {.}}}{{}}}
+\bibcite{zhang2024mapp}{{27}{2024}{{Zhang et~al\mbox  {.}}}{{}}}
+\bibcite{zheng2024fastlivo2_mob}{{28}{2024}{{Zheng et~al\mbox  {.}}}{{}}}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Submap Binary Format Specification}{15}{appendix.A}\protected@file@percent }
+\newlabel{app:submap}{{A}{15}{Submap Binary Format Specification}{appendix.A}{}}
+\@writefile{toc}{\contentsline {paragraph}{CBOR header (66 bytes + bbox).}{15}{section*.80}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Gaussian arrays (SoA, all length \texttt  {n\_gaussians}).}{15}{section*.81}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Wire size.}{15}{section*.82}\protected@file@percent }
+\newlabel{tocindent-1}{0pt}
+\newlabel{tocindent0}{0pt}
+\newlabel{tocindent1}{9.29999pt}
+\newlabel{tocindent2}{16.14998pt}
+\newlabel{tocindent3}{0pt}
+\@writefile{toc}{\contentsline {paragraph}{Receipt.}{16}{section*.83}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {B}Protocol State Machine}{16}{appendix.B}\protected@file@percent }
+\newlabel{app:fsm}{{B}{16}{Protocol State Machine}{appendix.B}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.1}Election State Machine}{16}{subsection.B.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Cluster-head election FSM. All nodes start as FOLLOWER. On head heartbeat timeout, transition to CANDIDATE and broadcast ELECTION. If self.score is highest, become HEAD. If a head with higher score appears, demote to FOLLOWER.}}{16}{figure.caption.84}\protected@file@percent }
+\newlabel{fig:election_fsm}{{6}{16}{Cluster-head election FSM. All nodes start as FOLLOWER. On head heartbeat timeout, transition to CANDIDATE and broadcast ELECTION. If self.score is highest, become HEAD. If a head with higher score appears, demote to FOLLOWER}{figure.caption.84}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.2}Submap Transfer FSM (Sender Side)}{16}{subsection.B.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Submap transfer FSM (sender side). On SUBMAP\_NACK, re-send missing chunks up to 3 times; on 3rd failure, mark submap as failed and notify application layer to re-extract at higher compression.}}{16}{figure.caption.85}\protected@file@percent }
+\newlabel{fig:submap_fsm}{{7}{16}{Submap transfer FSM (sender side). On SUBMAP\_NACK, re-send missing chunks up to 3 times; on 3rd failure, mark submap as failed and notify application layer to re-extract at higher compression}{figure.caption.85}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.3}Connection Lifecycle}{16}{subsection.B.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.4}Map Consistency Guarantees}{16}{subsection.B.4}\protected@file@percent }
+\newlabel{TotPages}{{16}{16}{}{page.16}{}}
+\gdef \@abspage@last{16}

@@ -1,0 +1,174 @@
+% ============================================
+% Section: Multi-Stream QoS-Aware Communication Protocol
+% ============================================
+\label{sec:protocol}
+
+The communication protocol is the central contribution of Co-LIC2. We design
+a transport-layer framework that maps the four traffic classes (pose, submap,
+keyframe, control) onto Wi-Fi~6/6E EDCA queues with application-layer
+reinforcement (FEC, pacing, deadline-awareness) to meet per-class QoS targets.
+
+\subsection{Protocol Stack Overview}
+
+\begin{figure}[t]
+  \centering
+  \resizebox{\columnwidth}{!}{\input{figures/protocol_stack.tex}}
+  \caption{Co-LIC2 protocol stack. Four traffic streams at the application layer
+  are mapped to 802.11e EDCA access categories and further differentiated by
+  application-layer FEC, deadline-aware pacing, and priority-weighted
+  transport.}
+  \label{fig:protocol_stack}
+\end{figure}
+
+The stack has four layers:
+\begin{enumerate}
+  \item \textbf{Application framing.} Each message type is CBOR-encoded with
+    a 12-byte common header (\texttt{msg\_type}, \texttt{src\_node},
+    \texttt{dst\_node}, \texttt{seq\_no}, \texttt{timestamp\_us}, \texttt{crc16}).
+  \item \textbf{QoS classifier.} Maps each message to one of four \emph{streams}
+    with per-stream transport policies.
+  \item \textbf{Transport policies.} FEC, pacing, and reliability rules per
+    stream (Table~\ref{tab:transport}).
+  \item \textbf{EDCA mapping.} Maps each stream to an 802.11e Access Category.
+\end{enumerate}
+
+\subsection{Stream Definitions and Transport Policies}
+
+Table~\ref{tab:transport} defines the four streams and their transport policies.
+
+\begin{table}[t]
+  \centering
+  \caption{Stream transport policies.}
+  \label{tab:transport}
+  \footnotesize
+  \setlength{\tabcolsep}{3.5pt}
+  \begin{tabular}{@{}p{1.1cm}p{1.2cm}p{2.0cm}p{1.8cm}p{0.8cm}p{1.3cm}@{}}
+    \toprule
+    Stream & AC & FEC & Pacing & ARQ & Frag. \\
+    \midrule
+    Pose    & VO & RS(12,8)      & token bkt.\@ 250/s & no   & no \\
+    Control & VI & ---            & 50 pkts/s          & yes (2$\times$) & no \\
+    Keyframe& BE & RaptorQ (5\%)  & WFQ                & part.& 64 KB \\
+    Submap  & BK & ---            & leaky bkt.\@ $\Bbudget$ & app.\@ ACK & 1 MB \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\paragraph{Pose stream (AC\_VO).} Highest priority. 20~Hz, 200~B packets.
+Reed-Solomon FEC adds 50\% redundancy (12 data + 8 parity symbols per block)
+to tolerate burst loss without retransmission. Token-bucket pacing prevents
+bursts from oversubscribing the AC\_VO queue. No ARQ: stale poses are worse
+than missing poses.
+
+\paragraph{Control stream (AC\_VI).} Reliable delivery with 2 ARQ retries.
+ELECION, CONSTRAINT, and LEAVE messages are critical and low-volume; HEARTBEAT
+and HELLO are best-effort within this stream. 50~pkts/s pacing token bucket.
+
+\paragraph{Keyframe stream (AC\_BE).} RaptorQ fountain-code FEC with 5\%
+encoding overhead allows the receiver to reconstruct the full keyframe after
+receiving \emph{any} subset of encoded symbols exceeding the original size.
+Fragmented into 64~KB chunks for A-MPDU aggregation. Weighted fair queue
+pacing between nodes' keyframe streams.
+
+\paragraph{Submap stream (AC\_BK).} Bulk data. Application-level ACK: the
+receiving node computes CRC32 over the decompressed Gaussian blob and sends
+SUBMAP\_ACK or SUBMAP\_NACK. Missing chunks are re-requested via SUBMAP\_PULL.
+Leaky-bucket pacing enforces the per-node bandwidth budget $\Bbudget$.
+
+\subsection{Deadline-Aware Submap Scheduler}
+
+Submap delivery is the bandwidth bottleneck. Our scheduler jointly considers
+per-submap deadlines and bandwidth budgets across all publishing nodes.
+
+\paragraph{Problem formulation.} In each scheduling epoch $\Delta T_{\text{sched}}
+= 100$~ms, we have $K$ pending submap uploads from $M$ nodes. Submap
+$k$ from node $i$ has: size $s_k$ (bytes), deadline $d_k$ (wall-clock time),
+and utility $u_k$ (NPV metric, Section~\ref{sec:npv}). Each node $i$ has a
+leaky-bucket budget $B_i$ tokens, refilled at $\Bbudget$.
+
+\paragraph{Scheduling algorithm.} We solve a knapsack with deadlines:
+
+\begin{algorithm}[t]
+\caption{Deadline-aware submap scheduling (per scheduling epoch).}
+\label{alg:scheduler}
+\begin{algorithmic}[1]
+\State Sort pending submaps by $\frac{u_k}{\sqrt{d_k - t_{\text{now}}}}$ (descending).
+\State \textbf{for} each submap $k$ in sorted order:
+\State \quad \textbf{if} $s_k > \text{budget\_remaining}(\text{node\_of}(k))$:
+\State \qquad skip $k$; flag for next epoch.
+\State \quad \textbf{else}:
+\State \qquad allocate $s_k$ bytes from node $i$'s budget; begin/continue
+               transmission.
+\State \textbf{for} each submap $k$ with $d_k < t_{\text{now}} + 500$~ms and
+       not yet started:
+\State \quad trigger emergency mode: halve SH-degree, double quantize step
+         for $k$, re-enqueue.
+\end{algorithmic}
+\end{algorithm}
+
+The objective $\frac{u_k}{\sqrt{d_k - t}}$ prioritizes submaps that are both
+valuable (high NPV) and urgent (early deadline), with the square-root
+dampening preventing pathological starvation of large-but-low-utility submaps.
+Emergency mode applies aggressive compression to meet deadlines when bandwidth
+is insufficient.
+
+\subsection{Application-Layer Reliability}
+
+\paragraph{SUBMAP transaction state machine.} Each submap transfer is a finite
+state machine with states: \textsc{idle}, \textsc{tx\_active}, \textsc{wait\_ack},
+\textsc{rx\_active}, \textsc{wait\_chunks}. A 2-bit sequence number prevents
+duplicate delivery. After 3 retries, a submap is marked \textsc{failed} and the
+publishing node is notified to re-extract and re-compress at a higher
+aggressiveness level.
+
+\paragraph{MAP\_DELTA consistency.} The head maintains a monotonic map version
+number. MAP\_DELTA messages carry $(\text{version}, \Delta\text{Gaussians},
+\text{signature})$. A member node only applies a delta if its version matches
+$\text{version} - 1$, preventing divergent state. Lagging members pull a
+full snapshot via SUBMAP\_PULL.
+
+\subsection{Message Catalogue}
+
+Table~\ref{tab:messages} lists the full message catalogue. The catalogue is
+intentionally small (11 types) for correctness reasoning.
+
+\begin{table}[t]
+  \centering
+  \caption{Communication message catalogue. Stream in ( ).}
+  \label{tab:messages}
+  \footnotesize
+  \setlength{\tabcolsep}{2pt}
+  \begin{tabular}{@{}p{1.5cm}p{1.2cm}p{0.8cm}p{1.0cm}p{1.9cm}p{1.0cm}@{}}
+    \toprule
+    Type & Dir. & Str. & Freq. & Payload & Size \\
+    \midrule
+    HELLO         & n$\to$net & VI & join   & NodeDescriptor     & 0.5--2 KB \\
+    HELLO\_HEAD   & h$\to$net & VI & elect. & id, score          & 100 B \\
+    HEARTBEAT     & n$\to$net & VI & 5 Hz   & id, pose, health   & 100 B \\
+    POSE\_STREAM  & n$\to$h   & VO & 20 Hz  & spline knots       & 200 B \\
+    SUBMAP\_PUSH  & n$\to$h   & BK & close  & compressed submap  & 0.5--5 MB \\
+    SUBMAP\_ACK   & h$\to$n   & VI & rx     & submap\_id         & 50 B \\
+    SUBMAP\_NACK  & h$\to$n   & VI & err    & id, missing        & 100 B \\
+    SUBMAP\_PULL  & h$\to$n   & VI & demand & bbox query         & 100 B \\
+    KEYFRAME      & n$\to$h   & BE & 1 Hz   & JPEG+VLAD+pose     & 50--200 KB \\
+    CONSTRAINT    & any       & VI & loop   & SE3 + info         & 500 B \\
+    MAP\_DELTA    & h$\to$n   & BK & 1 Hz   & $\Delta$ Gaussians & 0.1--1 MB \\
+    ELECTION      & n$\to$net & VI & t/o    & candidate score    & 100 B \\
+    LEAVE         & n$\to$net & VI & exit   & node\_id           & 50 B \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Communication Sequence}
+
+Figure~\ref{fig:sequence} illustrates a typical join--publish--merge--loop cycle.
+
+\begin{figure}[t]
+  \centering
+  \resizebox{\columnwidth}{!}{\input{figures/sequence.tex}}
+  \caption{Communication sequence: node joins (HELLO), publishes pose stream
+  and submaps, head merges and emits MAP\_DELTA, loop closure generates a
+  CONSTRAINT, PGO correction propagates to all members. AC tags indicate EDCA
+  queue assignment.}
+  \label{fig:sequence}
+\end{figure}

@@ -1,4 +1,4 @@
-# Gaussian-LIC2 — Related Work Survey (2026-09-08, updated 2026-09-27)
+# Gaussian-LIC2 — Related Work Survey (2026-09-08, updated 2026-09-28)
 
 This directory collects **recent related work** surveyed via Doubao web search,
 along with their original PDFs and a consolidated BibTeX file.
@@ -1781,3 +1781,101 @@ New PDFs downloaded:
 surveyed-without-arXiv-PDF foundational works (Kerbl 3DGS, Mip-Splatting,
 Scaffold-GS, Stop-ThePop, Taming-3DGS, iMAP) plus a couple of
 venue-only / library-software entries (GTSAM).
+
+## Addendum 22 (2026-09-28) — two newly surveyed related works
+
+**24-hour code-review note.** There **was** one commit in the last 24
+hours: `6687e45 docs: 添加多节点协同3DGS-SLAM论文草稿及相关文献调研`
+(2026-09-27 16:14:42 +0800, author arthurlirui). It is a **docs-only**
+commit — 24 files changed, +6,964 insertions, all under `latex/` (the
+survey tree itself: `latex/README.md`, `latex/bib/references.bib`,
+`latex/design/DESIGN.md`, `latex/paper/` arXiv-style draft + sections +
+figures, `latex/mobicom/` MobiCom draft) plus one session-summary
+markdown under `.zcode/` and `scripts/fetch_arxiv.mjs`. **No source-tree
+(`src/`, `include/`, `CMakeLists.txt`, `launch/`, `config/`) changes** —
+the Gaussian-LIC2 codebase proper was not touched. So there is still
+nothing in the code to feed into the related-work assessment; this round
+is again purely additive to the survey. (This commit is also the one
+that introduced the MobiCo-formatted cooperative-multi-node paper draft
+tracked in [[co-lic2-design-paper]].)
+
+Doubao web search was **available** this round. Six
+`mcp__doubao-search__web_search` calls were run 2026-09-28 with
+`OneWeek` / `OneMonth` time-range filters against the standard
+3DGS-SLAM + LiDAR/visual/inertial keyword set. The arXiv-fresh GS-SLAM
+submissions of the past two weeks (ArborSplat arXiv:2609.26315, Dual
+Covariance GS-SLAM arXiv:2609.25746, both 22 Sep 2026) were already
+surveyed in Addendum 17; Mono3DGS-SLAM and RawSLAM were added in
+Addendum 21. Two genuinely new papers not in the inventory were
+identified and added this round: **VIGS-SLAM** (the ECCV 2026
+visual-inertial GS-SLAM that several recent results kept citing as a
+baseline) and its direct follow-up **Elevator-VIGS** (arXiv 20 Sep 2026).
+A third candidate, **LV-GS SLAM** (He et al., Appl. Sci. 16(16):8028,
+Aug 2026, decoupled large-scale LiDAR-Visual 3DGS SLAM, KITTI + quadruped
+validation), re-appeared in results but was **already in the bib** as
+`he2026lvgsslam` (added Addendum 9, bib-only — MDPI `www.mdpi.com` still
+returns 403 to non-interactive clients, so the PDF remains un-fetched);
+no change to that entry this round. Other re-appearing candidates ruled
+out: LVI-GS (Addendum 7, `zhao2025lvigs`), GS-LIVO (Addendum 8,
+`hong2025gslivo`), Structured-Li-GS (Addendum 18,
+`weng2026structuredligs`), HI-SLAM2 (Addendum 20, `zhang2026hislam2`).
+
+| Section | Paper | Venue / date | Sensor | Key idea | Relation to Gaussian-LIC2 |
+|---------|-------|--------------|--------|----------|---------------------------|
+| Visual-inertial GS-SLAM | **VIGS-SLAM: Visual Inertial Gaussian Splatting SLAM** (Zhu, Zhang, Li, Haala, Pollefeys, Barath; ETH Zürich + U. Stuttgart + Microsoft; ECCV 2026, LNCS 17055 pp. 322–341; arXiv:2512.02293 v2 13 Mar 2026) | ECCV 2026 | Monocular RGB + IMU | A **tightly-coupled visual-inertial 3DGS SLAM** system. A sliding-window **dense bundle adjustment jointly optimizes per-keyframe pose, per-pixel disparity, and IMU states** (velocity + gyro/accelerometer biases), with a **ConvGRU learned dense-correspondence frontend**, **robust IMU initialization**, **time-varying bias modeling**, and **loop closure with consistent Gaussian updates**. Evaluated on five challenging datasets (incl. FAST-LIVO2 Retail, EuRoC, TUM, TartanAir) and shown to **outperform SOTA 3DGS-SLAM under motion blur / low texture / exposure variation** — the failure modes of purely-visual GS-SLAM. Code to be released. | The **leading visual-inertial (no-LiDAR) contemporary GS-SLAM** and the natural baseline Gaussian-LIC2 is differentiated against on the inertial-coupling axis. VIGS-SLAM validates that inertial coupling materially improves tracking robustness for GS-SLAM, but it still relies on **learned monocular depth priors** rather than metric LiDAR scale — precisely the gap Gaussian-LIC2's LIV fusion closes. Cite in the visual-inertial GS-SLAM and learned-frontend discussion. |
+| Moving-platform robustness | **Elevator-VIGS: Separating Elevator Motion from Robot Motion in Visual-Inertial Gaussian Splatting SLAM** (Zhou, Zhu, Zhang, Luo, Haala, Pollefeys; U. Zürich + ETH Zürich + U. Stuttgart + Microsoft; arXiv:2609.23491, 20 Sep 2026) | arXiv Sep 2026 | Monocular RGB + IMU | Extends VIGS-SLAM with a **per-keyframe "transport state"** (elevator rise + vertical velocity) in dense visual-inertial BA to handle the **frame conflict** inside a moving elevator: the camera sees only motion relative to the elevator while the IMU senses world-relative motion. Estimates **robot pose in the elevator frame** and **elevator motion in the world frame**, holds the transport state fixed through optimization, then **folds the rise into poses after the ride**; uses a **zero-shot VLM + depth-network ride detector**. Records real + simulated elevator sequences with laser-measured floor-to-floor GT heights; **SOTA on both**, and keeps VIGS-SLAM's SOTA on four elevator-free benchmarks. | A **moving-platform / degenerate-motion robustness reference** for visual-inertial GS-SLAM. The multi-floor / non-rigid-platform case is one Gaussian-LIC2's LIV fusion would also face in indoor deployment, and the **transport-state decoupling** idea is a candidate formulation for any platform-motion handling in the cooperative multi-node design ([[co-lic2-design-paper]]). Cite in the robustness / degenerate-motion and platform-motion discussion. |
+
+### Why these matter
+
+1. **VIGS-SLAM** fills a structural gap in the survey: until now the
+   inventory had the purely-visual GS-SLAM systems (MonoGS, SplaTAM,
+   GS-SLAM, Photo-SLAM, Splat-SLAM, HI-SLAM2) and the LiDAR/visual/LIV
+   systems (Gaussian-LIC2, GS-LIVM, LIVE-GS, LIT-GS, RMGS-SLAM, LV-GS
+   SLAM, Structured-Li-GS), but **no clean visual-inertial (no-LiDAR)
+   GS-SLAM baseline**. VIGS-SLAM is that baseline — it is the system
+   recent results (incl. Elevator-VIGS, and the Mono3DGS-SLAM related-
+   work survey) cite as the visual-inertial SOTA. For Gaussian-LIC2 it
+   crystallizes the differentiation: VIGS-SLAM shows inertial coupling
+   helps, but without metric depth it leans on learned monocular priors,
+   which is exactly what LIV fusion replaces.
+
+2. **Elevator-VIGS** is the first GS-SLAM work to explicitly model a
+   **non-rigid sensor-platform motion** (the elevator) inside the VI
+   estimator. This matters for Gaussian-LIC2's cooperative multi-node
+   extension ([[co-lic2-design-paper]]): when a node is itself on a
+   moving platform, the same frame-conflict pathology arises between
+   the camera/IMU and the LiDAR, and the **transport-state** formulation
+   is a candidate way to decouple platform motion from node-relative
+   motion in the cooperative pose graph.
+
+### Reproducing the Addendum 22 survey
+
+Searches were run via `mcp__doubao-search__web_search` on 2026-09-28
+with `OneWeek` and `OneMonth` time-range filters:
+
+1. `Gaussian Splatting SLAM 2026 arxiv LiDAR visual inertial` (OneWeek, 9 results)
+2. `3DGS SLAM real-time mapping 2026 new method` (OneWeek, 6 results)
+3. `Gaussian splatting LiDAR inertial visual odometry 2026` (OneMonth, 15 results)
+4. `VIGS-SLAM visual inertial gaussian splatting arxiv Zihan Zhu` (OneMonth, 10 results) — confirmed arXiv:2512.02293 (dblp: `CoRR abs/2512.02293 (2025)`, v2 13 Mar 2026), ECCV 2026 LNCS 17055 pp. 322–341, DOI 10.1007/978-3-032-37261-1_19.
+5. `LV-GS SLAM decoupled LiDAR visual gaussian splatting arxiv He Haotong` (OneMonth, 9 results) — confirmed already in bib as `he2026lvgsslam` (Addendum 9); MDPI PDF still 403, no new PDF fetched.
+6. `gaussian splatting SLAM loop closure submap distributed multi-agent 2026 arxiv` (OneWeek, 6 results) — surfaced Elevator-VIGS (arXiv:2609.23491, 20 Sep 2026) as a novel moving-platform VI GS-SLAM result.
+
+New PDFs downloaded:
+`papers/Zhu2026_VIGSSLAM.pdf` (arXiv:2512.02293, via
+`curl -sL -o ... https://arxiv.org/pdf/2512.02293` — 32 MB, valid PDF v1.7,
+v2 dated 13 Mar 2026),
+`papers/Zhou2026_ElevatorVIGS.pdf` (arXiv:2609.23491, via
+`curl -sL -o ... https://arxiv.org/pdf/2609.23491` — 33 MB, valid PDF v1.7).
+The LV-GS SLAM MDPI PDF was attempted but
+`www.mdpi.com/2076-3417/16/16/8028/pdf` returns an HTML 403 page to
+`curl` (same wall as Addenda 9/18/21); the entry remains bib-only
+(`he2026lvgsslam`).
+
+### Inventory
+
+`latex/papers/` now holds **93 PDFs**; `latex/bib/references.bib` now
+holds **102 BibTeX entries** (`grep -c "^@" bib/references.bib` = 102,
+`ls papers/*.pdf | wc -l` = 93). The 9-entry gap is the usual set of
+surveyed-without-arXiv-PDF foundational works (Kerbl 3DGS, Mip-Splatting,
+Scaffold-GS, Stop-ThePop, Taming-3DGS, iMAP) plus a few venue-only /
+library-software / MDPI-403 entries (GTSAM, LV-GS SLAM).

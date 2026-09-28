@@ -1,0 +1,94 @@
+This is BibTeX, Version 0.99d (TeX Live 2024)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: main.aux
+The style file: ACM-Reference-Format.bst
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Database file #1: mobicom_refs.bib
+Database file #2: ../bib/references.bib
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
+Reallocated global_strs (elt_size=200001) to 20 items from 10.
+Reallocated glb_str_end (elt_size=4) to 20 items from 10.
+Reallocated singl_function (elt_size=4) to 100 items from 50.
+Warning--empty publisher in arandjelovic2016netvlad
+Warning--empty address in arandjelovic2016netvlad
+Warning--empty publisher in bai2015pias
+Warning--empty address in bai2015pias
+Warning--no number and no volume in deambrogi2026cgsslam_mob
+Warning--page numbers missing in both pages and numpages fields in deambrogi2026cgsslam_mob
+Warning--empty publisher in deng2025mneslam
+Warning--empty address in deng2025mneslam
+Warning--page numbers missing in both pages and numpages fields in deng2025mneslam
+Warning--empty address in hou2023dragon
+Warning--empty publisher in hu2024cpslam
+Warning--empty address in hu2024cpslam
+Warning--page numbers missing in both pages and numpages fields in hu2024cpslam
+Warning--no number and no volume in ieee80211e
+Warning--page numbers missing in both pages and numpages fields in ieee80211e
+Warning--empty publisher in lang2025gaussian
+Warning--empty address in lang2025gaussian
+Warning--no number and no volume in lang2026gaussian2
+Warning--page numbers missing in both pages and numpages fields in lang2026gaussian2
+Warning--no number and no volume in lang2026gaussian2_mob
+Warning--page numbers missing in both pages and numpages fields in lang2026gaussian2_mob
+Warning--empty publisher in liu2023adamap
+Warning--empty address in liu2023adamap
+Warning--no number and no volume in park2026livegs
+Warning--page numbers missing in both pages and numpages fields in park2026livegs
+Warning--no number and no volume in schmuck2021covins
+Warning--page numbers missing in both pages and numpages fields in schmuck2021covins
+Warning--no number and no volume in wang2026roseslam
+Warning--page numbers missing in both pages and numpages fields in wang2026roseslam
+Warning--page numbers missing in both pages and numpages fields in xiao2025livgs
+Warning--empty publisher in xie2025gslivm
+Warning--empty address in xie2025gslivm
+Warning--page numbers missing in both pages and numpages fields in xie2025gslivm
+Warning--empty address in xu2022swarmmap
+Warning--empty publisher in yin2022m2dgr
+Warning--empty address in yin2022m2dgr
+Warning--empty address in zhang2024mapp
+Warning--page numbers missing in both pages and numpages fields in zhang2024mapp
+You've used 28 entries,
+            5981 wiz_defined-function locations,
+            1637 strings with 24918 characters,
+and the built_in function-call counts, 35525 in all, are:
+= -- 4628
+> -- 1452
+< -- 0
++ -- 504
+- -- 480
+* -- 2808
+:= -- 3457
+add.period$ -- 138
+call.type$ -- 28
+change.case$ -- 278
+chr.to.int$ -- 26
+cite$ -- 66
+duplicate$ -- 2889
+empty$ -- 2048
+format.name$ -- 586
+if$ -- 8741
+int.to.chr$ -- 4
+int.to.str$ -- 1
+missing$ -- 119
+newline$ -- 327
+num.names$ -- 194
+pop$ -- 1244
+preamble$ -- 1
+purify$ -- 488
+quote$ -- 0
+skip$ -- 989
+stack$ -- 0
+substring$ -- 2358
+swap$ -- 260
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 610
+warning$ -- 38
+while$ -- 137
+width$ -- 0
+write$ -- 626
+(There were 38 warnings)

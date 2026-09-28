@@ -1,0 +1,69 @@
+% ============================================
+% Section: Introduction (MobiCom-focused, wireless-centric)
+% ============================================
+
+Cooperative autonomous systems---from multi-robot construction teams to
+UAV--UGV disaster-response squads---require a shared, up-to-date 3D model of
+their environment to plan, navigate, and coordinate. Recent advances in 3D
+Gaussian Splatting (3DGS)~\cite{kerbl20233dgs} have made it possible to
+construct photo-realistic maps in real time from a single mobile
+platform~\cite{lang2026gaussian2,lang2025gaussian,xie2025gslivm,park2026livegs},
+and multi-agent Gaussian SLAM has emerged as an active research
+frontier~\cite{deambrogi2026cgsslam_mob,thomas2025grandslam_mob,deng2025mneslam}.
+
+Yet a critical gap remains: \textbf{no existing system addresses the wireless
+communication problem that arises when multiple nodes attempt to share
+photo-realistic Gaussian maps over real, bandwidth-limited, lossy wireless
+channels.} A typical submap from a single node traveling 5~m contains
+50,000--100,000 3D Gaussians. Even with aggressive compression, a single submap
+consumes 2--5~MB---and a cluster of 8 nodes publishing every 3~s generates
+5--13~Mbps of aggregate uplink traffic on the cluster head. Over Wi-Fi or 5G,
+this is manageable; over degraded links (congested Wi-Fi channels, 5G edge-cell
+handover, ad-hoc mesh), it is not. Without careful protocol design, submap
+delivery fails, registrations stall, and the global map diverges.
+
+This paper presents \textbf{Co-LIC2}, a cooperative multi-node
+LiDAR-inertial-visual Gaussian SLAM system whose central contribution is a
+purpose-built wireless communication architecture that jointly addresses
+\emph{data representation}, \emph{protocol design}, and \emph{network topology}
+for photo-realistic map sharing. Co-LIC2 extends the single-platform
+Gaussian-LIC2 framework~\cite{lang2026gaussian2} along four axes:
+
+\begin{enumerate}
+  \item \textbf{A QoS-aware multi-stream wireless protocol}
+  (Section~\ref{sec:protocol}) that classifies traffic into four streams
+  (real-time pose, bulk submap, reference keyframe, control) and assigns
+  differentiated 802.11e EDCA parameters, application-layer FEC, and
+  deadline-aware scheduling. This is the \emph{core contribution} to the mobile
+  computing community: a protocol specification that can be implemented on
+  commodity Wi-Fi~6/6E radios without modifying the MAC layer.
+
+  \item \textbf{A submap-aware adaptive compression scheduler}
+  (Section~\ref{sec:compression}) that jointly optimizes SH-degree truncation,
+  spatial quantization step, and zstd entropy-coding level under a hard
+  bandwidth cap, using a new perceptually motivated Number-of-Gaussians-
+  Per-View (NPV) metric as the objective function, rather than naive byte-budget
+  heuristics.
+
+  \item \textbf{A hierarchical hybrid network architecture}
+  (Section~\ref{sec:network}) with (a) a stable cluster-head election protocol
+  that accounts for compute capacity, link quality, and
+  sensor richness; (b) multi-hop submap routing with store-and-forward on
+  partition; and (c) three degradation modes (full cooperation $\to$ intra-cluster
+  P2P $\to$ autonomous single-node) that preserve map consistency under
+  intermittent connectivity.
+
+  \item \textbf{A cooperative pose-graph SLAM back-end}
+  (Section~\ref{sec:mapping}) that registers, merges, and globally optimizes
+  ownership-tagged Gaussian submaps from heterogeneous nodes with confidence-
+  weighted conflict resolution.
+\end{enumerate}
+
+We provide a complete protocol specification with finite-state machines, a
+submap binary format, analytical latency and scalability bounds, and a
+detailed failure-mode recovery analysis. Co-LIC2's design is validated against
+realistic deployment scenarios: 2--32 heterogeneous nodes, per-node uplink
+$\geq$3.2~Mbps over Wi-Fi~6, per-cluster submap merge latency $\leq$2~s,
+and graceful degradation to single-node Gaussian-LIC2 under total partition.
+An implementation blueprint and evaluation plan on physical multi-rig hardware
+are provided.

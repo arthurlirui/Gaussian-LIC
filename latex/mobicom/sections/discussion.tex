@@ -1,0 +1,72 @@
+% ============================================
+% Section: Discussion
+% ============================================
+\label{sec:discussion}
+
+\subsection{Design Decisions}
+
+\paragraph{Why a new application-layer protocol?} Off-the-shelf transports
+(ROS~2/DDS with default QoS, plain gRPC, raw TCP) do not differentiate between
+a 20~Hz pose packet and a 3~MB submap upload. The result is either head-of-line
+blocking (TCP), lack of deadline awareness (DDS best-effort), or no compression
+integration. Co-LIC2's protocol is a thin shim ($\sim$2000 lines of C++)
+that adds exactly the differentiation needed for cooperative SLAM and can be
+deployed alongside existing middleware rather than replacing it.
+
+\paragraph{Why cluster-head election instead of a static topology?} Static
+topologies fail in mobile deployments: a pre-designated head may move behind a
+building, losing 50\% of its members. Our election protocol adapts to
+topology changes on a $\sim$3~s timescale, which is tolerable given that submap
+publication is $\sim$3~s and map merge is $\sim$2~s. The cost (election messages,
+complexity) is small relative to the robustness gain.
+
+\paragraph{Why NPV as the compression objective?} Perceptual metrics (PSNR,
+SSIM, LPIPS) require rendering---too expensive for per-submap optimization on
+an edge GPU already running real-time SLAM ($\sim$15~ms per render at 720p).
+NPV is computed in $\sim$1~ms from Gaussian parameters alone and empirically
+correlates with rendering quality ($\rho=0.89$ in outdoor scenes). It is a
+pragmatic proxy that the budget controller can use in its fast loop.
+
+\subsection{Limitations}
+
+\paragraph{Static-scene assumption.} The per-node front-end inherits
+Gaussian-LIC2's static-scene assumption. The confidence-weighted conflict
+resolution (Eq.~\ref{eq:confidence}) is a first-pass treatment; it handles
+slowly changing scenes (parked cars, construction progress) but not real-time
+dynamic-object tracking. An integration with RoSe-SLAM~\cite{wang2026roseslam}-style
+motion segmentation is the most important next step.
+
+\paragraph{Wi-Fi~6 EDCA dependence.} Our QoS mapping assumes 802.11e EDCA
+queues, which require WMM support on the AP. In unmanaged ad-hoc (IBSS) mode,
+EDCA is optional, and in some 5G NR deployments per-flow QoS requires network
+slice configuration. The protocol can function without EDCA (all streams
+mapped to AC\_BE), but latency bounds degrade proportionally.
+
+\paragraph{No cryptographic confidentiality.} The protocol authenticates nodes
+via signed descriptors and submaps (Ed25519), but does not encrypt traffic. A
+deployment in adversarial environments needs TLS or application-layer
+encryption over the submap and keyframe streams.
+
+\paragraph{Head scalability ceiling.} A single cluster head handles $\sim$8
+members at $\sim$17~Mbps ingress. Beyond this, we spawn additional clusters;
+cross-cluster consistency then depends on the Tier-0 server or opportunistic
+head-to-head exchange, both of which have higher latency than intra-cluster
+merge. The practical limit is $\sim$32 nodes with 4 heads + 1 server.
+
+\subsection{Open Questions}
+
+\begin{itemize}
+  \item \textbf{Dynamic cluster splitting/merging.} When a cluster grows beyond
+    8 members (nodes join after election), should the head split the cluster
+    or degrade QoS? A split protocol is complex but preserves latency bounds.
+  \item \textbf{Energy-optimal compression on UAVs.} For battery-constrained UAV
+    nodes, the trade-off between local compression (GPU energy) and
+    transmission (radio energy) is deployment-specific. A joint energy model
+    could push the budget controller toward coarser submaps for UAVs.
+  \item \textbf{5G NR sliced-network measurement study.} Our 5QI mapping
+    (Section~\ref{sec:channel}) is based on 3GPP specifications; a measurement
+    campaign on a real 5G SA network would validate the QoS assumptions.
+  \item \textbf{Multi-node dynamic-object consensus.} Per-node dynamic filtering
+    plus cross-node voting to agree on the static subset of the map,
+    required for long-term deployment in urban environments.
+\end{itemize}

@@ -1,0 +1,30 @@
+% ============================================
+% Section: Conclusion
+% ============================================
+\label{sec:conclusion}
+
+We presented Co-LIC2, a cooperative multi-node photo-realistic Gaussian SLAM
+system whose central contribution is a purpose-built wireless communication
+architecture for bandwidth-constrained, lossy, heterogeneous mobile
+environments. The system contributes: (1) a QoS-aware multi-stream protocol that
+maps four traffic classes (pose, submap, keyframe, control) to 802.11e EDCA
+queues with application-layer reliability; (2) a submap-aware adaptive
+compression scheduler that jointly optimizes SH-degree, quantization, and
+entropy-coding under a bandwidth budget using the perceptually-motivated NPV
+metric; (3) a hierarchical hybrid network architecture with stable
+cluster-head election, multi-hop submap routing, and three graceful degradation
+modes; and (4) a cooperative pose-graph back-end for globally consistent
+merging of heterogeneous Gaussian maps.
+
+The protocol is fully specified with finite-state machines, message
+catalogues, bandwidth models, and failure-mode recovery tables. Analytical
+bounds show per-node uplink as low as 3.2~Mbps, per-cluster inter-node merge
+latency under 2~s, and sub-linear per-link bandwidth growth with node
+count. Co-LIC2 is implemented as a backward-compatible extension of the
+open-source Gaussian-LIC2 codebase, with a three-phase empirical evaluation
+plan on physical multi-rig hardware.
+
+We believe Co-LIC2 is a concrete step toward practical cooperative
+photo-realistic mapping, and that its protocol design opens a new axis for
+mobile computing research: the joint optimization of perceptual data
+compression and wireless transport for emerging 3D scene representations.
