@@ -3,146 +3,103 @@
 % ============================================
 \label{sec:mapping}
 
-The cooperative mapping back-end reconciles per-node local Gaussian maps into a
-globally consistent photo-realistic map through registration, merge,
-pose-graph optimization, and loop closure. These components operate after the
-communication layer delivers submaps; they do not dictate protocol design but
-their computational cost feeds into the latency budget.
+The cooperative mapping back-end reconciles per-node local Gaussian maps
+into a globally consistent photo-realistic map through registration, merge,
+pose-graph optimization, and loop closure. These components receive submaps
+from the communication layer; their cost feeds into the latency budget.
 
 \subsection{Local Map and Ownership}
 
 \label{sec:local}
 
-Each node's local map $\GaussianMap_i$ is identical to Gaussian-LIC2's: a 3DGS
-map densified by a zero-shot depth completer for LiDAR-blind areas, supervised
-by LiDAR geometry and camera photometry, with bounded Gaussian scale and
-regularization~\cite{lang2026gaussian2}. The extension is that every Gaussian
-carries an \textbf{owner} tag ($\text{node\_id}$) recording which node created
-it. Ownership enables per-node pruning and confidence weighting.
+Each node's local map $\GaussianMap_i$ is identical to Gaussian-LIC2's: a
+3DGS map densified by a zero-shot depth completer for LiDAR-blind areas,
+supervised by LiDAR geometry and camera photometry~\cite{lang2026gaussian2}.
+The sole extension is an \textbf{owner} tag ($\text{node\_id}$) per Gaussian,
+enabling per-node pruning and confidence weighting.
 
 \subsection{Inter-Node Submap Registration}
 
 \label{sec:registration}
 
-When a head receives a submap $\submap_j$ from node $j$ (expressed in $W_j$),
-it estimates the aligning transform $T_{W_h \leftarrow W_j}$. Three strategies
-are attempted in order of increasing computational cost:
+When the head receives submap $\submap_j$ (expressed in $W_j$), it estimates
+the aligning transform $T_{W_h\leftarrow W_j}$ via three cascaded strategies:
 
-\paragraph{(1) Coarse prior.} If a GNSS fix, prior map anchor, or initial
-handshake provides a coarse transform, it seeds the optimization. The prior
-covariance is inflated by $\times 10$ to prevent over-constraining.
+\paragraph{(1) Coarse prior.} GNSS fix, prior map anchor, or initial handshake
+seeds the optimization with $10\times$ inflated covariance.
 
-\paragraph{(2) Gaussian-to-Gaussian ICP.} We register the incoming submap's
-Gaussian means against the head's merged map using weighted point-to-plane ICP.
-The ``plane'' at each Gaussian is the disk orthogonal to the minimum-scale axis;
-the planarity score is $\kappa_g = (\lambda_2 - \lambda_1)/\lambda_2$ where
-$\lambda_{1,2}$ are the two smallest eigenvalues of the scale covariance.
-Each correspondence is weighted by $w_{ij} = \alpha_i \cdot \alpha_j \cdot
-\kappa_i \cdot \kappa_j$, so flatter, more opaque Gaussians dominate.
-Convergence occurs within $\sim$10 iterations at $>$30\% spatial overlap.
+\paragraph{(2) Gaussian-to-Gaussian ICP.} Incoming Gaussian means are registered
+against the head's merged map using weighted point-to-plane ICP. The planarity
+score $\kappa_g=(\lambda_2-\lambda_1)/\lambda_2$ (from scale covariance
+eigenvalues) weights each correspondence by $\alpha_i\alpha_j\kappa_i\kappa_j$.
+Converges within $\sim$10 iterations at $>$30\% spatial overlap.
 
-\paragraph{(3) Visual feature fallback.} When overlap is below 30\%, we match
-2D features (SuperPoint + LightGlue) between representative keyframes of the two
-nodes stored in the submap header. Pose is recovered by PnP+RANSAC, then
-refined with step~(2).
-
-The output is $\hat{T}_{W_h \leftarrow W_j}$ with information matrix $\Omega$
-from the ICP Hessian, added as an inter-node edge in the pose graph.
+\paragraph{(3) Visual feature fallback.} When overlap is below 30\%, SuperPoint
++ LightGlue matches between stored keyframe descriptors recover the pose via
+PnP+RANSAC, refined by step~(2). The output is an inter-node factor with
+information matrix from the ICP Hessian.
 
 \subsection{Gaussian Map Merge}
 
 \label{sec:merge}
 
-Aligned Gaussians are merged into the head's map with three steps:
-
-\paragraph{Spatial deduplication.} For each incoming Gaussian $g_{\text{in}}$,
-query the map's octree for existing Gaussians within $\tau_d = 3 \cdot \bar{s}$,
-where $\bar{s}$ is the mean scale of $g_{\text{in}}$. If $g_{\text{ex}}$ exists:
-\begin{itemize}
-  \item \emph{Fuse}: $\boldsymbol{\mu}_{\text{merged}} = (\alpha_{\text{in}} \boldsymbol{\mu}_{\text{in}} + \alpha_{\text{ex}} \boldsymbol{\mu}_{\text{ex}})/(\alpha_{\text{in}}+\alpha_{\text{ex}})$;
-    scales and SH coefficients are opacity-weighted averages; opacity is the
-    sigmoid of the logit-sum (mirroring GS-LIVM~\cite{xie2025gslivm} and
-    LiV-GS~\cite{xiao2025livgs}).
-  \item Append both $\text{node\_id}$ owners to the merged Gaussian's owner list.
-\end{itemize}
-If no candidate exists, insert $g_{\text{in}}$ unchanged.
-
-\paragraph{Map delta broadcast.} The head emits MAP\_DELTA containing only
-new and fused Gaussians, enabling member nodes to lazily update their local
-copies without re-downloading the full map.
+Aligned Gaussians are merged by spatial deduplication (octree query within
+$\tau_d=3\bar{s}$, fusing overlapping pairs by opacity-weighted averaging
+of means, scales, and SH coefficients) and ownership bookkeeping (merged
+Gaussians carry lists of contributing node IDs). The head broadcasts MAP\_DELTA
+containing only new and fused Gaussians, enabling lazy member-side updates.
 
 \subsection{Pose-Graph Optimization}
 
 \label{sec:pgo}
 
-A factor graph is maintained with:
-\begin{itemize}
-  \item \textbf{Vertices}: per-node keyframe poses (one per submap close).
-  \item \textbf{Odometry edges}: intra-node relative pose factors with
-    information matrices from the CT Gauss-Newton Hessian.
-  \item \textbf{Registration edges}: inter-node factors from Section~\ref{sec:registration}.
-  \item \textbf{Loop-closure edges}: prior factors from Section~\ref{sec:loop}.
-\end{itemize}
-
-Incremental optimization uses GTSAM's iSAM2~\cite{gtsam_mob} with ISAM2Params:
-relinearize threshold 0.01, re-linearize skip 10, factorization CHOLESKY.
-On the cluster head, full PGO runs per received submap ($\sim$10--50 ms per
-solve on an RTX 4090). On the Tier-0 server, a coarser graph (one vertex per
-cluster-level merge) maintains cross-cluster consistency. PGO corrections are
-pushed as MAP\_DELTA pose updates; member nodes apply a rigid per-submap
-transform correction to their owned Gaussians (exact for means and quaternions;
-scale/SH are re-fitted locally over a 10-frame window).
+A factor graph holds per-node keyframe vertices and three edge types:
+intra-node odometry (from CT Gauss-Newton Hessian), inter-node registration
+(Section~\ref{sec:registration}), and loop closure
+(Section~\ref{sec:loop}). iSAM2~\cite{gtsam_mob} runs incrementally on the
+cluster head (10--50~ms per solve on RTX~4090) and at coarser granularity on
+the Tier-0 server. Corrections are pushed as MAP\_DELTA pose updates; member
+nodes apply rigid per-submap corrections to owned Gaussians.
 
 \subsection{Loop Closure}
 
 \label{sec:loop}
 
-\paragraph{Geometric.} Submap registration is attempted against graph-distant
-submaps (topological distance $>$5 edges) when the pose-graph prior places
-them within 10~m. A low overlap threshold (10\%) is used; successful
-registrations add loop edges.
-
-\paragraph{Visual.} A NetVLAD~\cite{arandjelovic2016netvlad} descriptor is
-computed per keyframe and sent via KEYFRAME message. The head maintains a
-DBoW2-style inverted index over all received keyframe descriptors. Candidate
-loops are queried when a new keyframe's descriptor cosine-similarity exceeds
-0.85. Verified loops produce PGO constraints with covariance from the
-match-inlier statistics.
+Two complementary mechanisms detect loops: \textbf{geometric}---submap
+registration against graph-distant submaps (topological distance $>$5 edges,
+10\% overlap threshold); and \textbf{visual}---NetVLAD~\cite{arandjelovic2016netvlad}
+keyframe descriptors maintained in a DBoW2-style inverted index, queried at
+cosine-similarity $>$0.85. Verified matches add PGO factors with match-inlier
+covariance.
 
 \subsection{Conflict Resolution}
 
 \label{sec:conflict}
 
-When two nodes observe the same spatial region and produce divergent Gaussian
-parameters (e.g., dynamic objects), conflicts are resolved by confidence-weighted
-voting:
+When two nodes produce divergent parameters for the same spatial region,
+conflicts resolve by confidence-weighted voting:
+
 \begin{equation}
-  C(g) = \alpha_g \cdot \bigl( n_{\text{photo}}(g) + n_{\text{lidar}}(g) \bigr) \cdot w_{\text{sensor}}(\text{owner}(g)),
-  \label{eq:confidence}
+  C(g)=\alpha_g\,(n_{\text{photo}}(g)+n_{\text{lidar}}(g))\,w_{\text{sensor}}(\text{owner}(g)),
 \end{equation}
-where $n_{\text{photo}}$ and $n_{\text{lidar}}$ are the number of photometric
-and LiDAR observations contributing to Gaussian $g$, and $w_{\text{sensor}}$ is
-a per-node quality weight from the node descriptor (survey-grade LiDAR $>$ toy-drone
-LiDAR). Higher-confidence Gaussians dominate; lower-confidence ones have
-opacity shrunk by 50\% per conflict cycle and are pruned after 3 cycles.
-
-\subsection{Algorithm Summary}
-
-\label{sec:alg}
+where $n_{\text{photo}}$, $n_{\text{lidar}}$ are observation counts and
+$w_{\text{sensor}}$ is the per-node quality weight from the node descriptor.
+High-confidence Gaussians dominate; low-confidence ones are demoted (50\%
+opacity shrink per cycle) and pruned after 3 cycles.
 
 \begin{algorithm}[t]
-\caption{Cooperative pose-graph SLAM (head-side, per received submap).}
+\caption{Cooperative mapping loop (head-side, per received submap).}
 \label{alg:coop}
 \begin{algorithmic}[1]
 \State Receive SUBMAP\_PUSH $\submap_j$; verify CRC32.
-\State Estimate $T_{W_h \leftarrow W_j}$ via Sec.~\ref{sec:registration}.
+\State Estimate $T_{W_h\leftarrow W_j}$ via Sec.~\ref{sec:registration}.
 \State Transform $\submap_j$ Gaussians into $W_h$.
-\State \textbf{for} each Gaussian $g \in \submap_j$:
-\State \quad Dedup + fuse or insert per Sec.~\ref{sec:merge}.
-\State Add inter-node factor $(T_{W_h \leftarrow W_j}, \Omega)$ to pose graph.
-\State Run iSAM2 incremental update.
+\For{each Gaussian $g\in\submap_j$}
+  \State Dedup + fuse or insert per Sec.~\ref{sec:merge}.
+\EndFor
+\State Add inter-node factor $(T_{W_h\leftarrow W_j},\Omega)$; run iSAM2.
 \State Query loop candidates (Sec.~\ref{sec:loop}); add factors if found.
-\State Pack new+fused Gaussians into MAP\_DELTA; broadcast to cluster members.
-\State \textbf{if} Tier-0 present: push merged submap summary to server.
+\State Pack new+fused Gaussians into MAP\_DELTA; broadcast to members.
+\If{Tier-0 present} \State Push merged submap summary to server. \EndIf
 \end{algorithmic}
 \end{algorithm}

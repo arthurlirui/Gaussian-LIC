@@ -1,4 +1,4 @@
-# Gaussian-LIC2 — Related Work Survey (2026-09-08, updated 2026-09-28)
+# Gaussian-LIC2 — Related Work Survey (2026-09-08, updated 2026-09-30)
 
 This directory collects **recent related work** surveyed via Doubao web search,
 along with their original PDFs and a consolidated BibTeX file.
@@ -1876,6 +1876,232 @@ The LV-GS SLAM MDPI PDF was attempted but
 `latex/papers/` now holds **93 PDFs**; `latex/bib/references.bib` now
 holds **102 BibTeX entries** (`grep -c "^@" bib/references.bib` = 102,
 `ls papers/*.pdf | wc -l` = 93). The 9-entry gap is the usual set of
+surveyed-without-arXiv-PDF foundational works (Kerbl 3DGS, Mip-Splatting,
+Scaffold-GS, Stop-ThePop, Taming-3DGS, iMAP) plus a few venue-only /
+library-software / MDPI-403 entries (GTSAM, LV-GS SLAM).
+
+## Addendum 23 (2026-09-29) — three newly surveyed related works
+
+**24-hour code-review note.** There was one commit in the last 24
+hours: `07670cb docs: 添加新调研文献、MobiCom论文草稿及.zcodeignore配置`
+(2026-09-28 20:02:49 +0800, author arthurlirui). It is a **docs-only**
+commit — 29 files changed, +5,985 insertions, spanning `.zcodeignore`
+(+57), the survey tree (`latex/README.md`, `latex/bib/references.bib`),
+the `latex/mobicom/` MobiCom draft (acmart sigconf: `main.tex` + 11
+section files + 6 figure `.tex` + `mobicom_refs.bib` + full build
+artifacts `main.{aux,bbl,blg,log,out,pdf}`), and `latex/paper/main.pdf`.
+**No source-tree (`src/`, `include/`, `CMakeLists.txt`, `launch/`,
+`config/`) changes** — the Gaussian-LIC2 codebase proper was not touched,
+so this round is again purely additive to the survey. The notable new
+artifact is the MobiCom-formatted cooperative-multi-node paper draft
+(`latex/mobicom/`) along with its compiled `main.pdf` — this is the
+MobiCom venue version of the cooperative design tracked in
+[[co-lic2-design-paper]].
+
+Doubao web search was **available** this round. Six
+`mcp__doubao-search__web_search` calls were run 2026-09-29 with
+`OneWeek` / `OneMonth` time-range filters against the standard
+3DGS-SLAM + LiDAR/visual/inertial keyword set, plus a targeted
+multi-robot / cooperative-GS search. The arXiv-fresh GS-SLAM
+submissions of the past two weeks (ArborSplat arXiv:2609.26315,
+Dual Covariance GS-SLAM arXiv:2609.25746, both 22 Sep 2026) were
+already surveyed in Addendum 17. Three genuinely new papers not in the
+inventory were identified and added this round: **CoRef-GS** (a
+cooperative multi-agent Gaussian-map registration/fusion framework —
+the most directly relevant to the Co-LIC2 cooperative design),
+**M3GD** (a Camera-LiDAR multimodal generative NVS method that composes
+frozen 2D image + 3D point-cloud foundation models), and **LiTe-GS**
+(an oracle-efficient next-best-view selection method for 3DGS, more
+peripheral). Re-appearing candidates already in the bib and ruled out:
+MCGS-SLAM (Addendum, `cao2026mcgsslam`, arXiv:2509.14191 v4 07 Sep
+2026), Structured-Li-GS (Addendum 18, `weng2026structuredligs`).
+
+| Section | Paper | Venue / date | Sensor | Key idea | Relation to Gaussian-LIC2 |
+|---------|-------|--------------|--------|----------|---------------------------|
+| Cooperative / multi-agent GS | **CoRef-GS: Cooperative Referring Gaussian Splatting for Multi-Agent Scene Understanding** (Zhou, Peng, Yang, Cai, Wen, Liu, Paudel, Zhou, Van Gool, Yang; Hunan U. + KIT + INSAIT + ETH; arXiv:2609.20586, 17 Sep 2026) | arXiv Sep 2026 | RGB (multi-agent) | A **cooperative multi-agent Gaussian-splatting framework** for referring scene understanding. Each agent builds a **local open-vocabulary instance-aware semantic Gaussian map** (CLIP-aligned anchors + instance grouping); a **cross-agent alignment module** then aligns partially overlapping maps by **geometric + semantic consistency** (coarse-to-fine, image-assisted), and language queries are grounded via a **view-conditioned mask relation graph** from the querying robot's viewpoint. Introduces **CoQuad-Ref**, a dual-quadruped benchmark (real + simulated indoor scenes). Reduces rotation error 2.58° → 0.15° after refinement; improves real-world referring mIoU 52.6% → 68.8% over ReferSplat. Code released. | The **first explicit cooperative multi-agent Gaussian-map registration/fusion** work in the survey and the closest precedent to the cooperative-multi-node design ([[co-lic2-design-paper]]). It tackles exactly the cross-agent map-merging problem a cooperative LIV GS-SLAM must solve — local maps built independently, then aligned and fused into a shared representation. Its limitations define the Co-LIC2 gap: it is **visual + semantic only** (no LiDAR/inertial), alignment is **offline per-scene** rather than inside an online SLAM loop, and it has no metric-scale / loop-closure machinery. Cite in the cooperative/multi-agent GS map-merging discussion as the direct visual-only counterpart Co-LIC2 extends with LIV fusion and online operation. |
+| Camera-LiDAR multimodal NVS | **M3GD: Multi-Modal Multi-View Geometric Diffusion for Camera–LiDAR Novel View Synthesis** (Zhou, Xiao, Ye, Quang, Nieto-Granda, Loianno; NYU + UC Berkeley + ARL; arXiv:2609.30056, 24 Sep 2026) | arXiv Sep 2026 | RGB + LiDAR | A **Camera–LiDAR multimodal generative NVS** method that composes **frozen 2D image (Depth Anything 3) and 3D point-cloud (Utonia) foundation models without a separately trained cross-modal translator**. After camera projection, frozen LiDAR and image features share substantial spatial structure, so LiDAR enters the image-latent generative model as **view-aligned "packets"** (explicit geometry statistics + learned point-cloud descriptors) injected via a **lightweight residual adapter** into a multi-view **flow-matching** generator. Target-side LiDAR acts as a **geometric query**. Improves RGB + depth synthesis over image-only on GrandTour; deploys zero-shot on a ground robot with a different sensor suite. | A **Camera-LiDAR multimodal fusion reference at the representation level**, distinct from but neighboring the SLAM-side LIV fusion Gaussian-LIC2 performs. It shows how projected LiDAR features can condition an image-latent generative model — the "frozen-feature composition" idea is complementary to the joint-optimization fusion in Gaussian-LIC2 and relevant where the cooperative design needs feed-forward / generative view synthesis across unobserved viewpoints. Cite in the Camera-LiDAR fusion / generative-NVS-neighboring-work discussion. |
+| 3DGS view selection | **LiTe-GS: Oracle-Efficient Next Best View Selection for 3D Gaussian Splatting** (Pandey, Mollaei Khass, Motee; UC Irvine; arXiv:2609.30393, 24 Sep 2026) | arXiv Sep 2026 | (N/A — 3DGS training) | An **oracle-efficient next-best-view (NBV) selection** method for 3DGS that reduces the number of **Fisher-information oracle evaluations** in active view selection from exhaustive greedy to an **ε-constrained randomized subset scheme** with expected **O(M log(1/ε))** complexity (independent of selection cardinality K), with **provable approximation guarantees**. Maintains reconstruction quality on Blender and Mip-NeRF 360 while substantially cutting oracle calls. | **Peripheral to Gaussian-LIC2** (about 3DGS training view selection, not SLAM), but relevant to the **keyframe / active-view-selection** design question for GS-SLAM map refinement — Gaussian-LIC2's keyframe selection and the cooperative design's cross-node view sharing both touch the same information-gain vs. cost trade-off LiTe-GS formalizes. Cite in the view/keyframe-selection discussion as the principled NBV-cost bound. |
+
+### Why these matter
+
+1. **CoRef-GS** is the most significant addition this round for the
+   Gaussian-LIC2 program. Until now the survey had no work that
+   explicitly performed **cooperative multi-agent Gaussian-map
+   registration and fusion**; CoRef-GS is exactly that. For the
+   cooperative multi-node LIV GS-SLAM design
+   ([[co-lic2-design-paper]]) it is the direct visual-only counterpart
+   to cite and differentiate against: CoRef-GS aligns and fuses
+   independently reconstructed semantic Gaussian maps across agents,
+   but does so offline, visually, and without metric LiDAR scale,
+   inertial coupling, or a SLAM loop — precisely the capabilities
+   Co-LIC2 adds. Its CoQuad-Ref dual-quadruped benchmark is also a
+   useful reference for cooperative-evaluation protocol design.
+
+2. **M3GD** broadens the Camera-LiDAR fusion picture in the survey.
+   Gaussian-LIC2 fuses LIV inside a SLAM optimization loop; M3GD shows
+   a complementary, feed-forward path where projected LiDAR features
+   condition an image-latent generative model without a trained
+   cross-modal translator. The "frozen 2D + 3D foundation-model
+   composition" finding (projected LiDAR and image features share
+   spatial structure after camera projection) is a useful design hint
+   for any generative / feed-forward view-synthesis component in the
+   cooperative system, e.g. synthesizing views for a node from a
+   neighbor's LiDAR sweep.
+
+3. **LiTe-GS** is included for completeness of the view-selection
+   thread. Gaussian-LIC2 and the cooperative design both rely on
+   keyframe / view selection; LiTe-GS provides the principled
+   oracle-complexity bound (O(M log(1/ε)), independent of K) for
+   information-driven NBV, which is the kind of cost control a
+   real-time cooperative system needs when deciding which node's
+   observations to integrate next.
+
+### Reproducing the Addendum 23 survey
+
+Searches were run via `mcp__doubao-search__web_search` on 2026-09-29
+with `OneWeek` and `OneMonth` time-range filters:
+
+1. `Gaussian Splatting SLAM 2026 arxiv LiDAR visual inertial` (OneWeek, 7 results) — surfaced ArborSplat (A17) and Dual Covariance GS-SLAM (A17), both already in bib.
+2. `3DGS SLAM real-time dense mapping reconstruction 2026 new method` (OneWeek, 3 results) — surfaced LiTe-GS (arXiv:2609.30393, 24 Sep 2026) as a new NBV-selection result.
+3. `Gaussian splatting LiDAR inertial visual odometry tightly coupled 2026 arxiv` (OneWeek, 7 results) — re-confirmed ArborSplat + Dual Covariance GS-SLAM.
+4. `gaussian splatting SLAM loop closure submap distributed multi-agent 2026 arxiv` (OneWeek, 4 results) — re-confirmed ArborSplat + Dual Covariance GS-SLAM.
+5. `LiDAR visual inertial SLAM Gaussian splatting continuous-time spline 2026 new arxiv September` (OneWeek, 10 results) — surfaced M3GD (arXiv:2609.30056, 24 Sep 2026) via the Camera-LiDAR multimodal angle.
+6. `multi-robot collaborative SLAM gaussian splatting map merging 2026 arxiv` (OneMonth, 10 results) — surfaced CoRef-GS (arXiv:2609.20586, 17 Sep 2026), the cooperative multi-agent Gaussian-map registration/fusion work; also re-confirmed MCGS-SLAM (`cao2026mcgsslam`, already in bib) and Structured-Li-GS (A18, `weng2026structuredligs`).
+7. `M3GD Multi-Modal Multi-View Geometric Diffusion Camera LiDAR Novel View Synthesis arxiv Zhou Xiao` (OneWeek, 6 results) — confirmed arXiv:2609.30056, 24 Sep 2026, NYU + UC Berkeley + ARL.
+
+New PDFs downloaded:
+`papers/Zhou2026_CoRefGS.pdf` (arXiv:2609.20586, via
+`curl -sL -o ... https://arxiv.org/pdf/2609.20586` — ~5 MB, valid PDF v1.7),
+`papers/Zhou2026_M3GD.pdf` (arXiv:2609.30056, via
+`curl -sL -o ... https://arxiv.org/pdf/2609.30056` — ~13 MB, valid PDF v1.7),
+`papers/Pandey2026_LiTeGS.pdf` (arXiv:2609.30393, via
+`curl -sL -o ... https://arxiv.org/pdf/2609.30393` — ~37 MB, valid PDF v1.7).
+
+### Inventory
+
+`latex/papers/` now holds **96 PDFs**; `latex/bib/references.bib` now
+holds **105 BibTeX entries** (`grep -c "^@" bib/references.bib` = 105,
+`ls papers/*.pdf | wc -l` = 96). The 9-entry gap is the usual set of
+surveyed-without-arXiv-PDF foundational works (Kerbl 3DGS, Mip-Splatting,
+Scaffold-GS, Stop-ThePop, Taming-3DGS, iMAP) plus a few venue-only /
+library-software / MDPI-403 entries (GTSAM, LV-GS SLAM).
+
+## Addendum 24 (2026-09-30) — four newly surveyed related works
+
+**24-hour code-review note.** There were **no new commits** in the last
+24 hours — the most recent commit remains `07670cb` (2026-09-28 20:02:49
++0800, "docs: 添加新调研文献、MobiCom论文草稿及.zcodeignore配置"), already
+covered in Addendum 23. The working tree has uncommitted edits to the
+`latex/mobicom/` MobiCom draft (section `.tex` files, build artifacts
+`main.{aux,bbl,blg,log,out}`, `mobicom_refs.bib`, `main.tex`) plus
+uncommitted `latex/README.md` / `latex/bib/references.bib` survey
+updates; **no source-tree (`src/`, `include/`, `CMakeLists.txt`,
+`launch/`, `config/`) changes**. Note: 13 PDFs sit untracked at the
+repo root (`Cao2025_RESPLE.pdf`, `DeAmbrogi2026_CGSSLAM.pdf`,
+`Hu2026_SGADSLAM.pdf`, `Lang2023_CocoLIC.pdf`, `Lang2026_GaussianLIC2.pdf`,
+`Park2026_LIVEGS.pdf`, `Ramezani2022_Wildcat.pdf`, `Shi2026_LITGS.pdf`,
+`Tak2026_RealTimeLiDARGS.pdf`, `Thirgood2026_FeatureSLAM.pdf`,
+`Wang2026_RoSeSLAM.pdf`, `Xie2024_GSLivM.pdf`, `Zhao2026_CTVoxelMap.pdf`)
+— these are **stale duplicates** of files already present in
+`latex/papers/` under the same names, not new survey material; they
+should be removed or `.zcodeignore`d in a future cleanup. This round is
+again purely additive to the survey.
+
+Doubao web search was **available** this round. Four
+`mcp__doubao-search__web_search` calls were run 2026-09-30 with
+`OneWeek` / `OneMonth` time-range filters against the standard
+3DGS-SLAM + LiDAR/visual/inertial keyword set, plus a targeted
+cooperative/multi-agent + LIO search. Four genuinely new papers not in
+the inventory were identified and added this round: **RRG-SLAM** (a
+reflection-aware real-time RGB-D GS-SLAM), **ChronoFuseGS** (a
+multi-temporal Gaussian-map fusion method, relevant to the cooperative
+map-merging thread), **RRTO-CF3DGS** (a reliability-regulated
+progressive COLMAP-free 3DGS trajectory optimizer), and
+**CollisionSplatting** (collision-aware motion planning directly on
+standard 3DGS scenes). Re-appearing candidates already in the bib and
+ruled out: Structured-Li-GS (A18, `weng2026structuredligs`), LV-GS SLAM
+(`he2026lvgsslam`, already in bib — the OpenAlex Applied Sciences
+result), MCGS-SLAM (`cao2026mcgsslam`), CoRef-GS (A23,
+`zhou2026corefgs`), LiTe-GS (A23, `pandey2026litegs`). FMCW-LIO
+(arXiv:2609.29374) was excluded — it is a 2024 RA-L paper
+(doi:10.1109/LRA.2024.3396636) only recently cross-posted to arXiv, not
+a new 2026 result.
+
+| Section | Paper | Venue / date | Sensor | Key idea | Relation to Gaussian-LIC2 |
+|---------|-------|--------------|--------|----------|---------------------------|
+| RGB-D GS-SLAM (appearance) | **RRG-SLAM: Real-time Reflection-aware Gaussian SLAM for Indoor Scenes** (Liu, Ye, Peng, Mei, Zhou, Shao; Zhejiang U. CAD&CG; arXiv:2609.34527, 28 Sep 2026) | arXiv Sep 2026 | RGB-D | The **first real-time reflection-aware GS-SLAM**: a reflection-aware **TSDF-Gaussian hybrid representation** separates diffuse base appearance (TSDF volume + base Gaussians) from reflection components (reflection groups = reflective plane + virtual-space reflection Gaussians). **Three-pass rendering** (TSDF raycast → OIT base-Gaussian render with depth culling → plane-ID-guided reflection-Gaussian rasterization, composited via reflection mask). Reflection-aware tracking excludes reflection-dominated regions; reflective planes detected by combining geometry (CAPE), semantics (Grounded SAM2), and a temporal raycast color-variance cue in a sliding window. Outperforms GPS-SLAM / GS-ICP SLAM / RTG-SLAM under strong planar reflections while real-time. | **Peripheral** (RGB-D indoor, no LiDAR/inertial), but relevant to the **appearance-modeling / robust-tracking** thread. The reflection/base separation is a transferable idea for LIV GS-SLAM scenes with specular surfaces (glass facades, wet roads) where photometric tracking corrupts. Cite in the appearance / robust-tracking discussion. |
+| Multi-model Gaussian fusion | **ChronoFuseGS: Multi-Temporal Gaussian Fusion with Per-Splat Persistence and Change Visualization** (Batik, Marin, K{\'a}n, Kaufmann; TU Wien; arXiv:2609.31339, 25 Sep 2026, Pacific Graphics Short Papers) | arXiv / PG Short 2026 | RGB (multi-temporal) | **Multi-temporal 3DGS fusion**: takes multiple separately-trained 3DGS models (distinct timesteps, partial geographic overlap) and merges them into one combined model with **per-splat persistence encoding** (which timesteps each Gaussian contributes to) and change visualization. Supports incremental extension. Cross-timestep initialization estimates per-Gaussian persistence + light compensation; Gaussians from one timestep refine persistent parts of others, validated against the corresponding timestep's images. Change-aware rendering highlights sub-object-granularity changes. Evaluated on a real outdoor flood-management dataset over 7 months / 8 days; merged model beats single-timestep models in NVS. | Relevant to the **cooperative/distributed map-merging** thread ([[co-lic2-design-paper]]). Like CoRef-GS it fuses independently-built Gaussian maps, but along the **temporal** axis (same place, different time) rather than the agent axis, and without metric SLAM alignment. The **per-splat persistence encoding** is a transferable idea for cooperative map-merging where each node's Gaussians should carry provenance (which node / when observed). Cite in the multi-model Gaussian fusion / map-merging discussion. |
+| Pose-free 3DGS tracking | **Reliability-Regulated Trajectory Optimization for Progressive COLMAP-Free 3D Gaussian Splatting** (Wu, Wang, Lin, Song, Lu, Ma, Ye, Jiang; Zhejiang Sci-Tech U. + Tsinghua + Lishui U. + Zhejiang U.; arXiv:2609.30865, 25 Sep 2026) | arXiv Sep 2026 | RGB (pose-free) | Addresses **error compounding in sequential pose-free 3DGS** (CF-3DGS): a self-supervised **bidirectional cycle-consistency reliability signal** that (1) gates first-order kinematic warm-starts into upcoming pairwise registrations (Forward Motion Propagation), intercepting untrusted transitions, and (2) dynamically weights relative-pose consistency constraints in a sliding window (Retrospective Trajectory Correction) — both under one unified reliability regulator, no external neural priors or offline preprocessing. Improves camera trajectory accuracy and NVS over unposed baselines on Tanks&Temples and CO3D-V2. | **Peripheral** (visual-only, no LiDAR/inertial, not a full SLAM loop), but relevant to the **pose-tracking-robustness** thread. Reliability-gated progressive registration is conceptually adjacent to how a LIV GS-SLAM must gate which frame-to-frame constraints to trust, and the retrospective sliding-window correction echoes loop-closure / local-BA design. Cite in the pose-tracking / drift-mitigation discussion. |
+| 3DGS downstream (planning) | **CollisionSplatting: Collision-Aware Motion Planning in 3DGS Scenes with Image-Conditioned Objectives and Adjustable Conservatism** (Khorrambakht, Ortiz-Haro, Weiss, Righetti; NYU + ANITI Toulouse + Klagenfurt; arXiv:2609.35619, 28 Sep 2026) | arXiv Sep 2026 | 3DGS scene (planning) | **Collision-aware motion planning directly on standard 3DGS scenes**: a simple, modular, GPU-accelerated, probability-inspired distance metric with tunable conservatism operating on standard (unnormalized) 3DGS, supporting anisotropic/isotropic Gaussians, 2DGS disks, and ellipsoidal/spherical multi-link robot primitives. Extends a point-ellipsoid scaling-function distance to Gaussian obstacles via probability propagation. On-par or better collision-classification vs Splat-Nav / SAFER-SPLAT / ATLASNav / SPLANNING with substantially higher throughput and lower VRAM. Integrated into GPU MPPI and RRT planners (7-DoF manipulator + quadruped) with real-world demos. Positions 3DGS as an action-conditioned world model bridging perception and real-time planning. | **Peripheral** (planning on a built
+3DGS scene, not SLAM), but relevant to the **downstream-application / deployment** thread. A cooperative LIV GS-SLAM's merged Gaussian map is exactly the representation such planners consume, and the standard-3DGS, single-kernel, low-VRAM design is attractive for the cooperative system's edge-node compute budget. Cite in the application / downstream-impact discussion. |
+
+### Why these matter
+
+1. **ChronoFuseGS** is the most relevant addition this round for the
+   cooperative program ([[co-lic2-design-paper]]). It joins CoRef-GS
+   (A23) as a second concrete example of **fusing independently-built
+   Gaussian maps into a shared representation**, but along the temporal
+   axis rather than the agent axis. Its **per-splat persistence
+   encoding** — each Gaussian records which timesteps it contributes to,
+   validated against the corresponding images — is directly transferable
+   to cooperative map-merging, where each node's Gaussians should carry
+   provenance (which node / when observed) so the fused map can be
+   queried, de-duplicated, and updated by the right node. ChronoFuseGS
+   and CoRef-GS together now bracket the multi-model Gaussian-fusion
+   design space (temporal vs. spatial/agent), sharpening the
+   differentiation for Co-LIC2's online, metric, LIV-fused map-merging.
+
+2. **RRG-SLAM** extends the appearance-modeling thread. Gaussian-LIC2
+   relies on photometric tracking; RRG-SLAM shows that strong planar
+   reflections corrupt both photometric and feature-based tracking and
+   demonstrates that explicitly separating reflection from base
+   appearance (in a TSDF-Gaussian hybrid) restores tracking robustness
+   and rendering quality in real time. For LIV GS-SLAM deployed in
+   outdoor scenes with glass facades or wet roads, the reflection/base
+   separation is a concrete robustness technique worth citing and
+   potentially adapting.
+
+3. **RRTO-CF3DGS** contributes to the pose-tracking-robustness thread.
+   Its reliability-gated progressive registration — trust-gating
+   frame-to-frame constraints with a self-supervised cycle-consistency
+   signal and retrospectively correcting a sliding window — echoes the
+   trust-gating and local-BA / loop-closure mechanisms a real-time LIV
+   GS-SLAM needs. It is a useful visual-only reference for the
+   drift-mitigation discussion even though it lacks LiDAR/inertial.
+
+4. **CollisionSplatting** rounds out the downstream-application
+   picture. The cooperative system's deliverable is a merged Gaussian
+   map that downstream planners consume; CollisionSplatting shows that
+   standard 3DGS (not a custom normalized variant) already supports
+   real-time, low-VRAM collision-aware planning, which is encouraging
+   for deploying the cooperative map on edge nodes with limited compute.
+
+### Reproducing the Addendum 24 survey
+
+Searches were run via `mcp__doubao-search__web_search` on 2026-09-30
+with `OneWeek` and `OneMonth` time-range filters:
+
+1. `3DGS SLAM LiDAR visual inertial 2026` (OneWeek, 5 results) — re-confirmed Structured-Li-GS (A18) and LV-GS SLAM (`he2026lvgsslam`, already in bib); surfaced RRG-SLAM (arXiv:2609.34527, 28 Sep 2026) and LiTe-GS (A23, already in bib).
+2. `Gaussian splatting SLAM real-time 2026 arxiv` (OneWeek, 7 results) — surfaced CollisionSplatting (arXiv:2609.35619, 28 Sep 2026) and RRG-SLAM; re-confirmed LiTe-GS (A23).
+3. `cooperative multi-agent Gaussian splatting map merging SLAM 2026` (OneMonth, 15 results) — surfaced ChronoFuseGS (arXiv:2609.31339, 25 Sep 2026); re-confirmed CoRef-GS (A23) and MCGS-SLAM (`cao2026mcgsslam`).
+4. `LiDAR inertial visual odometry mapping real-time arxiv 2026` (OneWeek, 6 results) — surfaced FMCW-LIO (arXiv:2609.29374), excluded as a 2024 RA-L paper (doi:10.1109/LRA.2024.3396636) only recently cross-posted; re-confirmed LV-GS SLAM.
+5. `Gaussian splatting SLAM arxiv September 2026 indoor outdoor reconstruction` (OneWeek, 7 results) — surfaced RRTO-CF3DGS (arXiv:2609.30865, 25 Sep 2026) and TangoGS (arXiv:2609.31248, a compact-3DGS model-sizing method, ruled out as non-SLAM/offline); re-confirmed RRG-SLAM and ChronoFuseGS.
+
+New PDFs downloaded:
+`papers/Liu2026_RRGSLAM.pdf` (arXiv:2609.34527, via
+`curl -sL -o ... https://arxiv.org/pdf/2609.34527` — ~22 MB, valid PDF),
+`papers/Batik2026_ChronoFuseGS.pdf` (arXiv:2609.31339, via
+`curl -sL -o ... https://arxiv.org/pdf/2609.31339` — ~15 MB, valid PDF),
+`papers/Wu2026_RRTOCF3DGS.pdf` (arXiv:2609.30865, via
+`curl -sL -o ... https://arxiv.org/pdf/2609.30865` — ~15 MB, valid PDF),
+`papers/Khorrambakht2026_CollisionSplatting.pdf` (arXiv:2609.35619, via
+`curl -sL -o ... https://arxiv.org/pdf/2609.35619` — ~2.3 MB, valid PDF).
+
+### Inventory
+
+`latex/papers/` now holds **100 PDFs**; `latex/bib/references.bib` now
+holds **109 BibTeX entries** (`grep -c "^@" bib/references.bib` = 109,
+`ls papers/*.pdf | wc -l` = 100). The 9-entry gap is the usual set of
 surveyed-without-arXiv-PDF foundational works (Kerbl 3DGS, Mip-Splatting,
 Scaffold-GS, Stop-ThePop, Taming-3DGS, iMAP) plus a few venue-only /
 library-software / MDPI-403 entries (GTSAM, LV-GS SLAM).

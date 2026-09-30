@@ -3,16 +3,18 @@
 % ============================================
 \label{sec:network}
 
-\subsection{Design Rationale and Topology Selection}
+\subsection{Topology Selection}
 
-We evaluated three topologies against the requirements of cooperative Gaussian
-SLAM: (i) fully centralized (1 server, $N$ clients), (ii) fully decentralized
-(full-mesh P2P), and (iii) hierarchical hybrid. Table~\ref{tab:topology} 
-summarizes the analysis.
+We evaluated three topologies for cooperative Gaussian SLAM and summarize
+trade-offs in Table~\ref{tab:topology}. The \textbf{hierarchical hybrid}
+balances scalability and robustness: it achieves global consistency
+per-cluster, avoids a single point of failure via degradation, bounds
+per-link bandwidth growth to $\mathcal{O}(\sqrt{N})$, and keeps protocol
+complexity moderate.
 
 \begin{table}[t]
   \centering
-  \caption{Topology comparison for cooperative Gaussian SLAM.}
+  \caption{Topology comparison.}
   \label{tab:topology}
   \footnotesize
   \setlength{\tabcolsep}{4pt}
@@ -22,112 +24,82 @@ summarizes the analysis.
     \midrule
     Consistency  & optimal & weak  & strong (per-cluster) \\
     SPOF         & yes     & no    & no (degradable) \\
-    BW growth    & $\mathcal{O}(N)$ & --- & $\mathcal{O}(\!\sqrt{N})$ \\
-    Merge lat.   & $<$500 ms & variable & $<$2 s \\
+    BW growth    & $\mathcal{O}(N)$ & --- & $\mathcal{O}(\sqrt{N})$ \\
+    Merge lat.\@ & $<$500 ms & variable & $<$2 s \\
     Complexity   & low     & high  & moderate \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-We adopt the \textbf{hierarchical hybrid}, which splits the network into three
-tiers:
-
 \begin{figure}[t]
   \centering
   \resizebox{\columnwidth}{!}{\input{figures/topology.tex}}
   \caption{Hierarchical hybrid architecture. Tier-0 (optional): Edge Fusion
-  Server for global map consolidation. Tier-1: cluster heads exchange submaps
-  over an inter-cluster P2P bus. Tier-2: member nodes run local Gaussian-LIC2
-  and publish compressed submaps to their head. On server loss the system
-  degrades to Tier-1 P2P; on head loss, members re-elect.}
+  Server. Tier-1: cluster heads communicate over a P2P bus and optionally
+  uplink to Tier-0. Tier-2: member nodes run local Gaussian-LIC2 and publish
+  compressed submaps to their head. Degradation pathways: server loss
+  $\to$ Mode B; head loss triggers re-election; total partition $\to$ Mode C.}
   \label{fig:topology}
 \end{figure}
 
-\subsection{Three Degradation Modes}
+\subsection{Graceful Degradation Modes}
 
-The architecture supports three operating modes that preserve functionality
-under worsening connectivity:
+The architecture supports three modes:
 
 \begin{enumerate}
-  \item \textbf{Mode A --- Full cooperation (Tier-0 + Tier-1 + Tier-2).} All
-    three tiers active. The Tier-0 server performs cross-cluster loop closure,
-    global PGO, and authoritative map versioning. This mode provides highest
-    consistency and is the target for infrastructure-supported deployments.
+  \item \textbf{Mode A---Full cooperation} (Tier-0 + Tier-1 + Tier-2). The
+    Tier-0 server performs cross-cluster loop closure, global pose-graph
+    optimization (PGO), and authoritative map versioning. Highest consistency;
+    target for infrastructure-supported deployments.
 
-  \item \textbf{Mode B --- Intra-cluster P2P (Tier-1 + Tier-2, no Tier-0).}
-    When the edge server is absent or unreachable, cluster heads communicate
-    directly (P2P) and each maintains its own merged map. Cross-cluster
-    consistency is achieved through opportunistic head-to-head submap exchanges.
-    This is the target for ad-hoc, infrastructure-less deployments.
+  \item \textbf{Mode B---Intra-cluster P2P} (Tier-1 + Tier-2, no Tier-0).
+    Cluster heads communicate directly and each maintains its own merged
+    map. Cross-cluster consistency relies on opportunistic head-to-head
+    submap exchanges. Target for ad-hoc deployments.
 
-  \item \textbf{Mode C --- Autonomous single-node (Tier-2 only).} When a node
-    loses all peers (total partition), it falls back to unmodified
-    Gaussian-LIC2~\cite{lang2026gaussian2}, buffering submaps locally. On
-    reconnect, buffered submaps flush in chronological order. Map quality
-    after a 30~s outage remains within 5\% of the connected baseline.
+  \item \textbf{Mode C---Autonomous single-node} (Tier-2 only). Under total
+    partition, each node falls back to unmodified Gaussian-LIC2, buffering
+    submaps locally. On reconnect, buffered submaps flush in chronological
+    order. Map quality after a 30~s outage stays within 5\% of the connected
+    baseline.
 \end{enumerate}
 
-\subsection{Cluster-Head Election Protocol}
+\subsection{Cluster-Head Election}
 
 \label{sec:election}
 
-Cluster heads are elected through a stable, deterministic protocol that resists
-thrashing under marginal link quality.
+Each node computes a score capturing compute capacity, link quality, and
+sensor richness:
 
-\paragraph{Score function.} Each node $i$ computes:
 \begin{equation}
-  \text{score}(i) = w_c \cdot \tau_{\text{compute}}(i) + w_q \cdot \sqrt{\bar{Q}^{(i)}} + w_s \cdot (N_c^{(i)} + N_l^{(i)}),
+  \text{score}(i) = 0.5\,\tau_{\text{compute}}(i) + 0.4\sqrt{\bar{Q}^{(i)}} + 0.1\,(N_c^{(i)}+N_l^{(i)}),
   \label{eq:score}
 \end{equation}
-where $\tau_{\text{compute}}(i) \in \{1, 2, 3, 4\}$ maps to {Orin, 4090, A100,
-> A100}, $\bar{Q}^{(i)}$ is the EWMA link quality (Section~\ref{sec:channel}),
-and weights default to $w_c=0.5$, $w_q=0.4$, $w_s=0.1$. The $\sqrt{\bar{Q}}$
-term dampens the effect of transient link quality changes.
-
-\paragraph{Election state machine.} Each node tracks head state as one of 
-{\footnotesize CANDIDATE, FOLLOWER, HEAD}:
+where $\tau_{\text{compute}}\in\{1,2,3,4\}$ maps to GPU tiers, $\bar{Q}^{(i)}$
+is the EWMA link quality (Section~\ref{sec:channel}), and the square root
+dampens transient link fluctuations.
 
 \begin{algorithm}[t]
-\caption{Cluster-head election protocol (per node).}
+\caption{Cluster-head election (per node).}
 \label{alg:election}
 \begin{algorithmic}[1]
-\State \textbf{Upon} HEARTBEAT from current head $h$:
-\State \quad reset election timer $T_e \gets 3$~s.
-\State \textbf{Upon} $T_e$ expiry (head timeout):
-\State \quad broadcast ELECTION(self.score).
-\State \quad collect ELECTION msgs from peers for $T_{\text{collect}}=500$~ms.
-\State \quad \textbf{if} self.score > all peers' scores:
-\State \qquad promote self to HEAD; broadcast HELLO\_HEAD.
-\State \quad \textbf{else}:
-\State \qquad set $h \gets \arg\max_j \text{score}(j)$; transition to FOLLOWER.
-\State \textbf{Upon} receiving HELLO\_HEAD from $h'$ with higher score:
-\State \quad demote to FOLLOWER; accept $h'$ as new head.
+\State \textbf{Upon} HEARTBEAT from current head $h$: reset timer $T_e\gets 3$~s.
+\State \textbf{Upon} $T_e$ expiry:
+\State \quad Broadcast ELECTION(self.score); collect for $T_c=500$~ms.
+\State \quad \textbf{if} self.score $>$ all peers: promote to HEAD; broadcast HELLO\_HEAD.
+\State \quad \textbf{else}: set $h\gets\arg\max_j\text{score}(j)$; transition to FOLLOWER.
+\State \textbf{Upon} HELLO\_HEAD from $h'$ with higher score: demote to FOLLOWER.
 \end{algorithmic}
 \end{algorithm}
 
-\paragraph{Stability mechanisms.} Three dampeners prevent election storms:
-(1) \emph{Hysteresis threshold $\delta_h=0.05$}: a FOLLOWER only triggers
-election if its score exceeds the head's by $>\delta_h \cdot \text{score}(\text{head})$.
-(2) \emph{Election back-off}: after losing an election, a node waits
-$T_{\text{backoff}} = 2$~s before campaigning again. (3) \emph{Head lease}: an
-elected head holds the role for a minimum $T_{\text{lease}}=1$~s regardless of
-new arrivals.
+Three dampeners prevent election storms: (1) a hysteresis threshold
+$\delta_h=0.05$; (2) a 2~s back-off after a lost election; and (3) a 1~s
+minimum head lease.
 
 \subsection{Multi-Hop Submap Routing}
 
-When a submap's destination (cluster head, or Tier-0 server) is not directly
-reachable by the publishing node, the submap is routed through intermediate
-nodes. This is common in ad-hoc deployments where not all nodes have line-of-sight.
-
-\paragraph{Routing table.} Each node maintains a distance-vector routing table
-populated by HELLO and HEARTBEAT gossip. Entry: $(\text{dst}, \text{next\_hop},
-\text{hop\_count}, \text{path\_PDR})$. Updates are piggybacked on HEARTBEAT.
-
-\paragraph{Store-and-forward.} If the next hop is temporarily unreachable (link
-loss), a submap is buffered at the forwarding node for up to $T_{\text{buffer}}=30$~s,
-retried every 1~s, and evicted after timeout. The originating node receives a
-NACK with retry\_info.
-
-\paragraph{Submap dedup.} Submap IDs are globally unique
-($\text{node\_id} \ll 32 \mid \text{seq}$). Intermediate nodes maintain a
-Bloom filter of recently forwarded submap IDs to prevent routing loops.
+When a publishing node cannot directly reach its destination, submaps are
+routed through intermediate nodes. Each node maintains a distance-vector
+routing table piggybacked on HEARTBEAT. Submaps are stored-and-forwarded at
+relay nodes for up to 30~s with 1~s retry intervals. A Bloom filter of
+recently forwarded submap IDs prevents routing loops.

@@ -3,42 +3,35 @@
 % ============================================
 \label{sec:protocol}
 
-The communication protocol is the central contribution of Co-LIC2. We design
-a transport-layer framework that maps the four traffic classes (pose, submap,
-keyframe, control) onto Wi-Fi~6/6E EDCA queues with application-layer
-reinforcement (FEC, pacing, deadline-awareness) to meet per-class QoS targets.
+The communication protocol is the primary systems contribution. We design a
+transport-layer framework that maps four traffic classes onto Wi-Fi~6/6E EDCA
+queues with application-layer reinforcement---FEC, pacing, and deadline
+awareness---to meet per-class QoS targets (Table~\ref{tab:traffic}).
 
-\subsection{Protocol Stack Overview}
+\subsection{Protocol Stack}
+
+The stack comprises four layers (Figure~\ref{fig:protocol_stack}):
+(1) application framing (CBOR with 12-byte common header);
+(2) a QoS classifier mapping each message to one of four streams;
+(3) per-stream transport policies (FEC, pacing, ARQ); and
+(4) an EDCA mapper that assigns each stream to an 802.11e access category.
 
 \begin{figure}[t]
   \centering
   \resizebox{\columnwidth}{!}{\input{figures/protocol_stack.tex}}
-  \caption{Co-LIC2 protocol stack. Four traffic streams at the application layer
-  are mapped to 802.11e EDCA access categories and further differentiated by
-  application-layer FEC, deadline-aware pacing, and priority-weighted
-  transport.}
+  \caption{Protocol stack. Four application streams are mapped to 802.11e
+  EDCA queues and further differentiated by per-stream FEC, pacing, and
+  reliability policies.}
   \label{fig:protocol_stack}
 \end{figure}
 
-The stack has four layers:
-\begin{enumerate}
-  \item \textbf{Application framing.} Each message type is CBOR-encoded with
-    a 12-byte common header (\texttt{msg\_type}, \texttt{src\_node},
-    \texttt{dst\_node}, \texttt{seq\_no}, \texttt{timestamp\_us}, \texttt{crc16}).
-  \item \textbf{QoS classifier.} Maps each message to one of four \emph{streams}
-    with per-stream transport policies.
-  \item \textbf{Transport policies.} FEC, pacing, and reliability rules per
-    stream (Table~\ref{tab:transport}).
-  \item \textbf{EDCA mapping.} Maps each stream to an 802.11e Access Category.
-\end{enumerate}
+\subsection{Stream Transport Policies}
 
-\subsection{Stream Definitions and Transport Policies}
-
-Table~\ref{tab:transport} defines the four streams and their transport policies.
+Table~\ref{tab:transport} specifies per-stream policies.
 
 \begin{table}[t]
   \centering
-  \caption{Stream transport policies.}
+  \caption{Per-stream transport policies.}
   \label{tab:transport}
   \footnotesize
   \setlength{\tabcolsep}{3.5pt}
@@ -46,95 +39,51 @@ Table~\ref{tab:transport} defines the four streams and their transport policies.
     \toprule
     Stream & AC & FEC & Pacing & ARQ & Frag. \\
     \midrule
-    Pose    & VO & RS(12,8)      & token bkt.\@ 250/s & no   & no \\
-    Control & VI & ---            & 50 pkts/s          & yes (2$\times$) & no \\
-    Keyframe& BE & RaptorQ (5\%)  & WFQ                & part.& 64 KB \\
-    Submap  & BK & ---            & leaky bkt.\@ $\Bbudget$ & app.\@ ACK & 1 MB \\
+    Pose    & VO & RS(12,8)    & token bkt.\@ 250/s & no   & no \\
+    Control & VI & ---         & 50 pkts/s          & 2$\times$ & no \\
+    Keyframe& BE & RaptorQ 5\% & WFQ                & part.\@& 64 KB \\
+    Submap  & BK & ---         & leaky bkt.\@ $\Bbudget$ & app.\@ ACK & 1 MB \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-\paragraph{Pose stream (AC\_VO).} Highest priority. 20~Hz, 200~B packets.
-Reed-Solomon FEC adds 50\% redundancy (12 data + 8 parity symbols per block)
-to tolerate burst loss without retransmission. Token-bucket pacing prevents
-bursts from oversubscribing the AC\_VO queue. No ARQ: stale poses are worse
-than missing poses.
+\paragraph{Pose stream (AC\_VO).} Highest priority---200~B packets at
+20~Hz. Reed-Solomon(12,8) FEC tolerates burst loss without retransmission;
+token-bucket pacing at 250 pkts/s prevents AC\_VO oversubscription. No ARQ:
+a stale pose is worse than a missing one.
 
-\paragraph{Control stream (AC\_VI).} Reliable delivery with 2 ARQ retries.
-ELECION, CONSTRAINT, and LEAVE messages are critical and low-volume; HEARTBEAT
-and HELLO are best-effort within this stream. 50~pkts/s pacing token bucket.
+\paragraph{Control stream (AC\_VI).} Reliable delivery with two ARQ retries
+for critical messages (ELECTION, CONSTRAINT, LEAVE); HEARTBEAT and HELLO
+are best-effort within this stream.
 
-\paragraph{Keyframe stream (AC\_BE).} RaptorQ fountain-code FEC with 5\%
-encoding overhead allows the receiver to reconstruct the full keyframe after
-receiving \emph{any} subset of encoded symbols exceeding the original size.
-Fragmented into 64~KB chunks for A-MPDU aggregation. Weighted fair queue
-pacing between nodes' keyframe streams.
+\paragraph{Keyframe stream (AC\_BE).} RaptorQ fountain-code FEC (5\%
+overhead) allows the receiver to reconstruct the full keyframe from any
+subset of encoded symbols exceeding the original size. Fragmented into
+64~KB chunks for A-MPDU aggregation; weighted fair queue pacing between
+nodes.
 
-\paragraph{Submap stream (AC\_BK).} Bulk data. Application-level ACK: the
-receiving node computes CRC32 over the decompressed Gaussian blob and sends
-SUBMAP\_ACK or SUBMAP\_NACK. Missing chunks are re-requested via SUBMAP\_PULL.
-Leaky-bucket pacing enforces the per-node bandwidth budget $\Bbudget$.
+\paragraph{Submap stream (AC\_BK).} Bulk payload. Application-level ACK:
+the receiver verifies CRC32 and sends SUBMAP\_ACK or SUBMAP\_NACK with missing
+chunk identifiers. Leaky-bucket pacing enforces the per-node budget $\Bbudget$.
 
 \subsection{Deadline-Aware Submap Scheduler}
 
-Submap delivery is the bandwidth bottleneck. Our scheduler jointly considers
-per-submap deadlines and bandwidth budgets across all publishing nodes.
-
-\paragraph{Problem formulation.} In each scheduling epoch $\Delta T_{\text{sched}}
-= 100$~ms, we have $K$ pending submap uploads from $M$ nodes. Submap
-$k$ from node $i$ has: size $s_k$ (bytes), deadline $d_k$ (wall-clock time),
-and utility $u_k$ (NPV metric, Section~\ref{sec:npv}). Each node $i$ has a
-leaky-bucket budget $B_i$ tokens, refilled at $\Bbudget$.
-
-\paragraph{Scheduling algorithm.} We solve a knapsack with deadlines:
-
-\begin{algorithm}[t]
-\caption{Deadline-aware submap scheduling (per scheduling epoch).}
-\label{alg:scheduler}
-\begin{algorithmic}[1]
-\State Sort pending submaps by $\frac{u_k}{\sqrt{d_k - t_{\text{now}}}}$ (descending).
-\State \textbf{for} each submap $k$ in sorted order:
-\State \quad \textbf{if} $s_k > \text{budget\_remaining}(\text{node\_of}(k))$:
-\State \qquad skip $k$; flag for next epoch.
-\State \quad \textbf{else}:
-\State \qquad allocate $s_k$ bytes from node $i$'s budget; begin/continue
-               transmission.
-\State \textbf{for} each submap $k$ with $d_k < t_{\text{now}} + 500$~ms and
-       not yet started:
-\State \quad trigger emergency mode: halve SH-degree, double quantize step
-         for $k$, re-enqueue.
-\end{algorithmic}
-\end{algorithm}
-
-The objective $\frac{u_k}{\sqrt{d_k - t}}$ prioritizes submaps that are both
-valuable (high NPV) and urgent (early deadline), with the square-root
-dampening preventing pathological starvation of large-but-low-utility submaps.
-Emergency mode applies aggressive compression to meet deadlines when bandwidth
-is insufficient.
-
-\subsection{Application-Layer Reliability}
-
-\paragraph{SUBMAP transaction state machine.} Each submap transfer is a finite
-state machine with states: \textsc{idle}, \textsc{tx\_active}, \textsc{wait\_ack},
-\textsc{rx\_active}, \textsc{wait\_chunks}. A 2-bit sequence number prevents
-duplicate delivery. After 3 retries, a submap is marked \textsc{failed} and the
-publishing node is notified to re-extract and re-compress at a higher
-aggressiveness level.
-
-\paragraph{MAP\_DELTA consistency.} The head maintains a monotonic map version
-number. MAP\_DELTA messages carry $(\text{version}, \Delta\text{Gaussians},
-\text{signature})$. A member node only applies a delta if its version matches
-$\text{version} - 1$, preventing divergent state. Lagging members pull a
-full snapshot via SUBMAP\_PULL.
+In each scheduling epoch ($\Delta T_{\text{sched}}=100$~ms), $K$ pending
+submap uploads compete for per-node bandwidth. Submap $k$ from node $i$ has
+size $s_k$, deadline $d_k$, and utility $u_k$ (the NPV metric,
+Section~\ref{sec:npv}). We sort submaps by $u_k/\sqrt{d_k-t_{\text{now}}}$
+and greedily allocate bandwidth. For submaps with $d_k<t_{\text{now}}+500$~ms,
+emergency mode halves the SH degree and doubles the quantization step,
+reducing $s_k$ by $\approx 50\%$ to meet the deadline.
 
 \subsection{Message Catalogue}
 
-Table~\ref{tab:messages} lists the full message catalogue. The catalogue is
-intentionally small (11 types) for correctness reasoning.
+Table~\ref{tab:messages} lists all 13 message types, each with a single
+responsibility.
 
 \begin{table}[t]
   \centering
-  \caption{Communication message catalogue. Stream in ( ).}
+  \caption{Message catalogue. Stream in ( ); Dir.: n=node, h=head.}
   \label{tab:messages}
   \footnotesize
   \setlength{\tabcolsep}{2pt}
@@ -159,16 +108,12 @@ intentionally small (11 types) for correctness reasoning.
   \end{tabular}
 \end{table}
 
-\subsection{Communication Sequence}
-
-Figure~\ref{fig:sequence} illustrates a typical join--publish--merge--loop cycle.
-
 \begin{figure}[t]
   \centering
   \resizebox{\columnwidth}{!}{\input{figures/sequence.tex}}
   \caption{Communication sequence: node joins (HELLO), publishes pose stream
   and submaps, head merges and emits MAP\_DELTA, loop closure generates a
-  CONSTRAINT, PGO correction propagates to all members. AC tags indicate EDCA
+  CONSTRAINT, PGO correction propagates to all members. AC tags denote EDCA
   queue assignment.}
   \label{fig:sequence}
 \end{figure}

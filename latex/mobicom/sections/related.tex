@@ -1,85 +1,83 @@
 % ============================================
-% Section: Related Work (MobiCom-oriented, network-protocol focused)
+% Section: Related Work
 % ============================================
 
-Co-LIC2 sits at the intersection of four communities: (i) wireless protocol
-design for real-time streaming, (ii) edge-assisted collaborative SLAM,
-(iii) multi-agent Gaussian and neural SLAM, and (iv) multi-sensor odometry.
-We survey each and position our contributions.
+Co-LIC2 draws on four communities: (i) wireless QoS and multi-stream
+protocols, (ii) edge-assisted collaborative SLAM, (iii) multi-agent Gaussian
+and neural SLAM, and (iv) multi-sensor continuous-time odometry. We survey
+each thread and position our contributions.
 
 \subsection{Wireless QoS and Multi-Stream Protocols}
 
-The IEEE 802.11e amendment~\cite{ieee80211e} introduced EDCA (Enhanced
-Distributed Channel Access) with four access categories (AC\_VO, AC\_VI, AC\_BE,
-AC\_BK) differentiated by AIFSN, CWmin/max, and TXOP limits. Application-layer
-QoS frameworks such as MPEG-DASH and WebRTC exploit EDCA for real-time video,
-but \emph{no prior work extends EDCA-aware scheduling to the multi-modal traffic
-mix of cooperative SLAM}: low-latency pose telemetry, bursty submap uploads,
-keyframe references, and lightweight control messages. Co-LIC2 explicitly maps
-these four traffic types to EDCA queues and adds application-layer FEC and
-deadline-aware pacing.
+The IEEE 802.11e amendment~\cite{ieee80211e} defines EDCA with four access
+categories---AC\_VO, AC\_VI, AC\_BE, AC\_BK---differentiated by AIFSN,
+CWmin/max, and TXOP. Application-layer frameworks such as MPEG-DASH and
+WebRTC leverage EDCA for real-time video, but \emph{no prior work
+applies EDCA-aware scheduling to the multi-modal traffic mix of cooperative
+SLAM}: low-latency pose telemetry, bursty submap uploads, keyframe references,
+and lightweight control messages. Co-LIC2 maps these four traffic types to
+EDCA queues and supplements them with application-layer FEC and deadline-aware
+pacing.
 
-Prior work on deadline-aware wireless scheduling (e.g., DRAGON~\cite{hou2023dragon}
-in NSDI, PIAS~\cite{bai2015pias}) targets data-center or general-purpose
-streaming; SwarmMap~\cite{xu2022swarmmap} and Map++~\cite{zhang2024mapp}
-schedule SLAM tasks but do not differentiate traffic by latency criticality.
-AdaMap~\cite{liu2023adamap} provides bounded end-to-end latency for cooperative
-perception at the edge using priority queues, closest to our scheduling
-philosophy, but targets LiDAR point-cloud fusion rather than Gaussian map
-exchange. Co-LIC2's contribution is a protocol that simultaneously schedules
-\emph{four traffic streams} with explicit per-stream QoS contracts and integrates
-this scheduler with a Gaussian-specific compression optimizer.
+Deadline-aware schedulers such as DRAGON~\cite{hou2023dragon} (NSDI~2023) and
+PIAS~\cite{bai2015pias} (SIGCOMM~2015) target data-center or general streaming
+workloads. AdaMap~\cite{liu2023adamap} provides bounded end-to-end latency
+for cooperative perception at the edge via priority queues---the closest
+prior to our scheduling philosophy---but addresses LiDAR point-cloud fusion
+rather than Gaussian map exchange. Co-LIC2's scheduler simultaneously manages
+four traffic streams with explicit per-stream QoS contracts and integrates
+with a Gaussian-specific compression optimizer.
 
 \subsection{Edge-Assisted Collaborative SLAM}
 
-The mobile computing community has led systems-level work on collaborative SLAM.
-\textbf{SwarmMap}~\cite{xu2022swarmmap} (NSDI~2022) scales real-time
-collaborative visual SLAM at the edge through change-log-based server--client
-synchronization and priority-aware scheduling, serving $2\times$ more agents
+The mobile-computing community has produced the most systems-rigorous
+collaborative SLAM work. \textbf{SwarmMap}~\cite{xu2022swarmmap} (NSDI~2022)
+scales real-time collaborative visual SLAM via change-log-based server--client
+synchronization and priority-aware scheduling, handling $2\times$ more agents
 than prior art. \textbf{Map++}~\cite{zhang2024mapp} (MobiCom~2024) introduces
-user-participatory visual SLAM with metadata-based overlap assessment and
-redundancy control, cutting traffic by $\approx$46\%. \textbf{Covins}~\cite{schmuck2021covins}
-provides a decentralized-frontend, centralized-backend architecture for
-VI-SLAM, and \textbf{Swarm-SLAM}~\cite{lajoie2024swarmslam} is a sparse fully
-decentralized framework. These systems validate the architecture but target
-feature-point maps over relatively benign links; they do not address the
-bandwidth, compression, and streaming challenges of photo-realistic Gaussian
-maps, nor do they design differentiated QoS for multi-modal traffic.
+user-participatory SLAM with metadata-based overlap assessment, reducing
+traffic by $\approx$46\%. \textbf{Covins}~\cite{schmuck2021covins} provides
+a decentralized-frontend, centralized-backend VI-SLAM architecture, and
+\textbf{Swarm-SLAM}~\cite{lajoie2024swarmslam} delivers a sparse, fully
+decentralized framework. These systems validate the collaborative architecture
+but target feature-point maps over relatively benign links; they neither
+address the bandwidth and streaming challenges of photo-realistic Gaussian
+maps nor design differentiated QoS for multi-modal traffic.
 
 \subsection{Multi-Agent Gaussian and Neural SLAM}
 
-Photo-realistic multi-agent mapping with 3D Gaussians is emerging rapidly.
+Photo-realistic multi-agent SLAM is advancing rapidly.
 \textbf{CGS-SLAM}~\cite{deambrogi2026cgsslam_mob} performs collaborative
 Gaussian SLAM with metric monocular depth and VGGT-based alignment.
-\textbf{GRAND-SLAM}~\cite{thomas2025grandslam_mob} achieves globally consistent
-large-scale multi-agent Gaussian SLAM through local optimization and loop
-closure. \textbf{MNE-SLAM}~\cite{deng2025mneslam} (CVPR~2025) provides
-distributed neural SLAM with intra-to-inter loop closure and the INS multi-agent
-dataset. \textbf{CP-SLAM}~\cite{hu2024cpslam} (NeurIPS~2024) is a collaborative
-neural point-based SLAM. These works establish feasibility but target
-RGB-D/monocular agents and do not model wireless constraints. Co-LIC2 is the
-first to carry LiDAR+IMU per node (for metric scale and textureless-region
-robustness) and to design the wireless protocol as a first-class system
+\textbf{GRAND-SLAM}~\cite{thomas2025grandslam_mob} achieves large-scale global
+consistency through local optimization and loop closure.
+\textbf{MNE-SLAM}~\cite{deng2025mneslam} (CVPR~2025) provides distributed
+neural SLAM with intra-to-inter loop closure and releases the INS dataset.
+\textbf{CP-SLAM}~\cite{hu2024cpslam} (NeurIPS~2024) is a collaborative neural
+point-based system. These works establish feasibility but target RGB-D or
+monocular agents and do not model wireless constraints. Co-LIC2 is the first
+to carry LiDAR and IMU per node---for metric scale and textureless-region
+robustness---and to design the wireless protocol as a first-class system
 component.
 
 \subsection{Multi-Sensor Continuous-Time Odometry}
 
 The per-node front-end builds on \textbf{Coco-LIC}~\cite{lang2023coco_mob}
-(continuous-time B-spline LIV odometry with online time-offset calibration) and
-\textbf{Gaussian-LIC2}~\cite{lang2026gaussian2_mob} (Coco-LIC + 3DGS for
-real-time photo-realistic mapping). \textbf{FAST-LIVO2}~\cite{zheng2024fastlivo2_mob}
-supports multi-cam/multi-LiDAR configurations in a discrete-keyframe framework.
-Co-LIC2 generalizes Coco-LIC's residual stack to $N_c$ cameras and $N_l$ LiDARs
-per node with online multi-offset estimation, which is essential for the
-heterogeneous-node scenario and provides the continuous-time trajectory from
-which submaps are carved at arbitrary temporal boundaries.
+(continuous-time B-spline LIV odometry with online time-offset calibration)
+and \textbf{Gaussian-LIC2}~\cite{lang2026gaussian2_mob} (Coco-LIC augmented
+with 3DGS for real-time photo-realistic mapping).
+\textbf{FAST-LIVO2}~\cite{zheng2024fastlivo2_mob} supports multi-camera and
+multi-LiDAR configurations in a discrete-keyframe framework. Co-LIC2
+generalizes Coco-LIC's residual stack to $N_c$ cameras and $N_l$ LiDARs per
+node with online multi-offset estimation, which is essential for heterogeneous-
+node deployments and provides the continuous-time trajectory from which
+submaps are carved at arbitrary temporal boundaries.
 
 \subsection{Positioning}
 
-In summary, prior work has solved the \emph{systems} problems of collaborative
-SLAM for feature-point maps under real networks, and the \emph{vision} problems
-of photo-realistic multi-agent Gaussian SLAM under benign links. Co-LIC2 is the
-first system to design a \textbf{complete wireless protocol stack}---QoS-aware
-multi-stream transport, deadline-driven compression scheduling, and hierarchical
-degradation---for cooperative photo-realistic Gaussian SLAM. The protocol is
-the paper's primary contribution to the MobiCom community.
+Prior work has addressed collaborative SLAM systems for feature-point maps
+under real networks, and photo-realistic multi-agent Gaussian SLAM under
+benign links. Co-LIC2 is the first system to design a \textbf{complete
+wireless protocol stack}---QoS-aware multi-stream transport, deadline-driven
+compression scheduling, and hierarchical graceful degradation---for
+cooperative photo-realistic Gaussian SLAM.

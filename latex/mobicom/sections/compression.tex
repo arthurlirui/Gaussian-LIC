@@ -3,50 +3,42 @@
 % ============================================
 \label{sec:compression}
 
-The submap compressor is the bridge between the SLAM pipeline and the wireless
-protocol. It must produce the smallest possible byte stream under a hard
-bandwidth budget while preserving the rendering quality that makes Gaussian
-maps useful. We formalize this as a constrained optimization and introduce the
-Number-of-Gaussians-Per-View (NPV) quality metric.
+The submap compressor bridges the SLAM pipeline and the wireless protocol.
+It must produce the smallest possible byte stream under a bandwidth budget
+while preserving the rendering quality that makes Gaussian maps useful.
 
 \subsection{Submap Extraction}
 
-A submap $\submap_i$ is a spatially bounded subset of node $i$'s Gaussian map
-$\GaussianMap_i$, exported when the node's travel distance since the last
-submap exceeds $S_{\text{sub}}$ or the elapsed time exceeds $T_{\text{sub}}$
-(defaults: $S_{\text{sub}}=5$~m, $T_{\text{sub}}=3$~s). The bounding box is the
-axis-aligned convex hull of all Gaussians created within the interval, padded
-by $1.5\times$ the maximum Gaussian scale for border continuity.
+A submap $\submap_i$ is a spatially bounded subset of $\GaussianMap_i$,
+exported when the node's travel distance since the last submap exceeds
+$S_{\text{sub}}$ or elapsed time exceeds $T_{\text{sub}}$ (defaults: 5~m,
+3~s). The bounding box is the axis-aligned convex hull of all Gaussians
+created within the interval, padded by $1.5\times$ the maximum Gaussian
+scale for border continuity. Each submap is identified by a globally unique
+ID: $\text{node\_id}\ll 32\mid\text{seq}$.
 
 \subsection{NPV Quality Metric}
 
 \label{sec:npv}
 
-Traditional compression heuristics minimize byte size subject to a PSNR floor,
-but PSNR is expensive to estimate (requires rendering). We propose a proxy
-that can be computed from Gaussian parameters alone.
+We propose the \emph{Number-of-Gaussians-Per-View} (NPV) as a compression-
+aware quality proxy computable from Gaussian parameters alone, avoiding
+the cost of rendering:
 
-\paragraph{Definition.} For a submap $\submap$ and a set of $V$ candidate
-viewpoints $\mathbf{p}_v$ (uniformly sampled on a sphere of radius $r$ centered
-at the submap centroid), the Number of Gaussians Per View is:
 \begin{equation}
-  \Npv(\submap) = \frac{1}{V}\sum_{v=1}^{V} \sum_{g \in \submap} \mathbf{1}\bigl[ \| \boldsymbol{\mu}_g - \mathbf{p}_v \| < r_{\text{vis}} \land \alpha_g > \alpha_{\min} \bigr],
+  \Npv(\submap) = \frac{1}{V}\sum_{v=1}^{V}\sum_{g\in\submap}
+    \mathbf{1}\bigl[\|\boldsymbol{\mu}_g-\mathbf{p}_v\|<r_{\text{vis}}
+    \land \alpha_g>\alpha_{\min}\bigr],
 \end{equation}
-where $\boldsymbol{\mu}_g$ is the Gaussian mean, $\alpha_g$ its opacity, and
-$r_{\text{vis}}$ a visibility-range constant (default 30~m). $\Npv$ is the
-average number of semi-transparent Gaussians visible from a random viewpoint.
-
-\paragraph{Justification.} Rendering quality in 3DGS correlates strongly with
-Gaussian density in the visible frustum. $\Npv$ is a cheap,
-compression-aware proxy: removing low-opacity Gaussians, truncating
-SH coefficients (which do not affect spatial density), and coarser quantization
-all reduce $\Npv$ in predictable ways. We calibrate $\Npv$ against PSNR on a
-held-out validation set and find $\Npv \geq 5000$ corresponds to
-PSNR~$\geq$28~dB in outdoor scenes.
+where $\boldsymbol{\mu}_g$, $\alpha_g$ are the Gaussian mean and opacity,
+$r_{\text{vis}}$ is the visibility range (default 30~m), and $\mathbf{p}_v$
+are $V$ viewpoint positions sampled on a sphere centered at the submap
+centroid. Empirically, $\Npv\ge 5000$ corresponds to PSNR $\ge 28$~dB in
+outdoor scenes; we validate this correlation in Section~\ref{sec:render}.
 
 \subsection{Compression Knobs}
 
-The compressor exposes four independently controllable knobs (Table~\ref{tab:knobs}):
+Four independently controllable knobs trade size against quality:
 
 \begin{table}[t]
   \centering
@@ -58,50 +50,36 @@ The compressor exposes four independently controllable knobs (Table~\ref{tab:kno
     \toprule
     Knob & Sym. & Range & Effect \\
     \midrule
-    SH degree       & $d$   & 0--3   & $\frac{24}{8(1+d)}$ B/G \\
-    Opacity prune   & $\alpha_{\min}$ & 0.005--0.05 & drops low-$\alpha$ G \\
-    Spatial quant.  & $\Delta q$ & 1--5 cm & adds MSE $\Delta q^2$/12 \\
-    Entropy code    & $l_{\text{zstd}}$ & 1--9 & 2--4$\times$ compr.\@ ratio \\
+    SH degree      & $d$   & 0--3   & $\frac{24}{8(1+d)}$ B/G \\
+    Opacity prune  & $\alpha_{\min}$ & 0.005--0.05 & drops low-$\alpha$ G \\
+    Spatial quant.\@& $\Delta q$ & 1--5 cm & adds MSE $\Delta q^2/12$ \\
+    Entropy code   & $l_{\text{zstd}}$ & 1--9 & 2--4$\times$ compr.\@ ratio \\
     \bottomrule
   \end{tabular}
 \end{table}
 
-The per-Gaussian byte cost after compression is empirically:
-\begin{equation}
-  c_{\text{B/G}}(d, l_{\text{zstd}}) \approx \frac{24 + 8(d-2) \cdot 3}{ r_{\text{zstd}}(l_{\text{zstd}})},
-\end{equation}
-where $r_{\text{zstd}}(l)$ is the compression ratio at level $l$ ($r_{\text{zstd}}(1)\approx 1.5$,
-$r_{\text{zstd}}(5)\approx 2.5$, $r_{\text{zstd}}(9)\approx 3.2$).
-
-The total compressed submap size is:
-\begin{equation}
-  S_{\text{sub}} = |\GaussianMap_{\text{visible}}| \cdot c_{\text{B/G}}(d, l_{\text{zstd}}) \cdot \mathbf{1}[\alpha > \alpha_{\min}],
-\end{equation}
-where $|\GaussianMap_{\text{visible}}|$ is the number of Gaussians after culling
-those fully outside the camera frustum at the submap's representative viewpoints.
+The compressed submap size is $S_{\text{sub}}=|\GaussianMap_{\text{vis}}|\cdot
+c_{\text{B/G}}(d,l_{\text{zstd}})$, where $c_{\text{B/G}}\approx 24$~B at
+SH degree~2 with zstd-5.
 
 \subsection{Joint Optimization}
 
-For a given submap with $g_0$ Gaussians at full fidelity, the compressor solves:
-\begin{align}
-  \underset{d, \alpha_{\min}, \Delta q, l_{\text{zstd}}}{\text{maximize}} \quad &
-    \Npv\bigl(g(d, \alpha_{\min}, \Delta q)\bigr) \\
-  \text{subject to} \quad & S_{\text{sub}}(d, \alpha_{\min}, \Delta q, l_{\text{zstd}}) \leq S_{\max},
-  \label{eq:opt}
-\end{align}
-where $S_{\max} = \Bbudget / f_s$ is the per-submap byte budget derived from
-the bandwidth budget and current submap publication rate $f_s$.
+For each submap, the compressor solves:
 
-Because the search space is small ($4 \times 10 \times 5 \times 9 = 1800$
-combinations) and each evaluation is cheap (no rendering), we solve via
-exhaustive grid search with early termination---ordering the grid by expected
-$\Npv$ and stopping at the first feasible point. This takes $<$1~ms on a GPU.
+\begin{equation}
+  \max_{d,\alpha_{\min},\Delta q,l_{\text{zstd}}} \Npv\bigl(g(d,\alpha_{\min},\Delta q)\bigr)
+  \quad\text{s.t.}\quad S_{\text{sub}}\le S_{\max},
+  \label{eq:opt}
+\end{equation}
+where $S_{\max}=\Bbudget/f_s$. The search space is small ($4\times10\times5\times9
+=1800$ points); we exhaustively enumerate with early termination, completing
+in $<$1~ms on GPU.
 
 \subsection{Budget Controller}
 
-The budget controller runs as a separate thread that monitors a 5-second sliding
-window of uplink throughput. If the observed throughput exceeds $\Bbudget \times 1.1$,
-it increases aggressiveness (drops SH degree, raises $\alpha_{\min}$, coarsens
-$\Delta q$) for future submaps. If throughput is below $\Bbudget \times 0.7$ and
-NPV has dropped below 80\% of the full-fidelity baseline, it relaxes. This
-feedback loop converges within 3--5 submap cycles ($\approx$15~s).
+A feedback loop monitors a 5~s sliding window of uplink throughput. If
+observed throughput exceeds $1.1\times\Bbudget$, aggressiveness increases
+(lower SH degree, coarser quantization) for subsequent submaps. If
+throughput drops below $0.7\times\Bbudget$ and $\Npv$ falls below 80\%
+of baseline, the controller relaxes. Convergence occurs within 3--5 submap
+cycles ($\approx$15~s).

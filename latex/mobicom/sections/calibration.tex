@@ -1,0 +1,118 @@
+% ============================================
+% Section: Multi-Sensor Joint Calibration
+% ============================================
+\label{sec:calibration}
+
+Accurate extrinsics and intrinsics across heterogeneous sensors---cameras,
+LiDARs, and IMU---are prerequisites for the multi-sensor fusion front-end
+(Section~\ref{sec:ctfusion}). Co-LIC2 nodes carry $N_c$ cameras and $N_l$
+LiDARs with potentially different resolutions, scan patterns, and frame
+rates, compounded by unknown per-sensor time offsets. Manual calibration of
+$N_c+N_l+1$ sensors per node is prohibitive in field deployments. We
+survey recent high-efficiency methods and describe Co-LIC2's two-phase
+calibration pipeline.
+
+\subsection{Survey of Efficient Joint Calibration Methods}
+
+Table~\ref{tab:calib_survey} summarizes representative methods published
+in 2024--2026, categorized by target requirement, IMU support, time-offset
+estimation, and speed.
+
+\begin{table}[t]
+  \centering
+  \caption{Recent multi-sensor calibration methods.}
+  \label{tab:calib_survey}
+  \footnotesize
+  \setlength{\tabcolsep}{2pt}
+  \begin{tabular}{@{}p{2.0cm}p{0.9cm}p{0.8cm}p{0.8cm}p{0.8cm}p{2.0cm}@{}}
+    \toprule
+    Method & Year & Targ.\@ & IMU & $t_0$ & Speed \\
+    \midrule
+    FAST-Calib~\cite{zheng2026fastcalib}& 2026 & yes& no & no & $<$0.7 s \\
+    Al-Najjar~\cite{alnajjar2026joint}  & 2026 & no & no & no & --- \\
+    Lv et al.~\cite{lv2025targetless}   & 2025 & no & yes& yes& batch \\
+    Shen et al.~\cite{shen2025direct}   & 2025 & no & no & no & iterative \\
+    Li et al.~\cite{li2024twostep}      & 2024 & no & yes& yes& batch \\
+    Multi-Calib~\cite{hu2025multicalib} & 2025 & no & no & no & 1 fwd.\@ pass \\
+    UniCal~\cite{yang2024unical}        & 2024 & no & no & no & drive \\
+    CMRNext~\cite{cattaneo2025cmrnext}  & 2025 & no & no & no & learned \\
+    Kalibr~\cite{rehder2016kalibr}      & 2016 & yes& yes& yes& batch \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Three trends emerge: (1) \textbf{targetless continuous-time methods}
+(Lv et al.~\cite{lv2025targetless}, Li et al.~\cite{li2024twostep}) jointly
+recover extrinsics, intrinsics, and time offsets for arbitrary camera/LiDAR
+counts from natural-scene trajectories; (2) \textbf{learned initialization}
+(Al-Najjar~\cite{alnajjar2026joint}, Multi-Calib~\cite{hu2025multicalib})
+uses neural matching as a coarse seed for geometric refinement; and
+(3) \textbf{drive-and-calibrate} (UniCal~\cite{yang2024unical}) jointly
+learns a differentiable scene representation and sensor calibration from
+unlabeled driving data. For factory settings, FAST-Calib~\cite{zheng2026fastcalib}
+provides sub-second, sub-7~mm target-based calibration.
+
+\subsection{Co-LIC2 Calibration Pipeline}
+
+Co-LIC2 adopts a \textbf{two-phase strategy} combining factory efficiency with
+online robustness.
+
+\paragraph{Phase 1---Offline factory calibration.} Before deployment, each
+node undergoes a one-time procedure:
+
+\begin{enumerate}
+  \item \textbf{Camera intrinsics} ($K^{(i,c)}$, $D^{(i,c)}$) via Zhang's
+    method~\cite{zhang2000flexible} (20--30 checkerboard poses).
+  \item \textbf{Camera--IMU extrinsic} ($T_{B_i\leftarrow C_c}$) and
+    time offset ($\Delta t_{C_c\text{--}I}$) via continuous-time batch
+    optimization over a 60~s excitation trajectory, using
+    Kalibr~\cite{rehder2016kalibr}.
+  \item \textbf{LiDAR--Camera extrinsic} ($T_{C_{c_{\text{ref}}}\leftarrow L_l}$)
+    via FAST-Calib's single-shot pipeline: a 3D calibration target with
+    circular cut-outs is detected in both the LiDAR point cloud (edge
+    extraction with ellipse-fitting spot-spread compensation) and the
+    camera image (AprilTag detection); PnP+RANSAC followed by multi-scene
+    joint optimization. Typical time: 0.7--1.5~s per pair.
+  \item \textbf{LiDAR--Body extrinsic} chained through the reference camera:
+    $T_{B_i\leftarrow L_l}=T_{B_i\leftarrow C_{c_{\text{ref}}}}\cdot
+    T_{C_{c_{\text{ref}}}\leftarrow L_l}$.
+\end{enumerate}
+
+Results are stored in the signed node descriptor (Section~\ref{sec:descriptor}).
+
+\paragraph{Phase 2---Online refinement.} During operation, the CT front-end
+jointly refines calibration parameters within the sliding-window Gauss-Newton
+solve. Extrinsic transforms are treated as constants within the window with a
+Tikhonov prior ($\sigma_e=1$~cm translation, $0.5^\circ$ rotation) to prevent
+drift. The $N_c+N_l$ time offsets are estimated with the spline, following
+Coco-LIC methodology~\cite{lang2023coco_mob}, initialized with a
+Kalman-style prior ($\sigma_t=100\,\mu$s). When sufficient planar geometry is
+observed, camera intrinsics are optionally included in the solve with a
+strong prior ($\sigma_K=0.1$~px).
+
+Inter-node alignment $T_{W_h\leftarrow W_j}$ (Section~\ref{sec:registration})
+is estimated entirely online from submap overlaps and requires no prior
+calibration, satisfying the heterogeneity goal (G6).
+
+\subsection{Expected Accuracy}
+
+Table~\ref{tab:calib_results} summarizes calibration accuracy reported by
+the adopted methods.
+
+\begin{table}[t]
+  \centering
+  \caption{Expected calibration accuracy.}
+  \label{tab:calib_results}
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{lccc}
+    \toprule
+    Calibration Item & Method source & Transl.\@ err.\@ & Rot.\@ err.\@ \\
+    \midrule
+    Camera intrinsics     & Zhang~\cite{zhang2000flexible}    & $<0.3$ px reproj.\@& --- \\
+    Camera--IMU ext.\@   & Kalibr~\cite{rehder2016kalibr}    & $<5$ mm  & $<0.2^\circ$ \\
+    LiDAR--Camera ext.\@ & FAST-Calib~\cite{zheng2026fastcalib} & $<6.5$ mm & $<0.15^\circ$ \\
+    Time offset (online) & Coco-LIC~\cite{lang2023coco_mob}  & $<50\,\mu$s & --- \\
+    \bottomrule
+  \end{tabular}
+\end{table}

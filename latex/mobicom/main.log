@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.6.2)  28 SEP 2026 02:30
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.6.2)  29 SEP 2026 20:12
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1646,94 +1646,124 @@ LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
 
 {c:/texlive/2024/texmf-dist/fonts/enc/dvips/libertine/lbtn_nh77jq.enc}{c:/texli
 ve/2024/texmf-dist/fonts/enc/dvips/libertine/lbtn_naooyc.enc}{c:/texlive/2024/t
-exmf-dist/fonts/enc/dvips/libertine/lbtn_7grukw.enc}]
-Overfull \hbox (1.92715pt too wide) in paragraph at lines 41--47
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) trun-ca-tion, spa-tial quan-ti-za-tion ste
-p, and zstd entropy-
+exmf-dist/fonts/enc/dvips/libertine/lbtn_7grukw.enc}{c:/texlive/2024/texmf-dist
+/fonts/enc/dvips/libertine/lbtn_oexx6f.enc}]
+Overfull \hbox (19.2235pt too wide) in paragraph at lines 41--46
+\T1/LinuxLibertineT-TLF/b/n/10 (-20) uler \T1/LinuxLibertineT-TLF/m/n/10 (-20) 
+(Sec-tion []7[]) that jointly op-ti-mizes spherical-harmonics
+ []
+
+
+Overfull \hbox (3.421pt too wide) in paragraph at lines 59--66
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) DARs, dual IMUs, and GPS- dis-ci-plined ti
+me synchronization---
  []
 
 ) (./sections/related.tex
-Overfull \hbox (3.49696pt too wide) in paragraph at lines 22--32
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) DRAGON [[]] in NSDI, PIAS [[]]) tar-gets d
-ata-center or general-
- []
-
-
-Overfull \hbox (3.2208pt too wide) in paragraph at lines 35--48
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) scales real-time col-lab-o-ra-tive vi-sual
- SLAM at the edge through
- []
-
-
-Overfull \hbox (33.04082pt too wide) in paragraph at lines 51--64
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) clo-sure and the INS multi-agent dataset. 
-\T1/LinuxLibertineT-TLF/b/n/10 (-20) CP-SLAM \T1/LinuxLibertineT-TLF/m/n/10 (-2
-0) [[]] (NeurIPS 2024)
- []
-
-
-Overfull \hbox (1.36832pt too wide) in paragraph at lines 67--76
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) The per-node front-end builds on \T1/Linux
-LibertineT-TLF/b/n/10 (-20) Coco-LIC \T1/LinuxLibertineT-TLF/m/n/10 (-20) [[]] 
-(continuous-
- []
-
-
-Overfull \hbox (11.76382pt too wide) in paragraph at lines 67--76
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) multi-offset es-ti-ma-tion, which is es-se
-n-tial for the heterogeneous-
+Overfull \hbox (18.9646pt too wide) in paragraph at lines 12--21
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) ac-cess categories---AC_VO, AC_VI, AC_BE, 
+AC_BK---differentiated
  []
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
+
+Overfull \hbox (8.82733pt too wide) in paragraph at lines 22--30
+[]\T1/LinuxLibertineT-TLF/m/n/10 (-20) Deadline-aware sched-ulers such as DRAGO
+N [[]] (NSDI 2023)
+ []
+
+
+Overfull \hbox (1.88846pt too wide) in paragraph at lines 33--46
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) systems-rigorous col-lab-o-ra-tive SLAM wo
+rk. \T1/LinuxLibertineT-TLF/b/n/10 (-20) Swar-mMap \T1/LinuxLibertineT-TLF/m/n/
+10 (-20) [[]]
+ []
+
+
+Overfull \hbox (5.88658pt too wide) in paragraph at lines 33--46
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) traf-fic by $\LMS/ntxsy/m/n/10 ^^Y$\T1/Lin
+uxLibertineT-TLF/m/n/10 (-20) 46%. \T1/LinuxLibertineT-TLF/b/n/10 (-20) Covins 
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) [[]] pro-vides a decentralized-frontend,
+ []
+
+
+Overfull \hbox (27.13927pt too wide) in paragraph at lines 33--46
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) centralized-backend VI-SLAM ar-chi-tec-tur
+e, and \T1/LinuxLibertineT-TLF/b/n/10 (-20) Swarm-SLAM \T1/LinuxLibertineT-TLF/
+m/n/10 (-20) [[]]
+ []
+
+
+Overfull \hbox (15.94838pt too wide) in paragraph at lines 49--62
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) lo-cal op-ti-miza-tion and loop clo-sure. 
+\T1/LinuxLibertineT-TLF/b/n/10 (-20) MNE-SLAM \T1/LinuxLibertineT-TLF/m/n/10 (-
+20) [[]] (CVPR 2025)
+ []
+
+
+Overfull \hbox (17.6924pt too wide) in paragraph at lines 49--62
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) clo-sure and re-leases the INS dataset. \T
+1/LinuxLibertineT-TLF/b/n/10 (-20) CP-SLAM \T1/LinuxLibertineT-TLF/m/n/10 (-20)
+ [[]] (NeurIPS 2024)
+ []
+
 LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/n' will be
-(Font)              scaled to size 10.0pt on input line 76.
+(Font)              scaled to size 10.0pt on input line 62.
 LaTeX Font Info:    Font shape `T1/LinuxBiolinumT-TLF/m/n' will be
-(Font)              scaled to size 8.0pt on input line 76.
- [2.2{c:/texlive/2024/texmf-dist/fonts/enc/dvips/libertine/lbtn_oexx6f.enc}])
+(Font)              scaled to size 8.0pt on input line 62.
+[2.2]
+Overfull \hbox (1.36832pt too wide) in paragraph at lines 65--75
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) The per-node front-end builds on \T1/Linux
+LibertineT-TLF/b/n/10 (-20) Coco-LIC \T1/LinuxLibertineT-TLF/m/n/10 (-20) [[]] 
+(continuous-
+ []
+
+)
+Overfull \hbox (11.68364pt too wide) in paragraph at lines 78--139
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) com-pres-sion sched-ul-ing, and hi-er-ar-c
+hi-cal grace-ful degradation---
+ []
+
 (./sections/system.tex
-Underfull \vbox (badness 6332) has occurred while \output is active []
+
+LaTeX Warning: Reference `sec:descriptor' on page 3 undefined on input line 18.
+
 
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 7.3pt on input line 39.
+(Font)              scaled to size 7.3pt on input line 24.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 5.5pt on input line 39.
+(Font)              scaled to size 6.2pt on input line 25.
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
+(Font)              scaled to size 5.5pt on input line 29.
 
-Overfull \hbox (1.20152pt too wide) in paragraph at lines 49--54
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) with $\OML/nxlmi/m/it/10 [] \LMS/ntxsy/m/
-n/10 2 »\OT1/LinuxLibertineT-TLF/m/n/10 (-20) 0\OML/nxlmi/m/it/10 :\OT1/LinuxLi
-bertineT-TLF/m/n/10 (-20) 6\OML/nxlmi/m/it/10 ; \OT1/LinuxLibertineT-TLF/m/n/10
- (-20) 0\OML/nxlmi/m/it/10 :\OT1/LinuxLibertineT-TLF/m/n/10 (-20) 8\LMS/ntxsy/m
-/n/10 ¼$ \T1/LinuxLibertineT-TLF/m/n/10 (-20) un-der mod-er-ate con-tention. At
- MCS 11
+Overfull \hbox (2.20088pt too wide) detected at line 51
+[][][][]\LMS/ntxsy/m/n/10 »\OML/nxlmi/m/it/10 k\LMS/ntxsy/m/n/10 ¼ \U/ntxmia/m/
+it/10 = \OT1/LinuxLibertineT-TLF/m/n/10 0\OML/nxlmi/m/it/10 :\OT1/LinuxLibertin
+eT-TLF/m/n/10 9 []\LMS/ntxsy/m/n/10 »\OML/nxlmi/m/it/10 k \LMS/ntxsy/m/n/10 ^^@
+ \OT1/LinuxLibertineT-TLF/m/n/10 1\LMS/ntxsy/m/n/10 ¼ Ï \OT1/LinuxLibertineT-TL
+F/m/n/10 0\OML/nxlmi/m/it/10 :\OT1/LinuxLibertineT-TLF/m/n/10 1 \OML/nxlmi/m/it
+/10 R[]\LMS/ntxsy/m/n/10 »\OML/nxlmi/m/it/10 k\LMS/ntxsy/m/n/10 ¼\OML/nxlmi/m/i
+t/10 ;  [][] \U/ntxmia/m/it/10 = []\OML/nxlmi/m/it/10 :
  []
 
 
-Overfull \hbox (1.07607pt too wide) in paragraph at lines 55--60
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) URLLC for pose streams and dy-namic grant 
-eMBB for submap
+Underfull \hbox (badness 10000) in paragraph at lines 75--75
+[]\T1/LinuxLibertineT-TLF/m/n/8 (+20) Link ro-bust-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 91--91
-[]\T1/LinuxLibertineT-TLF/m/n/8 (+20) Link-loss
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 93--93
+Underfull \hbox (badness 10000) in paragraph at lines 77--77
 []\T1/LinuxLibertineT-TLF/m/n/8 (+20) Photo-
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 96--96
-[]\T1/LinuxLibertineT-TLF/m/n/8 (+20) Backward
- []
-
-
-Underfull \vbox (badness 1038) has occurred while \output is active []
-
-
+LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
+(Font)              scaled to size 10.0pt on input line 96.
+LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
+(Font)              scaled to size 7.3pt on input line 96.
+LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
+(Font)              scaled to size 5.5pt on input line 96.
 
 Package fancyhdr Warning: \headheight is too small (13.0pt): 
 (fancyhdr)                Make it at least 18.48402pt, for example:
@@ -1743,55 +1773,85 @@ Package fancyhdr Warning: \headheight is too small (13.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-5.48402pt}.
 
 [3.3]
-LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
-(Font)              scaled to size 10.0pt on input line 111.
-LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
-(Font)              scaled to size 7.3pt on input line 111.
-LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
-(Font)              scaled to size 5.5pt on input line 111.
-
-Overfull \hbox (10.3442pt too wide) in paragraph at lines 124--127
+Overfull \hbox (1.80843pt too wide) in paragraph at lines 112--115
  []\T1/LinuxLibertineT-TLF/m/it/10 (-20) Camera resid-u-als.[] \T1/LinuxLiberti
-neT-TLF/m/n/10 (-20) For each cam-era $\OML/nxlmi/m/it/10 c$\T1/LinuxLibertineT
--TLF/m/n/10 (-20) , keyframe at $\OML/nxlmi/m/it/10 t[]$\T1/LinuxLibertineT-TLF
-/m/n/10 (-20) : SSIM+L1
- []
-
-
-Overfull \hbox (11.35826pt too wide) in paragraph at lines 124--127
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) pho-to-met-ric resid-ual against the ren-d
-ered $\LMS/ntxsy/m/n/10 G[]$ \T1/LinuxLibertineT-TLF/m/n/10 (-20) at spline-eva
-luated
+neT-TLF/m/n/10 (-20) For cam-era $\OML/nxlmi/m/it/10 c$\T1/LinuxLibertineT-TLF/
+m/n/10 (-20) , keyframe at $\OML/nxlmi/m/it/10 t[]$\T1/LinuxLibertineT-TLF/m/n/
+10 (-20) : an SSIM+L1
  []
 
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
-(Font)              scaled to size 8.0pt on input line 145.
+(Font)              scaled to size 8.0pt on input line 135.
 LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
-(Font)              scaled to size 6.2pt on input line 145.
+(Font)              scaled to size 6.2pt on input line 135.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/b/n' will be
-(Font)              scaled to size 8.0pt on input line 149.
+(Font)              scaled to size 8.0pt on input line 139.
 
-Underfull \hbox (badness 10000) in paragraph at lines 151--151
+Underfull \hbox (badness 10000) in paragraph at lines 141--141
 []$\OML/nxlmi/m/it/8 <$\T1/LinuxLibertineT-TLF/m/n/8 (+20) 500
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 151--152
+Underfull \hbox (badness 10000) in paragraph at lines 141--142
 []\T1/LinuxLibertineT-TLF/m/n/8 (+20) 1--
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 152--152
+Underfull \hbox (badness 10000) in paragraph at lines 142--142
 []$\OML/nxlmi/m/it/8 <$\T1/LinuxLibertineT-TLF/m/n/8 (+20) 100
  []
 
 
-Overfull \hbox (19.62949pt too wide) in paragraph at lines 145--155
+Overfull \hbox (19.62949pt too wide) in paragraph at lines 135--145
  [][] 
  []
 
-) (./sections/network.tex
-Overfull \hbox (10.47408pt too wide) in paragraph at lines 19--30
+) (./sections/calibration.tex
+Overfull \hbox (13.99556pt too wide) in paragraph at lines 6--14
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) Accurate ex-trin-sics and in-trin-sics acr
+oss het-ero-ge-neous sensors---
+ []
+
+
+Overfull \hbox (20.35805pt too wide) in paragraph at lines 64--66
+[]\T1/LinuxLibertineT-TLF/b/n/10 (-20) Camera in-trin-sics \T1/LinuxLibertineT-
+TLF/m/n/10 (-20) ($\OML/nxlmi/m/it/10 K[]$\T1/LinuxLibertineT-TLF/m/n/10 (-20) 
+, $\OML/nxlmi/m/it/10 D[]$\T1/LinuxLibertineT-TLF/m/n/10 (-20) ) via Zhang's me
+thod [[]]
+ []
+
+
+Overfull \hbox (7.51906pt too wide) in paragraph at lines 70--76
+[]\T1/LinuxLibertineT-TLF/b/n/10 (-20) LiDAR--Camera ex-trin-sic \T1/LinuxLiber
+tineT-TLF/m/n/10 (-20) ($\OML/nxlmi/m/it/10 T[]$\T1/LinuxLibertineT-TLF/m/n/10 
+(-20) ) via FAST-Calib's
+ []
+
+
+LaTeX Warning: Reference `sec:descriptor' on page 4 undefined on input line 81.
+
+
+
+Overfull \hbox (1.73308pt too wide) in paragraph at lines 83--92
+ []\T1/LinuxLibertineT-TLF/m/it/10 (-20) Phase 2---Online re-fine-ment.[] \T1/L
+inuxLibertineT-TLF/m/n/10 (-20) Dur-ing op-er-a-tion, the CT front-
+ []
+
+
+Overfull \hbox (2.31854pt too wide) in paragraph at lines 83--92
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) window Gauss-Newton solve. Ex-trin-sic tra
+ns-forms are treated
+ []
+
+[4.4{c:/texlive/2024/texmf-dist/fonts/enc/dvips/libertine/lbtn_fygcup.enc}])
+(./sections/network.tex
+Overfull \hbox (3.35559pt too wide) in paragraph at lines 8--14
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) We eval-u-ated three topolo-gies for co-op
+-er-a-tive Gauss-ian SLAM
+ []
+
+
+Overfull \hbox (10.47408pt too wide) in paragraph at lines 21--32
  [][] 
  []
 
@@ -1806,50 +1866,11 @@ LaTeX Font Info:    Font shape `OT1/LinuxLibertineT-TLF/sb/n' will be
 (Font)              scaled to size 6.5pt on input line 43.
 )
 
-Class acmart Warning: A possible image without description on input line 44.
+Class acmart Warning: A possible image without description on input line 43.
 
-[4.4{c:/texlive/2024/texmf-dist/fonts/enc/dvips/libertine/lbtn_fygcup.enc}]
 Package hyperref Info: bookmark level for unknown algorithm defaults to 0 on in
-put line 91.
+put line 83.
 )
-Overfull \hbox (4.9835pt too wide) in paragraph at lines 131--145
- []\T1/LinuxLibertineT-TLF/m/it/10 (-20) Submap dedup.[] \T1/LinuxLibertineT-TL
-F/m/n/10 (-20) Submap IDs are glob-ally unique ($[] \LMS/ntxsy/m/n/10 ^^\
- []
-
-(./sections/protocol.tex (./figures/protocol_stack.tex
-LaTeX Font Info:    Font shape `TS1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 8.0pt on input line 23.
-LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/n' will be
-(Font)              scaled to size 6.2pt on input line 27.
-)
-Underfull \hbox (badness 3895) in paragraph at lines 19--19
-\T1/LinuxLibertineT-TLF/b/n/10 (+20) at the ap-pli-ca-tion layer are mapped to 
-802.11e
- []
-
-
-Class acmart Warning: A possible image without description on input line 21.
-
-LaTeX Font Info:    Trying to load font information for T1+zi4 on input line 26
-.
-(c:/texlive/2024/texmf-dist/tex/latex/inconsolata/t1zi4.fd
-File: t1zi4.fd 2018/01/14 T1/zi4 (Inconsolata)
-)
-LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
-(Font)              scaled to size 10.0pt on input line 26.
-Package microtype Info: Loading generic protrusion settings for font family
-(microtype)             `zi4' (encoding: T1).
-(microtype)             For optimal results, create family-specific settings.
-(microtype)             See the microtype manual for details.
-
-Overfull \hbox (2.94423pt too wide) in paragraph at lines 25--28
-\T1/zi4/m/n/10 src_node\T1/LinuxLibertineT-TLF/m/n/10 (-20) , \T1/zi4/m/n/10 ds
-t_node\T1/LinuxLibertineT-TLF/m/n/10 (-20) , \T1/zi4/m/n/10 seq_no\T1/LinuxLibe
-rtineT-TLF/m/n/10 (-20) , \T1/zi4/m/n/10 timestamp_us\T1/LinuxLibertineT-TLF/m/
-n/10 (-20) , \T1/zi4/m/n/10 crc16\T1/LinuxLibertineT-TLF/m/n/10 (-20) ). 
- []
-
 
 Package fancyhdr Warning: \headheight is too small (13.0pt): 
 (fancyhdr)                Make it at least 18.48402pt, for example:
@@ -1858,167 +1879,120 @@ Package fancyhdr Warning: \headheight is too small (13.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-5.48402pt}.
 
-[5.5]
-Underfull \hbox (badness 10000) in paragraph at lines 50--50
-[]\T1/LinuxLibertineT-TLF/m/n/8 (+20) yes
+[5.5] (./sections/protocol.tex
+Overfull \hbox (17.97688pt too wide) in paragraph at lines 6--10
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) four traf-fic classes onto Wi-Fi 6/6E EDCA
+ queues with application-
  []
 
+(./figures/protocol_stack.tex
+LaTeX Font Info:    Font shape `TS1/LinuxLibertineT-TLF/m/n' will be
+(Font)              scaled to size 8.0pt on input line 23.
+)
 
-Underfull \hbox (badness 10000) in paragraph at lines 52--52
+Class acmart Warning: A possible image without description on input line 26.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 45--45
 []\T1/LinuxLibertineT-TLF/m/n/8 (+20) leaky bkt.
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 52--52
+Underfull \hbox (badness 10000) in paragraph at lines 45--45
 []\T1/LinuxLibertineT-TLF/m/n/8 (+20) app.
  []
 
 
-Overfull \hbox (27.16542pt too wide) in paragraph at lines 45--55
+Overfull \hbox (27.16542pt too wide) in paragraph at lines 38--48
  [][] 
  []
 
 
-Overfull \hbox (29.64656pt too wide) in paragraph at lines 73--77
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) pressed Gauss-ian blob and sends SUBMAP_AC
-K or SUBMAP_NACK.
+Overfull \hbox (14.30067pt too wide) in paragraph at lines 55--58
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) re-tries for crit-i-cal mes-sages (ELEC-TI
+ON, CON-STRAINT, LEAVE);
  []
 
 
-Overfull \hbox (3.99011pt too wide) in paragraph at lines 73--77
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) bucket pac-ing en-forces the per-node band
--width bud-get $\OML/nxlmi/m/it/10 B[]$\T1/LinuxLibertineT-TLF/m/n/10 (-20) . 
- []
-
-LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/sc' will be
-(Font)              scaled to size 10.0pt on input line 118.
-[6.6{c:/texlive/2024/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-4.enc}]
-Overfull \hbox (6.03859pt too wide) in paragraph at lines 146--146
+Overfull \hbox (6.03859pt too wide) in paragraph at lines 95--95
 []\T1/LinuxLibertineT-TLF/m/n/8 (-20) HELLO_HEAD| 
  []
 
 
-Overfull \hbox (8.52383pt too wide) in paragraph at lines 148--148
+Overfull \hbox (8.52383pt too wide) in paragraph at lines 97--97
 []\T1/LinuxLibertineT-TLF/m/n/8 (-20) POSE_STREAM| 
  []
 
 
-Overfull \hbox (10.33487pt too wide) in paragraph at lines 149--149
+Overfull \hbox (10.33487pt too wide) in paragraph at lines 98--98
 []\T1/LinuxLibertineT-TLF/m/n/8 (-20) SUBMAP_PUSH| 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 149--149
+Underfull \hbox (badness 10000) in paragraph at lines 98--98
 []\T1/LinuxLibertineT-TLF/m/n/8 (+20) compressed
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 149--150
+Underfull \hbox (badness 10000) in paragraph at lines 98--99
 []\T1/LinuxLibertineT-TLF/m/n/8 (+20) 0.5--5
  []
 
 
-Overfull \hbox (6.22913pt too wide) in paragraph at lines 150--150
+Overfull \hbox (6.22913pt too wide) in paragraph at lines 99--99
 []\T1/LinuxLibertineT-TLF/m/n/8 (-20) SUBMAP_ACK| 
  []
 
 
-Overfull \hbox (11.70927pt too wide) in paragraph at lines 151--151
+Overfull \hbox (11.70927pt too wide) in paragraph at lines 100--100
 []\T1/LinuxLibertineT-TLF/m/n/8 (-20) SUBMAP_NACK| 
  []
 
 
-Overfull \hbox (9.08835pt too wide) in paragraph at lines 152--152
+Overfull \hbox (9.08835pt too wide) in paragraph at lines 101--101
 []\T1/LinuxLibertineT-TLF/m/n/8 (-20) SUBMAP_PULL| 
  []
 
 
-Overfull \hbox (5.77332pt too wide) in paragraph at lines 153--153
+Overfull \hbox (5.77332pt too wide) in paragraph at lines 102--102
 []\T1/LinuxLibertineT-TLF/m/n/8 (-20) JPEG+VLAD+pose| 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 153--154
+Underfull \hbox (badness 10000) in paragraph at lines 102--103
 []\T1/LinuxLibertineT-TLF/m/n/8 (+20) 50--200
  []
 
 
-Overfull \hbox (4.68817pt too wide) in paragraph at lines 154--154
+Overfull \hbox (4.68817pt too wide) in paragraph at lines 103--103
 []\T1/LinuxLibertineT-TLF/m/n/8 (-20) CONSTRAINT| 
  []
 
 
-Overfull \hbox (1.1386pt too wide) in paragraph at lines 155--155
+Overfull \hbox (1.1386pt too wide) in paragraph at lines 104--104
 []\T1/LinuxLibertineT-TLF/m/n/8 (-20) MAP_DELTA| 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 155--156
+Underfull \hbox (badness 10000) in paragraph at lines 104--105
 []\T1/LinuxLibertineT-TLF/m/n/8 (+20) 0.1--1
  []
 
-(./figures/sequence.tex)
-Underfull \hbox (badness 6658) in paragraph at lines 172--172
+[6.6] (./figures/sequence.tex)
+Underfull \hbox (badness 6658) in paragraph at lines 117--117
 []\T1/LinuxLibertineT-TLF/b/n/10 (+20) Figure 3: |Com-mu-ni-ca-tion se-quence: 
 node joins
  []
 
 
-Class acmart Warning: A possible image without description on input line 174.
+Class acmart Warning: A possible image without description on input line 119.
 
 ) (./sections/compression.tex
-Overfull \hbox (2.69688pt too wide) in paragraph at lines 39--46
- []\T1/LinuxLibertineT-TLF/m/it/10 (-20) Justification.[] \T1/LinuxLibertineT-T
-LF/m/n/10 (-20) Ren-der-ing qual-ity in 3DGS cor-re-lates strongly
- []
-
-
-Package fancyhdr Warning: \headheight is too small (13.0pt): 
-(fancyhdr)                Make it at least 18.48402pt, for example:
-(fancyhdr)                \setlength{\headheight}{18.48402pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-5.48402pt}.
-
-[7.7{c:/texlive/2024/texmf-dist/fonts/enc/dvips/libertine/lbtn_ncsllp.enc}]
-Underfull \hbox (badness 10000) in paragraph at lines 62--62
+Underfull \hbox (badness 10000) in paragraph at lines 54--54
 []\T1/LinuxLibertineT-TLF/m/n/8 (+20) 0.005--
  []
 
-) (./sections/mapping.tex
-Underfull \vbox (badness 2181) has occurred while \output is active []
-
- [8.8]
-Overfull \hbox (10.61345pt too wide) in paragraph at lines 70--73
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) nodes to lazily up-date their lo-cal copie
-s with-out re-downloading
- []
-
-
-Overfull \hbox (2.31569pt too wide) in paragraph at lines 81--83
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) with in-for-ma-tion ma-tri-ces from the CT
- Gauss-Newton
- []
-
-
-Overfull \hbox (1.60518pt too wide) in paragraph at lines 100--104
- []\T1/LinuxLibertineT-TLF/m/it/10 (-20) Geometric.[] \T1/LinuxLibertineT-TLF/m
-/n/10 (-20) Submap reg-is-tra-tion is at-tempted against graph-
- []
-
-
-Overfull \hbox (6.08467pt too wide) in paragraph at lines 105--111
- []\T1/LinuxLibertineT-TLF/m/it/10 (-20) Visual.[] \T1/LinuxLibertineT-TLF/m/n/
-10 (-20) A NetVLAD [[]] de-scrip-tor is com-puted per keyframe
- []
-
-
-Overfull \hbox (1.57516pt too wide) in paragraph at lines 105--111
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) scrip-tors. Can-di-date loops are queried 
-when a new keyframe's
- []
-
-) (./sections/experiments.tex
+)
 
 Package fancyhdr Warning: \headheight is too small (13.0pt): 
 (fancyhdr)                Make it at least 18.48402pt, for example:
@@ -2027,51 +2001,129 @@ Package fancyhdr Warning: \headheight is too small (13.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-5.48402pt}.
 
-[9.9]
-Overfull \hbox (9.75185pt too wide) in paragraph at lines 28--32
-[]\T1/LinuxLibertineT-TLF/b/n/10 (-20) Single-node LIV datasets \T1/LinuxLibert
-ineT-TLF/m/n/10 (-20) (for backward-compatibility
+[7.7] (./sections/mapping.tex
+Overfull \hbox (1.28513pt too wide) in paragraph at lines 46--51
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) tree query within $\OML/nxlmi/m/it/10 ^^\[
+] \U/ntxmia/m/it/10 = \OT1/LinuxLibertineT-TLF/m/n/10 (-20) 3[]$\T1/LinuxLibert
+ineT-TLF/m/n/10 (-20) , fus-ing over-lap-ping pairs by opacity-
+ []
+
+) (./sections/experiments.tex [8.8]
+Overfull \hbox (11.08006pt too wide) in paragraph at lines 34--41
+ []\T1/LinuxLibertineT-TLF/m/it/10 (-20) Baselines.[] \T1/LinuxLibertineT-TLF/m
+/n/10 (-20) Single-node: Gaussian-LIC2 [[]], FAST-LIVO2 [[]],
  []
 
 
-Overfull \hbox (7.73698pt too wide) in paragraph at lines 32--36
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) dataset [[]] (3--5 RGB-D agents, in-door) 
-and the GRAND-
- []
+Package fancyhdr Warning: \headheight is too small (13.0pt): 
+(fancyhdr)                Make it at least 18.48402pt, for example:
+(fancyhdr)                \setlength{\headheight}{18.48402pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
 
+(fancyhdr)                \addtolength{\topmargin}{-5.48402pt}.
 
-Overfull \hbox (1.28072pt too wide) in paragraph at lines 60--67
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) (PDR). La-tency: end-to-end $\OML/nxlmi/m/
-it/10 T[]$ \T1/LinuxLibertineT-TLF/m/n/10 (-20) (submap bound-ary to merged-
- []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Overfull \hbox (1.56157pt too wide) in paragraph at lines 96--99
- []\T1/LinuxLibertineT-TLF/m/it/10 (-20) Multi-node ac-cu-racy.[] \T1/LinuxLibe
-rtineT-TLF/m/n/10 (-20) On multi-agent se-quences, inter-node
- []
-
-
-Overfull \hbox (3.74213pt too wide) in paragraph at lines 96--99
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) con-straints from submap reg-is-tra-tion i
-m-prove per-node odom-
- []
-
-[10.10] (./figures/scalability.tex
+[9.9] (./figures/scalability.tex
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/b/n' will be
 (Font)              scaled to size 10.95pt on input line 37.
 LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/b/sc' will be
 (Font)              scaled to size 10.95pt on input line 37.
 )
 
-Class acmart Warning: A possible image without description on input line 230.
+Class acmart Warning: A possible image without description on input line 181.
 
 (./figures/head_loss.tex)
 
-Class acmart Warning: A possible image without description on input line 275.
+Class acmart Warning: A possible image without description on input line 219.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 291--291
+[]\T1/LinuxLibertineT-TLF/m/n/8 (+20) sub-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 291--291
+\T1/LinuxLibertineT-TLF/m/n/8 (+20) linear
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 292--292
+[]$\OML/nxlmi/m/it/8 <$\T1/LinuxLibertineT-TLF/m/n/8 (+20) 5%
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 294--294
+[]$\U/ntxmia/m/it/8 ^^A$\T1/LinuxLibertineT-TLF/m/n/8 (+20) PSNR
+ []
+
+
+Underfull \hbox (badness 6825) in paragraph at lines 295--295
+[]\T1/LinuxLibertineT-TLF/m/n/8 (+20) 20 Hz /
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 296--296
+[]\T1/LinuxLibertineT-TLF/m/n/8 (+20) capab.-
+ []
+
+) (./sections/implementation.tex
+Overfull \hbox (6.15085pt too wide) in paragraph at lines 6--8
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) Co-LIC2 ex-tends the open-source Gaussian-
+LIC2 code-base [[]]
+ []
+
+[10.10{c:/texlive/2024/texmf-dist/fonts/enc/dvips/libertine/lbtn_tlukpt.enc}]
+LaTeX Font Info:    Trying to load font information for T1+zi4 on input line 15
+.
+
+(c:/texlive/2024/texmf-dist/tex/latex/inconsolata/t1zi4.fd
+File: t1zi4.fd 2018/01/14 T1/zi4 (Inconsolata)
+)
+LaTeX Font Info:    Font shape `T1/zi4/m/n' will be
+(Font)              scaled to size 10.0pt on input line 15.
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `zi4' (encoding: T1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+
+Overfull \hbox (17.32806pt too wide) in paragraph at lines 17--30
+\T1/zi4/m/n/10 coordinator \T1/LinuxLibertineT-TLF/m/n/10 (-20) (dis-cov-ery + 
+elec-tion), \T1/zi4/m/n/10 network_monitor \T1/LinuxLibertineT-TLF/m/n/10 (-20)
+ (through-
+ []
+
+
+Overfull \hbox (12.60168pt too wide) in paragraph at lines 17--30
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) get con-troller), \T1/zi4/m/n/10 comm_laye
+r \T1/LinuxLibertineT-TLF/m/n/10 (-20) (DDS/-gRPC trans-port), \T1/zi4/m/n/10 m
+ap_merger
+ []
+
+
+Overfull \hbox (8.22614pt too wide) in paragraph at lines 17--30
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) (G2G-ICP + fu-sion + con-flict res-o-lu-ti
+on), \T1/zi4/m/n/10 loop_closure_agent
+ []
+
+
+Overfull \hbox (7.36443pt too wide) in paragraph at lines 17--30
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) sensor front-end mod-i-fies only Coco-LIC'
+s \T1/zi4/m/n/10 spline_estimator
+ []
+
+) (./sections/hardware.tex
+Underfull \hbox (badness 3168) in paragraph at lines 33--33
+[]\T1/LinuxLibertineT-TLF/m/n/8 (+20) Alvium 1800 U-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 35--35
+[]\T1/LinuxLibertineT-TLF/m/n/8 (+20) ICM-20948 +
+ []
+
+
+Underfull \hbox (badness 4940) in paragraph at lines 41--41
+[]\T1/LinuxLibertineT-TLF/m/n/8 (+20) CNC alu-minum,
+ []
 
 
 Package fancyhdr Warning: \headheight is too small (13.0pt): 
@@ -2081,62 +2133,70 @@ Package fancyhdr Warning: \headheight is too small (13.0pt):
 
 (fancyhdr)                \addtolength{\topmargin}{-5.48402pt}.
 
-[11.11{c:/texlive/2024/texmf-dist/fonts/enc/dvips/libertine/lbtn_tlukpt.enc}]
-Underfull \hbox (badness 10000) in paragraph at lines 356--356
-[]\T1/LinuxLibertineT-TLF/m/n/8 (+20) sub-
- []
+[11.11{c:/texlive/2024/texmf-dist/fonts/enc/dvips/inconsolata/i4-t1-4.enc}]
+(./figures/hardware_layout.tex)
+
+Class acmart Warning: A possible image without description on input line 59.
+
+(./figures/time_sync.tex)
+
+Class acmart Warning: A possible image without description on input line 76.
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 356--356
-\T1/LinuxLibertineT-TLF/m/n/8 (+20) linear
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 357--357
-[]$\OML/nxlmi/m/it/8 <$\T1/LinuxLibertineT-TLF/m/n/8 (+20) 5%
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 358--358
-[]\T1/LinuxLibertineT-TLF/m/n/8 (+20) Global con-sis-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 359--359
-[]$\U/ntxmia/m/it/8 ^^A$\T1/LinuxLibertineT-TLF/m/n/8 (+20) PSNR
- []
-
-
-Overfull \hbox (1.28912pt too wide) in paragraph at lines 361--361
-[]\T1/LinuxLibertineT-TLF/m/n/8 (-20) capability-
- []
-
-) (./sections/implementation.tex
-Overfull \hbox (12.74371pt too wide) in paragraph at lines 18--19
- []\T1/LinuxLibertineT-TLF/m/it/10 (-20) Component lay-out.[] \T1/LinuxLibertin
-eT-TLF/m/n/10 (-20) New com-po-nents re-side un-der \T1/zi4/m/n/10 src/coop/\T1
-/LinuxLibertineT-TLF/m/n/10 (-20) : 
- []
-
-
-LaTeX Warning: Reference `eq:channel' on page 12 undefined on input line 23.
-
-[12.12]
-Overfull \hbox (1.92998pt too wide) in paragraph at lines 24--26
-[]\T1/zi4/m/n/10 qos_classifier \T1/LinuxLibertineT-TLF/m/n/10 (-20) --- messag
-e-to-stream map-ping with
- []
-
-
-Overfull \hbox (6.00755pt too wide) in paragraph at lines 72--76
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) goal on all ex-ist-ing single-node dataset
-s (FAST-LIVO2, M2DGR,
- []
-
-
-LaTeX Warning: Reference `sec:analysis' on page 13 undefined on input line 83.
+LaTeX Warning: Reference `sec:descriptor' on page 12 undefined on input line 87
+.
 
 ) (./sections/discussion.tex
+Overfull \hbox (5.17883pt too wide) in paragraph at lines 30--36
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) (parked cars, con-struc-tion progress) but
+ not real-time dynamic-
+ []
+
+[12.12]
+Overfull \hbox (9.72926pt too wide) in paragraph at lines 56--59
+[]\T1/LinuxLibertineT-TLF/b/n/10 (-20) Cluster split-ting/merg-ing. \T1/LinuxLi
+bertineT-TLF/m/n/10 (-20) Should an over-subscribed
+ []
+
+
+Overfull \hbox (2.29355pt too wide) in paragraph at lines 65--68
+[]\T1/LinuxLibertineT-TLF/b/n/10 (-20) Multi-node dy-namic con-sen-sus. \T1/Lin
+uxLibertineT-TLF/m/n/10 (-20) Per-node dy-namic
+ []
+
+) (./sections/conclusion.tex
+Overfull \hbox (9.58656pt too wide) in paragraph at lines 6--17
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) We pre-sented Co-LIC2, a co-op-er-a-tive m
+ulti-node photo-realistic
+ []
+
+
+Overfull \hbox (9.66768pt too wide) in paragraph at lines 6--17
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) Gauss-ian SLAM sys-tem whose cen-tral con-
+tri-bu-tion is a purpose-
+ []
+
+
+Overfull \hbox (14.56729pt too wide) in paragraph at lines 6--17
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) ping four traf-fic classes to 802.11e EDCA
+ queues with application-
+ []
+
+
+Overfull \hbox (1.65341pt too wide) in paragraph at lines 6--17
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) layer re-li-a-bil-ity; a submap-aware adap
+-tive com-pres-sion sched-
+ []
+
+) (./main.bbl
+LaTeX Info: Redefining \tempurl on input line 80.
+LaTeX Info: Redefining \tempurl on input line 94.
+LaTeX Info: Redefining \tempurl on input line 134.
+LaTeX Info: Redefining \tempurl on input line 174.
+LaTeX Info: Redefining \tempurl on input line 191.
+LaTeX Info: Redefining \tempurl on input line 207.
+LaTeX Info: Redefining \tempurl on input line 225.
+
 
 Package fancyhdr Warning: \headheight is too small (13.0pt): 
 (fancyhdr)                Make it at least 18.48402pt, for example:
@@ -2146,119 +2206,120 @@ Package fancyhdr Warning: \headheight is too small (13.0pt):
 (fancyhdr)                \addtolength{\topmargin}{-5.48402pt}.
 
 [13.13]
-Overfull \hbox (4.27112pt too wide) in paragraph at lines 62--66
-[]\T1/LinuxLibertineT-TLF/b/n/10 (-20) Energy-optimal com-pres-sion on UAVs. \T
-1/LinuxLibertineT-TLF/m/n/10 (-20) For battery-
- []
+LaTeX Info: Redefining \tempurl on input line 242.
+LaTeX Info: Redefining \tempurl on input line 259.
+LaTeX Info: Redefining \tempurl on input line 277.
+LaTeX Info: Redefining \tempurl on input line 295.
+LaTeX Info: Redefining \tempurl on input line 327.
+LaTeX Info: Redefining \tempurl on input line 341.
+LaTeX Info: Redefining \tempurl on input line 370.
+LaTeX Info: Redefining \tempurl on input line 385.
 
-
-Overfull \hbox (13.79904pt too wide) in paragraph at lines 62--66
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) could push the bud-get con-troller to-ward
- coarser submaps
- []
-
-) (./sections/conclusion.tex
-Overfull \hbox (9.58656pt too wide) in paragraph at lines 6--18
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) We pre-sented Co-LIC2, a co-op-er-a-tive m
-ulti-node photo-realistic
- []
-
-
-Overfull \hbox (9.66768pt too wide) in paragraph at lines 6--18
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) Gauss-ian SLAM sys-tem whose cen-tral con-
-tri-bu-tion is a purpose-
- []
-
-) (./main.bbl
-LaTeX Info: Redefining \tempurl on input line 68.
-LaTeX Info: Redefining \tempurl on input line 108.
-LaTeX Info: Redefining \tempurl on input line 150.
-LaTeX Info: Redefining \tempurl on input line 166.
-LaTeX Info: Redefining \tempurl on input line 184.
-LaTeX Info: Redefining \tempurl on input line 201.
-
-Underfull \vbox (badness 6396) has occurred while \output is active []
-
- [14.14]
-LaTeX Info: Redefining \tempurl on input line 218.
-LaTeX Info: Redefining \tempurl on input line 236.
-LaTeX Info: Redefining \tempurl on input line 254.
-LaTeX Info: Redefining \tempurl on input line 284.
-LaTeX Info: Redefining \tempurl on input line 301.
-LaTeX Info: Redefining \tempurl on input line 316.
-
-Underfull \hbox (badness 1112) in paragraph at lines 309--319
+Underfull \hbox (badness 1112) in paragraph at lines 378--388
 []\T1/LinuxLibertineT-TLF/m/n/8 (+20) Jaeseok Park, Chanoh Park, Minsu Kim, Min
 ky-oung Kim, and
  []
 
-LaTeX Info: Redefining \tempurl on input line 347.
-LaTeX Info: Redefining \tempurl on input line 363.
-LaTeX Info: Redefining \tempurl on input line 392.
-LaTeX Info: Redefining \tempurl on input line 408.
+LaTeX Info: Redefining \tempurl on input line 400.
+LaTeX Info: Redefining \tempurl on input line 428.
+LaTeX Info: Redefining \tempurl on input line 445.
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
-LaTeX Info: Redefining \tempurl on input line 437.
-LaTeX Info: Redefining \tempurl on input line 455.
-LaTeX Info: Redefining \tempurl on input line 473.
+LaTeX Info: Redefining \tempurl on input line 461.
+LaTeX Info: Redefining \tempurl on input line 491.
+LaTeX Info: Redefining \tempurl on input line 519.
+LaTeX Info: Redefining \tempurl on input line 534.
+LaTeX Info: Redefining \tempurl on input line 552.
+LaTeX Info: Redefining \tempurl on input line 567.
+LaTeX Info: Redefining \tempurl on input line 581.
+LaTeX Info: Redefining \tempurl on input line 598.
 )
 (./sections/appendix.tex
-
-LaTeX Font Warning: Font shape `T1/zi4/m/it' undefined
-(Font)              using `T1/zi4/m/n' instead on input line 22.
-
-
-Overfull \hbox (1.44785pt too wide) in paragraph at lines 23--25
-[]\T1/zi4/m/n/10 mean\T1/LinuxLibertineT-TLF/m/n/10 (-20) : $\OT1/LinuxLibertin
-eT-TLF/m/n/10 (-20) 3 \LMS/ntxsy/m/n/10 ^^B []$ \T1/LinuxLibertineT-TLF/m/n/10 
-(-20) per Gauss-ian, quan-tized to \T1/zi4/m/n/10 quantize_cm
+Overfull \hbox (4.01561pt too wide) in paragraph at lines 10--18
+ []\T1/LinuxLibertineT-TLF/m/it/10 (-20) CBOR header (66 B + bbox).[] \T1/zi4/m
+/n/10 submap_id: u64 $\U/ntxmia/m/it/10 = \LMS/ntxsy/m/n/10 ¹[] ^^\
  []
 
 
-Overfull \hbox (28.63759pt too wide) in paragraph at lines 30--32
-[]\T1/zi4/m/n/10 semantic_id\T1/LinuxLibertineT-TLF/m/n/10 (-20) : $\OT1/LinuxL
-ibertineT-TLF/m/n/10 (-20) 1 \LMS/ntxsy/m/n/10 ^^B []$ \T1/LinuxLibertineT-TLF/
-m/n/10 (-20) per Gauss-ian (present iff \T1/zi4/m/n/10 has_semantic
- []
-
-)
-Overfull \hbox (7.51012pt too wide) in paragraph at lines 40--173
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) de-quan-tizes means, trans-forms means and
- ro-ta-tions by $\OML/nxlmi/m/it/10 T[]$
+Overfull \hbox (9.26321pt too wide) in paragraph at lines 10--18
+\OT1/LinuxLibertineT-TLF/m/n/10 (-20) 32\LMS/ntxsy/m/n/10 º j []$\T1/LinuxLiber
+tineT-TLF/m/n/10 (-20) , \T1/zi4/m/n/10 node_id: u16\T1/LinuxLibertineT-TLF/m/n
+/10 (-20) , \T1/zi4/m/n/10 seq: u32\T1/LinuxLibertineT-TLF/m/n/10 (-20) , \T1/z
+i4/m/n/10 bbox_w_min/bbox_w_max:
  []
 
 
-Package fancyhdr Warning: \headheight is too small (13.0pt): 
-(fancyhdr)                Make it at least 18.48402pt, for example:
-(fancyhdr)                \setlength{\headheight}{18.48402pt}.
-(fancyhdr)                You might also make \topmargin smaller to compensate:
-
-(fancyhdr)                \addtolength{\topmargin}{-5.48402pt}.
-
-[15.15] (./sections/appendix_protocol.tex
-
-Class acmart Warning: A possible image without description on input line 35.
-
-
-Underfull \hbox (badness 1292) in paragraph at lines 59--59
-[]\T1/LinuxLibertineT-TLF/b/n/10 (+20) Figure 7: |Submap trans-fer FSM (sender 
-side). On
+Overfull \hbox (27.60751pt too wide) in paragraph at lines 10--18
+\OT1/LinuxLibertineT-TLF/m/n/10 (-20) 3\LMS/ntxsy/m/n/10 ^^B$\T1/zi4/m/n/10 f64
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) , \T1/zi4/m/n/10 pose_w_b: $\OT1/LinuxLibe
+rtineT-TLF/m/n/10 (-20) 7\LMS/ntxsy/m/n/10 ^^B$\T1/zi4/m/n/10 f64 \T1/LinuxLibe
+rtineT-TLF/m/n/10 (-20) (quater-nion + trans-la-tion), \T1/zi4/m/n/10 n_gaussia
+ns:
  []
 
 
-Class acmart Warning: A possible image without description on input line 61.
-
-
-Overfull \hbox (6.68605pt too wide) in paragraph at lines 74--77
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) HELLO ev-ery 1 s. On re-con-nect, flush bu
-ffered submaps
+Overfull \hbox (6.65265pt too wide) in paragraph at lines 10--18
+\T1/zi4/m/n/10 u32\T1/LinuxLibertineT-TLF/m/n/10 (-20) , \T1/zi4/m/n/10 sh_degr
+ee: u8\T1/LinuxLibertineT-TLF/m/n/10 (-20) , \T1/zi4/m/n/10 quantize_cm: u8\T1/
+LinuxLibertineT-TLF/m/n/10 (-20) , \T1/zi4/m/n/10 version: u8\T1/LinuxLibertine
+T-TLF/m/n/10 (-20) , \T1/zi4/m/n/10 flags:
  []
 
 
-Overfull \hbox (4.61269pt too wide) in paragraph at lines 93--96
-\T1/LinuxLibertineT-TLF/m/n/10 (-20) the graph; PGO cor-rec-tions are ap-plied 
-as rigid submap
+Overfull \hbox (4.98485pt too wide) in paragraph at lines 19--27
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) (quater-nion), \T1/zi4/m/n/10 opacity_logi
+t: $\OT1/LinuxLibertineT-TLF/m/n/10 (-20) 1\LMS/ntxsy/m/n/10 ^^B$\T1/zi4/m/n/10
+ f16/G\T1/LinuxLibertineT-TLF/m/n/10 (-20) , \T1/zi4/m/n/10 sh_coef: $\OML/nxlm
+i/m/it/10 k\LMS/ntxsy/m/n/10 ^^B$\T1/zi4/m/n/10 f16/G
+ []
+
+
+Overfull \hbox (10.18672pt too wide) in paragraph at lines 19--27
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) ($\OML/nxlmi/m/it/10 k \U/ntxmia/m/it/10 =
+ \OT1/LinuxLibertineT-TLF/m/n/10 (-20) 3\OML/nxlmi/m/it/10 ; \OT1/LinuxLibertin
+eT-TLF/m/n/10 (-20) 8\OML/nxlmi/m/it/10 ; \OT1/LinuxLibertineT-TLF/m/n/10 (-20)
+ 15\OML/nxlmi/m/it/10 ; \OT1/LinuxLibertineT-TLF/m/n/10 (-20) 24$ \T1/LinuxLibe
+rtineT-TLF/m/n/10 (-20) for de-grees $\OT1/LinuxLibertineT-TLF/m/n/10 (-20) 0\O
+ML/nxlmi/m/it/10 ; \OT1/LinuxLibertineT-TLF/m/n/10 (-20) 1\OML/nxlmi/m/it/10 ; 
+\OT1/LinuxLibertineT-TLF/m/n/10 (-20) 2\OML/nxlmi/m/it/10 ; \OT1/LinuxLibertine
+T-TLF/m/n/10 (-20) 3$\T1/LinuxLibertineT-TLF/m/n/10 (-20) ), plus op-tional \T1
+/zi4/m/n/10 semantic_id:
+ []
+
+
+Underfull \vbox (badness 3189) has occurred while \output is active []
+
+ [14.14])
+Overfull \hbox (3.85736pt too wide) in paragraph at lines 32--179
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) quan-tize means (off-set by \T1/zi4/m/n/10
+ bbox_w_min\T1/LinuxLibertineT-TLF/m/n/10 (-20) , scale by \T1/zi4/m/n/10 quant
+ize_cm\T1/LinuxLibertineT-TLF/m/n/10 (-20) )
+ []
+
+(./sections/appendix_protocol.tex
+LaTeX Font Info:    Font shape `T1/LinuxLibertineT-TLF/m/sc' will be
+(Font)              scaled to size 10.0pt on input line 8.
+
+
+Class acmart Warning: A possible image without description on input line 34.
+
+
+Overfull \hbox (42.16144pt too wide) in paragraph at lines 38--43
+\T1/LinuxLibertineT-TLF/m/n/10 (-20) bucket) $\LMS/ntxsy/m/n/10 !$ \T1/LinuxLib
+ertineT-TLF/m/sc/10 (-20) wait_ack\T1/LinuxLibertineT-TLF/m/n/10 (-20) . On SUB
+MAP_ACK: $\LMS/ntxsy/m/n/10 !$ \T1/LinuxLibertineT-TLF/m/sc/10 (-20) idle\T1/Li
+nuxLibertineT-TLF/m/n/10 (-20) . On SUBMAP_NACK:
+ []
+
+
+Class acmart Warning: A possible image without description on input line 63.
+
+
+Overfull \hbox (8.64035pt too wide) in paragraph at lines 74--76
+[]\T1/LinuxLibertineT-TLF/b/n/10 (-20) Autonomous mode \T1/LinuxLibertineT-TLF/
+m/n/10 (-20) (on link loss $\OML/nxlmi/m/it/10 >$\T1/LinuxLibertineT-TLF/m/n/10
+ (-20) 3 s): buffer submaps;
  []
 
 )
@@ -2269,38 +2330,40 @@ Class acmart Warning: Some images may lack descriptions.
 Package balance Warning: You have called \balance in second column
 (balance)                Columns might not be balanced.
 
+
+Package fancyhdr Warning: \headheight is too small (13.0pt): 
+(fancyhdr)                Make it at least 18.48402pt, for example:
+(fancyhdr)                \setlength{\headheight}{18.48402pt}.
+(fancyhdr)                You might also make \topmargin smaller to compensate:
+
+(fancyhdr)                \addtolength{\topmargin}{-5.48402pt}.
+
 (c:/texlive/2024/texmf-dist/tex/generic/stringenc/se-pdfdoc.def
 File: se-pdfdoc.def 2019/11/29 v1.12 stringenc: PDFDocEncoding
 )
 (c:/texlive/2024/texmf-dist/tex/generic/stringenc/se-utf8.def
 File: se-utf8.def 2019/11/29 v1.12 stringenc: UTF-8
-) [16.16]
-(./main.aux)
+) [15.15{c:/texlive/2024/texmf-dist/fonts/enc/dvips/libertine/lbtn_ncsllp.enc}]
+ (./main.aux)
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-05-08>
  ***********
 
 
-LaTeX Font Warning: Some font shapes were not available, defaults substituted.
-
-
 LaTeX Warning: There were undefined references.
 
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: 5F7516648DF7C321CFDFA7151D11AE4E;12102.
+(rerunfilecheck)             Checksum: 915F09BA75BEB58415E2FB7A64C14851;13179.
  ) 
 Here is how much of TeX's memory you used:
- 36939 strings out of 473992
- 677774 string characters out of 5745049
- 1975907 words of memory out of 5000000
- 57427 multiletter control sequences out of 15000+600000
- 860866 words of font info for 752 fonts, out of 8000000 for 9000
+ 37051 strings out of 473992
+ 679842 string characters out of 5745049
+ 1976907 words of memory out of 5000000
+ 57562 multiletter control sequences out of 15000+600000
+ 856918 words of font info for 729 fonts, out of 8000000 for 9000
  1302 hyphenation exceptions out of 8191
- 90i,17n,131p,1001b,1012s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 90i,17n,131p,1001b,1014s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/texlive/2024/texmf-dist/fonts/type1/public/inconsolata/Inconsolata-zi4r.p
 fb><c:/texlive/2024/texmf-dist/fonts/type1/public/newtx/LibertineMathBMI.pfb><c
 :/texlive/2024/texmf-dist/fonts/type1/public/newtx/LibertineMathMI.pfb><c:/texl
@@ -2318,10 +2381,10 @@ lic/libertine/LinLibertineTZ.pfb><c:/texlive/2024/texmf-dist/fonts/type1/public
 e/2024/texmf-dist/fonts/type1/public/newtx/txmiaX.pfb><c:/texlive/2024/texmf-di
 st/fonts/type1/public/newtx/txsym.pfb><c:/texlive/2024/texmf-dist/fonts/type1/p
 ublic/newtx/txsys.pfb>
-Output written on main.pdf (16 pages, 699553 bytes).
+Output written on main.pdf (15 pages, 695703 bytes).
 PDF statistics:
- 779 PDF objects out of 1000 (max. 8388607)
- 710 compressed objects within 8 object streams
- 228 named destinations out of 1000 (max. 500000)
- 163853 words of extra memory for PDF output out of 184870 (max. 10000000)
+ 827 PDF objects out of 1000 (max. 8388607)
+ 759 compressed objects within 8 object streams
+ 226 named destinations out of 1000 (max. 500000)
+ 162885 words of extra memory for PDF output out of 184870 (max. 10000000)
 

@@ -1,0 +1,45 @@
+% Hardware sensor layout — top-down view of the reference sensor pod
+% 4 cameras at 0°, 90°, 180°, 270°; 2 LiDARs at ±45°
+\begin{tikzpicture}[
+  font=\fontsize{6}{7.2}\selectfont,
+  >=Stealth,
+]
+
+% Pod outline
+\draw[fill=gray!3, draw=gray!50, rounded corners] (-1.5,-1.5) rectangle (1.5,1.5);
+
+% Body frame center
+\draw[fill=red!60!black] (0,0) circle (0.08);
+\node[font=\tiny, red!60!black] at (0.2,0.15) {$B_i$};
+
+% Camera 0° (front) — right side
+\draw[fill=blue!15, draw=blue!60!black, thick, rounded corners=1pt] (1.1,-0.3) rectangle (1.4,0.3);
+\draw[blue!25, fill=blue!3] (1.25,0) -- (2.5,1.2) -- (2.5,-1.2) -- cycle;
+\node[font=\tiny, blue!60!black] at (2.2,0.7) {Front};
+
+% Camera 90° (right) — top side
+\draw[fill=blue!15, draw=blue!60!black, thick, rounded corners=1pt] (-0.3,1.1) rectangle (0.3,1.4);
+\draw[blue!25, fill=blue!3] (0,1.25) -- (1.2,2.5) -- (-1.2,2.5) -- cycle;
+\node[font=\tiny, blue!60!black] at (0.7,2.2) {Right};
+
+% Camera 180° (rear) — left side
+\draw[fill=blue!15, draw=blue!60!black, thick, rounded corners=1pt] (-1.4,-0.3) rectangle (-1.1,0.3);
+\draw[blue!25, fill=blue!3] (-1.25,0) -- (-2.5,1.2) -- (-2.5,-1.2) -- cycle;
+\node[font=\tiny, blue!60!black] at (-2.2,0.7) {Rear};
+
+% Camera 270° (left) — bottom side
+\draw[fill=blue!15, draw=blue!60!black, thick, rounded corners=1pt] (-0.3,-1.4) rectangle (0.3,-1.1);
+\draw[blue!25, fill=blue!3] (0,-1.25) -- (1.2,-2.5) -- (-1.2,-2.5) -- cycle;
+\node[font=\tiny, blue!60!black] at (0.7,-2.2) {Left};
+
+% LiDAR 1 at +45° (upper-right)
+\draw[fill=green!15, draw=green!50!black, thick] (0.7,0) circle (0.22);
+\node[font=\tiny, green!50!black] at (0.7,-0.35) {LiDAR};
+\draw[green!20, fill=green!3] (0.7,0) -- (2.2,1.8) -- (0.1,2.5) -- cycle;
+
+% LiDAR 2 at -45° (lower-left)
+\draw[fill=green!15, draw=green!50!black, thick] (-0.7,0) circle (0.22);
+\node[font=\tiny, green!50!black] at (-0.7,-0.35) {LiDAR};
+\draw[green!20, fill=green!3] (-0.7,0) -- (-2.2,1.8) -- (-0.1,2.5) -- cycle;
+
+\end{tikzpicture}

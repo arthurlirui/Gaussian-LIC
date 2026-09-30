@@ -3,40 +3,34 @@
 % ============================================
 \label{app:submap}
 
-A submap is serialized as a CBOR map header followed by a structure-of-arrays
+A submap serializes as a CBOR map header followed by a structure-of-arrays
 Gaussian blob, entropy-coded with zstd.
 
-\paragraph{CBOR header (66 bytes + bbox).}
-\begin{itemize}
-  \item \texttt{submap\_id}: \texttt{u64} = $(\text{node\_id} \ll 32) \mid \text{seq}$
-  \item \texttt{node\_id}: \texttt{u16}, \texttt{seq}: \texttt{u32}
-  \item \texttt{bbox\_w\_min}, \texttt{bbox\_w\_max}: $3\times\texttt{f64}$ each, in $W_{\text{owner}}$
-  \item \texttt{pose\_w\_b}: $7\times\texttt{f64}$ (quaternion $qw,qx,qy,qz$ + translation $x,y,z$)
-  \item \texttt{n\_gaussians}: \texttt{u32}
-  \item \texttt{sh\_degree}: \texttt{u8}, \texttt{quantize\_cm}: \texttt{u8}
-  \item \texttt{version}: \texttt{u8}, \texttt{flags}: \texttt{u8} (bit0: has\_semantic)
-  \item \texttt{crc32}: \texttt{u32} (over decompressed Gaussian blob)
-\end{itemize}
+\paragraph{CBOR header (66~B + bbox).}
+\texttt{submap\_id: u64} $=(\text{node\_id}\ll 32)\mid\text{seq}$,
+\texttt{node\_id: u16}, \texttt{seq: u32},
+\texttt{bbox\_w\_min/bbox\_w\_max: $3\times$f64},
+\texttt{pose\_w\_b: $7\times$f64} (quaternion + translation),
+\texttt{n\_gaussians: u32}, \texttt{sh\_degree: u8},
+\texttt{quantize\_cm: u8}, \texttt{version: u8},
+\texttt{flags: u8} (bit0: has\_semantic), and \texttt{crc32: u32}
+over the decompressed Gaussian blob.
 
-\paragraph{Gaussian arrays (SoA, all length \texttt{n\_gaussians}).}
-\begin{itemize}
-  \item \texttt{mean}: $3\times\texttt{f16}$ per Gaussian, quantized to
-    \texttt{quantize\_cm} in submap-local frame (origin at \texttt{bbox\_w\_min}).
-  \item \texttt{scale\_log}: $3\times\texttt{f16}$ per Gaussian.
-  \item \texttt{rotation}: $4\times\texttt{f16}$ per Gaussian (quaternion, normalized).
-  \item \texttt{opacity\_logit}: $1\times\texttt{f16}$ per Gaussian.
-  \item \texttt{sh\_coef}: $k\times\texttt{f16}$ per Gaussian, $k=3,8,15,24$ for
-    SH degrees $0,1,2,3$ respectively.
-  \item \texttt{semantic\_id}: $1\times\texttt{u8}$ per Gaussian (present iff
-    \texttt{has\_semantic} flag set).
-\end{itemize}
+\paragraph{Gaussian arrays} (SoA, zstd-compressed).
+\texttt{mean: $3\times$f16/G}, quantized to \texttt{quantize\_cm} in
+submap-local frame (origin at \texttt{bbox\_w\_min}).
+\texttt{scale\_log: $3\times$f16/G},
+\texttt{rotation: $4\times$f16/G} (quaternion),
+\texttt{opacity\_logit: $1\times$f16/G},
+\texttt{sh\_coef: $k\times$f16/G} ($k=3,8,15,24$ for degrees $0,1,2,3$),
+plus optional \texttt{semantic\_id: u8/G}.
 
-\paragraph{Wire size.} Total wire size (before zstd) for $g$ Gaussians at SH degree $d$:
-$66 + g \cdot (12 + 12 + 16 + 4 + 4k + s)$ bytes, where $s=1$ if semantic enabled
-else $0$. At SH degree 2 ($k=15$): $66 + g \cdot 204$ bytes raw. After zstd level
-5: $\approx$24~B/Gaussian, i.e. $\sim$8.5$\times$ compression ratio (Gaussian
-arrays are highly redundant in local neighborhoods).
+\paragraph{Wire size.} At degree~2 ($k=15$), raw Gaussian array is
+$66 + g\cdot204$~B. After zstd-5: $\approx 24$~B/Gaussian
+($\sim 8.5\times$ compression ratio from local spatial redundancy).
 
-\paragraph{Receipt.} Receiver decompresses with zstd, verifies CRC32, dequantizes
-means, transforms means and rotations by $T_{W_h \leftarrow W_j}$ from registration,
-then feeds to the merge pipeline (Section~\ref{sec:merge}).
+\paragraph{Receipt pipeline.} Decompress (zstd) $\to$ verify CRC32 $\to$
+dequantize means (offset by \texttt{bbox\_w\_min}, scale by
+\texttt{quantize\_cm}) $\to$ transform means+quaternions by
+$T_{W_h\leftarrow W_j}$ from registration $\to$ feed to merge pipeline
+(Section~\ref{sec:merge}).

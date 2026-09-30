@@ -1,0 +1,88 @@
+% ============================================
+% Section: Hardware Design Module
+% ============================================
+\label{sec:hardware}
+
+Co-LIC2's protocol is sensor-agnostic, but deployment requires a concrete
+hardware reference. We specify a modular sensor pod that balances FOV
+completeness, redundancy, time synchronization, and edge compute.
+
+\subsection{Design Principles}
+
+The platform is governed by four requirements: (1) $\ge 270^\circ$ horizontal
+FOV across modalities; (2) at least two modalities covering every spatial
+sector; (3) $<$1~ms inter-sensor time synchronization; and (4) all computation
+(CT odometry, 3DGS map, compression) running locally on the edge GPU.
+
+\subsection{Reference Platform}
+
+The sensor pod is a self-contained, weatherproof (IP65) enclosure housing
+all sensors, compute, power regulation, and communication.
+
+\begin{table}[t]
+  \centering
+  \caption{Reference hardware platform.}
+  \label{tab:hardware_spec}
+  \footnotesize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{@{}p{2.2cm}p{2.0cm}p{3.5cm}@{}}
+    \toprule
+    Component & Model/Spec & Notes \\
+    \midrule
+    Compute    & Jetson Orin AGX      & 2048-core Ampere, 32 GB, 275 TOPS \\
+    Cameras $\times$4 & Alvium 1800 U-507c & 5 MP, global shutter, 30 Hz \\
+    LiDARs $\times$2  & Livox Mid-360        & non-repetitive, 40$^\circ$ FOV \\
+    IMU        & ICM-20948 + ADIS16470 & dual fused, 200 Hz \\
+    Lens       & 8 mm, 82$^\circ$ HFOV  & C-mount, 30$^\circ$ overlap \\
+    Wireless   & AX210 + X65             & Wi-Fi 6/6E + 5G~NR \\
+    Time sync  & u-blox ZED-F9P          & GPS+PPS, cam trigger \\
+    Storage    & 1 TB NVMe SSD           & submap buffer + logging \\
+    Power      & 12--24 V DC, 45 W typ.\@ & PoE or 4S LiPo battery \\
+    Enclosure  & CNC aluminum, IP65     & 220$\times$180$\times$140 mm, 2.8 kg \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\subsection{Sensor Layout}
+
+Four cameras face outward at 90$^\circ$ intervals; with 82$^\circ$ HFOV each,
+adjacent pairs overlap by 37$^\circ$. Two LiDARs are yawed $\pm 45^\circ$,
+yielding 310$^\circ$ combined coverage. The body frame $B_i$ is centered at
+the IMU.
+
+\begin{figure}[t]
+  \centering
+  \resizebox{\columnwidth}{!}{\input{figures/hardware_layout.tex}}
+  \caption{Top-down sensor layout. Four cameras (blue cones) at 0$^\circ$/90$^\circ$/
+  180$^\circ$/270$^\circ$; two LiDARs (green) at $\pm$45$^\circ$. $B_i$ at center.}
+  \label{fig:layout}
+\end{figure}
+
+\subsection{Time Synchronization}
+
+A u-blox ZED-F9P provides GPS UTC time (UART) and 1~Hz PPS ($<$20~ns jitter).
+The PPS fans out to: (a) LiDAR sync inputs for point-cloud timestamping;
+(b) Orin GPIO (\texttt{/dev/pps0}) for kernel-level timestamping via
+\texttt{chrony} ($<10\,\mu$s accuracy); and (c) an STM32G0 trigger
+generator producing 30~Hz camera pulses phase-locked to PPS. All sensor
+timestamps are expressed in a common clock domain to within $<$1~ms.
+
+\begin{figure}[t]
+  \centering
+  \resizebox{\columnwidth}{!}{\input{figures/time_sync.tex}}
+  \caption{Time synchronization architecture. GPS+PPS $\to$ fan-out to
+  LiDAR/Orin/camera trigger generator. All timestamps in PPS-aligned domain.}
+  \label{fig:time_sync}
+\end{figure}
+
+\subsection{Power and Heat}
+
+Steady-state consumption is 45~W (Orin: 15~W, LiDARs: 12~W, cameras: 5~W,
+wireless: 3~W, GNSS+MCU: 3~W, misc: 7~W). Under 35$^\circ$C ambient, Orin
+GPU junction temperature stabilizes at 72$^\circ$C (below the 85$^\circ$C
+throttling threshold) with forced-air cooling at 3000~RPM.
+
+For UAV deployment, a 1.1~kg, 22~W \textbf{UAV-lite} variant uses 1 camera
++ 1 LiDAR + Orin NX (8~GB). Full platform details are encoded in the node
+descriptor (Section~\ref{sec:descriptor}) to inform cluster-head election
+and Tier-0 inventory.

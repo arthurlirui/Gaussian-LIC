@@ -4,78 +4,62 @@
 \label{sec:system}
 
 We formalize the node model, per-node multi-sensor fusion, the wireless
-channel model, and the traffic characterization that drives protocol design.
+channel, and the traffic characterization that drives protocol design.
 
 \subsection{Node Model}
 
-A node $i \in \{1,\dots,N\}$ is a mobile platform carrying:
-\begin{itemize}
-  \item \textbf{$N_c^{(i)} \geq 1$ cameras} with partially overlapping FOVs,
-    known intrinsics $K^{(i,c)}$, distortion $D^{(i,c)}$, and resolutions
-    $W^{(i,c)}\times H^{(i,c)}$;
-  \item \textbf{$N_l^{(i)} \geq 1$ LiDARs} of possibly heterogeneous types
-    (mechanical spinning, solid-state, MEMS), each with known beam count,
-    FOV, and scan rate;
-  \item \textbf{1 virtual IMU} fusing all physical IMUs into a single body-frame
-    stream at 200--400~Hz;
-  \item \textbf{edge GPU} (tier: Orin, 4090, A100) providing $\geq$20 TFLOPS
-    for local SLAM and compression;
-  \item \textbf{wireless NIC} (Wi-Fi 6/6E or 5G NR modem).
-\end{itemize}
-
-All intrinsics, extrinsics $T_{B_i\leftarrow S}$, and time offsets
-$\Delta t_{S}$ relative to the IMU are calibrated offline or estimated online
-(Section~\ref{sec:ctfusion}) and persisted in the signed node descriptor.
+Each node $i \in \{1,\dots,N\}$ is a mobile platform carrying $N_c^{(i)}\ge 1$
+cameras (with known intrinsics, distortion, and resolution), $N_l^{(i)}\ge 1$
+LiDARs (potentially of heterogeneous types---mechanical, solid-state, MEMS),
+one virtual IMU fusing all physical IMUs at 200--400~Hz, an edge GPU ($\ge$20
+TFLOPS), and a wireless NIC (Wi-Fi~6/6E or 5G~NR). All sensor intrinsics,
+extrinsics $T_{B_i\leftarrow S}$, and time offsets $\Delta t_S$ relative to
+the IMU are calibrated (Section~\ref{sec:calibration}) and persisted in the
+signed node descriptor (Section~\ref{sec:descriptor}).
 
 \subsection{Wireless Channel Model}
 
 \label{sec:channel}
 
-The wireless environment is modeled to capture the constraints that drive
-protocol design. We consider two deployment scenarios:
+We model two deployment scenarios.\footnote{The protocol design
+targets both; the scheduling and EDCA mapping are identical.}
 
-\paragraph{Scenario A --- Wi-Fi 6/6E infrastructure.} Nodes connect to one or
-more Wi-Fi~6 APs (802.11ax, 2$\times$2 MIMO, 80~MHz channels). The per-link
-PHY rate $R_{\text{phy}}^{(i)}$ depends on MCS index $m^{(i)}(t)$, spatial
-streams $S_{\text{ss}}$, and channel bandwidth $W$:
+\paragraph{Wi-Fi 6/6E.} Each node connects to one or more 802.11ax APs
+($2\times2$ MIMO, 80~MHz). The per-link PHY rate at time $t$ depends on the
+MCS index $m^{(i)}(t)$, spatial streams $S_{\text{ss}}$, and channel bandwidth
+$W$:
 \begin{equation}
-  R_{\text{phy}}^{(i)}(t) = S_{\text{ss}} \cdot W \cdot \eta_{\text{code}}(m^{(i)}(t)) \cdot \log_2(M(m^{(i)}(t))),
+  R_{\text{phy}}^{(i)}(t) = S_{\text{ss}} \, W \, \eta_{\text{code}}(m^{(i)}) \, \log_2 M(m^{(i)}).
 \end{equation}
-where $\eta_{\text{code}}$ is the LDPC code rate and $M$ the modulation order.
-The effective MAC throughput, accounting for EDCA contention, aggregation
-(A-MPDU), and overhead, is:
+The effective MAC throughput, accounting for EDCA contention and A-MPDU
+overhead, is $R_{\text{eff}}^{(i)}(t) = \alpha_{\text{MAC}} \, R_{\text{phy}}^{(i)}(t)$
+with $\alpha_{\text{MAC}}\in[0.6,0.8]$. At MCS~11 (1024-QAM, 5/6 code rate),
+$R_{\text{eff}}\approx 480$~Mbps; at MCS~0 (BPSK, 1/2) under deep fade,
+$R_{\text{eff}}\approx 3$~Mbps---a $160\times$ dynamic range that the
+protocol must accommodate.
+
+\paragraph{5G NR.} Nodes connect via NR-U or licensed NR, using configured-
+grant URLLC for pose streams and dynamic-grant eMBB for submap uploads.
+Per-flow QoS is enforced via 5QI values (QoS~\ref{tab:traffic}).
+
+\paragraph{Link quality estimator.} Each node maintains an EWMA of effective
+throughput and packet delivery ratio (PDR):
 \begin{equation}
-  R_{\text{eff}}^{(i)}(t) = \alpha_{\text{MAC}} \cdot R_{\text{phy}}^{(i)}(t),
+  \bar{R}_{\text{eff}}^{(i)}[k] = 0.9\,\bar{R}_{\text{eff}}^{(i)}[k-1] + 0.1\,R_{\text{eff}}^{(i)}[k],
+  \qquad
+  \text{PDR}^{(i)} = \tfrac{\text{pkts\_acked}}{\text{pkts\_sent}}.
 \end{equation}
-with $\alpha_{\text{MAC}} \in [0.6, 0.8]$ under moderate contention. At MCS~11
-(1024-QAM, 5/6 code rate), $R_{\text{eff}} \approx 480$~Mbps per link; at
-MCS~0 (BPSK, 1/2) under deep fade, $R_{\text{eff}} \approx 3$~Mbps---a 160$\times$
-dynamic range that the protocol must handle.
-
-\paragraph{Scenario B --- 5G NR.} Nodes connect to gNB via NR-U (unlicensed
-spectrum) or licensed NR with configured grant URLLC for pose streams and
-dynamic grant eMBB for submap uploads. Per-flow QoS is enforced via 5QI values;
-we map our four traffic classes to 5QI~3 (GBR, 50~ms), 5QI~7 (non-GBR, 100~ms),
-5QI~8 (non-GBR, 300~ms), and 5QI~9 (non-GBR, default).
-
-\paragraph{Link quality metric.} Each node computes a moving exponential average
-of its effective throughput and packet delivery ratio (PDR):
-\begin{align}
-  \bar{R}_{\text{eff}}^{(i)}[k] &= \beta \cdot \bar{R}_{\text{eff}}^{(i)}[k-1] + (1-\beta) \cdot R_{\text{eff}}^{(i)}[k], \quad \beta=0.9, \\
-  \text{PDR}^{(i)}[k] &= \frac{\text{pkts\_acked}[k]}{\text{pkts\_sent}[k]}.
-\end{align}
-The composite link quality $Q^{(i)} = \bar{R}_{\text{eff}}^{(i)} \cdot \text{PDR}^{(i)}$ feeds into
-cluster-head election (Section~\ref{sec:election}) and compression budget
-allocation (Section~\ref{sec:compression}).
+The composite link quality $Q^{(i)} = \bar{R}_{\text{eff}}^{(i)}\cdot\text{PDR}^{(i)}$
+feeds into cluster-head election (Section~\ref{sec:election}) and compression budget allocation
+(Section~\ref{sec:compression}).
 
 \subsection{Design Goals}
 
 \label{sec:design}
 
-Co-LIC2 targets seven quantitative design goals, summarized in
-Table~\ref{tab:goals_list}. These goals drive every protocol and algorithm
-decision in subsequent sections and serve as the evaluation criteria in
-Section~\ref{sec:experiments}.
+Co-LIC2 targets seven quantitative goals (Table~\ref{tab:goals_list}), which
+drive every protocol and algorithm decision and serve as the evaluation
+criteria in Section~\ref{sec:experiments}.
 
 \begin{table}[t]
   \centering
@@ -87,13 +71,13 @@ Section~\ref{sec:experiments}.
     \toprule
     \# & Goal & Target \\
     \midrule
-    G1 & Scalability & 2--16 nodes; sub-linear per-link BW growth \\
-    G2 & Link-loss robustness & map quality within 5\% of connected after 30 s outage \\
-    G3 & Global consistency & ATE $<$0.3 m on 200 m loops with 3 nodes \\
-    G4 & Photo-realism & PSNR within 1 dB of single-node GLIC2 baseline \\
-    G5 & Real-time & local odometry $\ge$20 Hz; submap merge $\le$2 s latency \\
-    G6 & Heterogeneity & nodes may differ in sensor count/quality \\
-    G7 & Backward compat. & a single node with coop off = Gaussian-LIC2 \\
+    G1 & Scalability     & 2--16 nodes; sub-linear per-link bandwidth growth \\
+    G2 & Link robustness & Map quality within 5\% of connected after 30~s outage \\
+    G3 & Consistency     & ATE $<$0.3~m on 200~m loops with 3 nodes \\
+    G4 & Photo-realism   & PSNR within 1~dB of single-node GLIC2 baseline \\
+    G5 & Real-time       & Local odometry $\ge$20~Hz; submap merge $\le$2~s \\
+    G6 & Heterogeneity   & Nodes may differ in sensor count and quality \\
+    G7 & Compatibility   & Single node with cooper\'n off $\equiv$ GLIC2 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -102,39 +86,45 @@ Section~\ref{sec:experiments}.
 
 \label{sec:ctfusion}
 
-Each node estimates a non-uniform cubic B-spline trajectory $\Twb^{(i)}(t) \in \SEthree$
-using a generalized version of Coco-LIC~\cite{lang2023coco} and Gaussian-LIC2~\cite{lang2026gaussian2}.
+Each node estimates a non-uniform cubic B-spline trajectory
+$\Twb^{(i)}(t)\in\SEthree$ using a generalized version of
+Coco-LIC~\cite{lang2023coco} and Gaussian-LIC2~\cite{lang2026gaussian2}.
 Control points are placed adaptively based on IMU acceleration magnitude.
 
-\paragraph{IMU residuals.} For measurement at $t_k$:
+\paragraph{IMU residuals.} For a measurement at $t_k$:
 \begin{equation}
   \mathbf{r}_{\text{IMU}}(t_k) =
-  \begin{bmatrix} \mathbf{a}_k - \hat{\mathbf{a}}(t_k) \\ \boldsymbol{\omega}_k - \hat{\boldsymbol{\omega}}(t_k) \end{bmatrix}_{\Sigma_{\text{IMU}}^{-1}},
+  \begin{bmatrix} \mathbf{a}_k-\hat{\mathbf{a}}(t_k) \\
+  \boldsymbol{\omega}_k-\hat{\boldsymbol{\omega}}(t_k) \end{bmatrix}_{\Sigma_{\text{IMU}}^{-1}},
 \end{equation}
 where $\hat{\mathbf{a}}$, $\hat{\boldsymbol{\omega}}$ derive from the spline's
 analytical derivatives.
 
-\paragraph{LiDAR residuals.} For each LiDAR $l$, point $\mathbf{p}_k^{(l)}$ at $t_k$:
+\paragraph{LiDAR residuals.} For LiDAR $l$, point $\mathbf{p}_k^{(l)}$ at $t_k$:
 \begin{equation}
-  \mathbf{r}_{\text{LiDAR}}^{(l)}(t_k) = \mathbf{n}^\top \bigl( \Twb^{(i)}(t_k)\, T_{B_i\leftarrow L_l}\, \mathbf{p}_k^{(l)} - \boldsymbol{\mu}_* \bigr),
+  \mathbf{r}_{\text{LiDAR}}^{(l)}(t_k) =
+    \mathbf{n}^\top\bigl(\Twb^{(i)}(t_k)\,T_{B_i\leftarrow L_l}\,
+    \mathbf{p}_k^{(l)}-\boldsymbol{\mu}_*\bigr),
 \end{equation}
-with $\boldsymbol{\mu}_*$ the nearest Gaussian mean in $\GaussianMap_i$, $\mathbf{n}$ the
-local surface normal from Gaussian covariances.
+with $\boldsymbol{\mu}_*$ the nearest Gaussian mean in $\GaussianMap_i$ and
+$\mathbf{n}$ the local surface normal from surrounding Gaussian covariances.
 
-\paragraph{Camera residuals.} For each camera $c$, keyframe at $t_k$: SSIM+L1
-photometric residual against the rendered $\GaussianMap_i$ at spline-evaluated
-pose, exactly as in Gaussian-LIC2.
+\paragraph{Camera residuals.} For camera $c$, keyframe at $t_k$: an SSIM+L1
+photometric residual compares the observed image against $\GaussianMap_i$
+rendered at the spline-evaluated pose, as in Gaussian-LIC2.
 
-\paragraph{Time-offset residuals.} $N_c + N_l$ unknown offsets relative to IMU
-are estimated jointly with the spline in a sliding-window Gauss-Newton solve.
-The full residual stack with B-spline motion prior yields the per-node
-trajectory and local Gaussian map $\GaussianMap_i$.
+\paragraph{Time-offset residuals.} Up to $N_c+N_l$ unknown offsets relative to
+the IMU are jointly estimated with the spline in a sliding-window Gauss-Newton
+solve with B-spline motion prior, yielding the per-node trajectory and local
+Gaussian map $\GaussianMap_i$.
 
 \subsection{Traffic Characterization}
 
 \label{sec:traffic}
 
-Co-LIC2 generates four traffic classes with distinct QoS requirements:
+Co-LIC2 generates four traffic classes with the QoS requirements listed in
+Table~\ref{tab:traffic}. This multi-modal, heterogeneous traffic mix directly
+motivates the QoS-aware protocol of Section~\ref{sec:protocol}.
 
 \begin{table}[t]
   \centering
@@ -144,22 +134,12 @@ Co-LIC2 generates four traffic classes with distinct QoS requirements:
   \setlength{\tabcolsep}{3pt}
   \begin{tabular}{@{}p{1.3cm}p{1.6cm}p{1.0cm}p{1.3cm}p{0.9cm}p{0.8cm}p{1.0cm}@{}}
     \toprule
-    Class & Dir.\@ & Rate & Pkt size & Latency & PDR & Streams \\
+    Class & Dir. & Rate & Pkt size & Latency & PDR & Streams \\
     \midrule
-    \textbf{Pose}     & node$\to$head & 20 Hz  & 200 B    & $<$50 ms  & $>$99\%   & 1/node \\
-    \textbf{Submap}   & node$\to$head & 0.33 Hz& 0.5--5 MB& $<$2 s    & $>$95\%   & 1/node \\
-    \textbf{Keyframe} & node$\to$head & 1 Hz   & 200 KB   & $<$500 ms & $>$99\%   & 1--4/node \\
-    \textbf{Control}  & bidir.\@       & 1--5 Hz& 500 B    & $<$100 ms & $>$99.9\% & 1/node \\
+    \textbf{Pose}     & n$\to$h & 20 Hz  & 200 B    & $<$50 ms  & $>$99\%   & 1/node \\
+    \textbf{Submap}   & n$\to$h & 0.33 Hz& 0.5--5 MB& $<$2 s    & $>$95\%   & 1/node \\
+    \textbf{Keyframe} & n$\to$h & 1 Hz   & 200 KB   & $<$500 ms & $>$99\%   & 1--4/node \\
+    \textbf{Control}  & bidir.  & 1--5 Hz& 500 B    & $<$100 ms & $>$99.9\% & 1/node \\
     \bottomrule
   \end{tabular}
 \end{table}
-
-\textbf{Pose stream} carries B-spline control-point updates for real-time
-visualization and early registration. \textbf{Submap} is the bulk payload:
-a compressed spatial sub-volume of Gaussians with user-defined temporal/spatial
-boundaries. \textbf{Keyframe} carries compressed reference images and NetVLAD
-descriptors for visual loop closure. \textbf{Control} handles HELLO, HEARTBEAT,
-ELECTION, CONSTRAINT, MAP\_DELTA, LEAVE.
-
-This multi-modal, heterogeneous traffic mix is the motivation for the
-QoS-aware, multi-stream protocol design of Section~\ref{sec:protocol}.

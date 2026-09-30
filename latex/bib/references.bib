@@ -1871,3 +1871,229 @@
   doi       = {10.48550/arXiv.2609.23491},
   note      = {Project page: https://ruizhou-cn.github.io/elevator-vigs/}
 }
+
+% Addendum 23 (2026-09-29) — three newly surveyed related works.
+
+% CoRef-GS (Zhou, Peng, Yang, Cai, Wen, Liu, Paudel, Zhou, Van Gool, Yang;
+% Hunan U. + KIT + INSAIT + ETH; arXiv:2609.20586, 17 Sep 2026).
+% Cooperative referring Gaussian splatting for multi-agent scene
+% understanding. Each agent builds a local open-vocabulary instance-
+% aware semantic Gaussian map (CLIP-aligned anchors + instance
+% grouping); a cross-agent alignment module then aligns partially
+% overlapping maps by geometric + semantic consistency (coarse-to-fine,
+% image-assisted), and queries are grounded via a view-conditioned mask
+% relation graph from the querying robot's viewpoint. Introduces
+% CoQuad-Ref, a dual-quadruped benchmark (real + simulated indoor
+% scenes). Reduces rotation error 2.58° -> 0.15° after refinement;
+% improves real-world referring mIoU 52.6% -> 68.8% over ReferSplat.
+% Directly relevant to the cooperative multi-node Gaussian-LIC2 design
+% [[co-lic2-design-paper]]: it tackles cross-agent Gaussian-map
+% registration/fusion with semantic compatibility, which is the map-
+% merging problem a cooperative LIV GS-SLAM must solve. Its limitation
+% (visual + semantic only, no LiDAR/inertial, no online SLAM loop) is
+% precisely the gap Co-LIC2 targets. Cite in the cooperative/multi-agent
+% GS map-merging discussion.
+@misc{zhou2026corefgs,
+  title     = {{CoRef-GS}: Cooperative Referring {Gaussian} Splatting
+               for Multi-Agent Scene Understanding},
+  author    = {Zhou, Zhikun and Peng, Kunyu and Yang, Runyi and Cai, Junhao
+               and Wen, Di and Liu, Ruiping and Paudel, Danda Pani
+               and Zhou, Yi and Van Gool, Luc and Yang, Kailun},
+  year      = {2026},
+  eprint    = {2609.20586},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2609.20586},
+  doi       = {10.48550/arXiv.2609.20586},
+  note      = {Code: https://github.com/ruojiruoli17/CoRef-GS}
+}
+
+% M3GD (Zhou, Xiao, Ye, Quang, Nieto-Granda, Loianno; NYU + UC Berkeley
+% + ARL; arXiv:2609.30056, 24 Sep 2026).
+% Multi-Modal Multi-View Geometric Diffusion for Camera-LiDAR novel
+% view synthesis. Composes frozen 2D image (Depth Anything 3) and 3D
+% point-cloud (Utonia) foundation models without a separately trained
+% cross-modal translator: after camera projection, frozen LiDAR and
+% image features share substantial spatial structure, so LiDAR enters
+% the image-latent generative NVS model as view-aligned "packets"
+% (explicit geometry statistics + learned point-cloud descriptors)
+% injected via a lightweight residual adapter into a multi-view flow-
+% matching generator. Target-side LiDAR acts as a geometric query.
+% Improves RGB + depth synthesis over image-only on GrandTour; deploys
+% zero-shot on a ground robot with a different sensor suite. Relevant
+% to Gaussian-LIC2 as a Camera-LiDAR multimodal fusion reference at the
+% representation level: it shows how projected LiDAR features can
+% condition an image-latent generative model, complementing the
+% SLAM-side LIV fusion Gaussian-LIC2 performs. Cite in the Camera-LiDAR
+% fusion / generative-NVS-neighboring-work discussion.
+@misc{zhou2026m3gd,
+  title     = {{M3GD}: Multi-Modal Multi-View Geometric Diffusion for
+               {Camera}--{LiDAR} Novel View Synthesis},
+  author    = {Zhou, Yang and Xiao, Jiuhong and Ye, Shizhao and Quang, Long
+               and Nieto-Granda, Carlos and Loianno, Giuseppe},
+  year      = {2026},
+  eprint    = {2609.30056},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2609.30056},
+  doi       = {10.48550/arXiv.2609.30056}
+}
+
+% LiTe-GS (Pandey, Mollaei Khass, Motee; UC Irvine; arXiv:2609.30393,
+% 24 Sep 2026). Oracle-efficient next-best-view selection for 3DGS.
+% Reduces the number of Fisher-information oracle evaluations in active
+% view selection from exhaustive greedy to an ε-constrained randomized
+% subset scheme with expected O(M log(1/ε)) complexity (independent of
+% selection cardinality K), with provable approximation guarantees.
+% Maintains reconstruction quality on Blender and Mip-NeRF 360 while
+% substantially cutting oracle calls. Peripheral to Gaussian-LIC2
+% (about 3DGS training view selection, not SLAM), but relevant to the
+% keyframe/active-view-selection design question for GS-SLAM map
+% refinement. Cite in the view/keyframe-selection discussion.
+@misc{pandey2026litegs,
+  title     = {{LiTe-GS}: Oracle-Efficient Next Best View Selection for
+               {3D} {Gaussian} Splatting},
+  author    = {Pandey, Vivek and Mollaei Khass, Amirhossein and Motee, Nader},
+  year      = {2026},
+  eprint    = {2609.30393},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url       = {https://arxiv.org/abs/2609.30393},
+  doi       = {10.48550/arXiv.2609.30393}
+}
+
+
+% RRG-SLAM (Liu, Ye, Peng, Mei, Zhou, Shao; Zhejiang U. CAD&CG; arXiv:2609.34527,
+% 28 Sep 2026). Real-time reflection-aware RGB-D Gaussian SLAM for indoor
+% scenes. First real-time GS-SLAM to explicitly model planar reflections:
+% a reflection-aware TSDF-Gaussian hybrid representation separates diffuse
+% base appearance (TSDF volume + base Gaussians) from reflection components
+% (reflection groups = reflective plane + virtual-space reflection Gaussians).
+% Three-pass rendering: TSDF raycast (color/depth/plane-ID/reflection-mask) →
+% order-independent base-Gaussian render with depth culling → plane-ID-guided
+% reflection-Gaussian rasterization, composited via reflection mask.
+% Reflection-aware tracking excludes reflection-dominated regions (initial
+% point-to-plane ICP pose, then reflection-intensity masking). Reflective
+% planes detected by combining geometry (CAPE plane segmentation), semantics
+% (Grounded SAM2), and a temporal raycast color-variance cue, aggregated in a
+% sliding window. Outperforms GPS-SLAM / GS-ICP SLAM / RTG-SLAM in
+% reconstruction quality, tracking robustness, and novel-view rendering under
+% strong planar reflections while staying real-time. Peripheral to
+% Gaussian-LIC2 (RGB-D indoor, no LiDAR/inertial), but relevant to the
+% appearance-modeling thread — the reflection/base separation is a transferable
+% idea for LIV GS-SLAM scenes with specular surfaces (glass facades, wet
+% roads) where photometric tracking corrupts. Cite in the appearance/robust-
+% tracking discussion.
+@misc{liu2026rrgslam,
+  title     = {{RRG-SLAM}: Real-time Reflection-aware {Gaussian} {SLAM}
+               for Indoor Scenes},
+  author    = {Liu, Yong and Ye, Keyang and Peng, Zhexi and Mei, Ruixian and
+               Zhou, Kun and Shao, Tianjia},
+  year      = {2026},
+  eprint    = {2609.34527},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url       = {https://arxiv.org/abs/2609.34527},
+  doi       = {10.48550/arXiv.2609.34527}
+}
+
+% ChronoFuseGS (Batik, Marin, K{\'a}n, Kaufmann; TU Wien; arXiv:2609.31339,
+% 25 Sep 2026, Pacific Graphics Short Papers 2026). Multi-temporal Gaussian
+% Splatting fusion: takes multiple separately-trained 3DGS models, each
+% representing a distinct timestep with partial geographic overlap, and merges
+% them into a single combined model with per-splat persistence encoding (which
+% timesteps each Gaussian contributes to) and change visualization. Supports
+% incremental extension (add new timesteps preserving existing reconstruction).
+% Cross-timestep initialization estimates per-Gaussian persistence + light
+% compensation; Gaussians from one timestep refine persistent parts of others,
+% validated against images from the corresponding timestep set. Change-aware
+% rendering highlights changed sub-object-granularity regions across a
+% user-defined time selection. Evaluated on a real outdoor flood-management
+% dataset captured over 7 months / 8 days (seasonal vegetation, snow, flooding);
+% merged model outperforms single-timestep models in NVS and recovers
+% structural details absent in individual reconstructions. Relevant to the
+% cooperative/distributed map-merging thread ([[co-lic2-design-paper]]): like
+% CoRef-GS it fuses independently-built Gaussian maps, but along the temporal
+% axis (same place, different time) rather than the agent axis, and without
+% metric SLAM alignment. The per-splat persistence encoding is a transferable
+% idea for cooperative map-merging where each node's Gaussians should carry
+% provenance (which node / when observed). Cite in the multi-model Gaussian
+% fusion / map-merging discussion.
+@misc{batik2026chronofusegs,
+  title     = {{ChronoFuseGS}: Multi-Temporal {Gaussian} Fusion with
+               Per-Splat Persistence and Change Visualization},
+  author    = {Batik, Tobias and Marin, Diana and K{\'a}n, Peter and
+               Kaufmann, Hannes},
+  year      = {2026},
+  eprint    = {2609.31339},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.GR},
+  url       = {https://arxiv.org/abs/2609.31339},
+  doi       = {10.48550/arXiv.2609.31339}
+}
+
+% RRTO-CF3DGS (Wu, Wang, Lin, Song, Lu, Ma, Ye, Jiang; Zhejiang Sci-Tech U.
+% + Tsinghua + Lishui U. + Zhejiang U.; arXiv:2609.30865, 25 Sep 2026).
+% Reliability-regulated trajectory optimization for progressive COLMAP-free
+% 3DGS. Addresses error compounding in sequential pose-free 3DGS (CF-3DGS):
+% early pairwise-tracking errors corrupt later frame initialization and freeze
+% into the scene representation. Introduces a self-supervised bidirectional
+% cycle-consistency reliability signal that (1) gates first-order kinematic
+% warm-starts into upcoming pairwise registrations (Forward Motion
+% Propagation) intercepting untrusted transitions, and (2) dynamically weights
+% relative-pose consistency constraints in a sliding window (Retrospective
+% Trajectory Correction) — both governed by one unified reliability regulator,
+% no external neural priors or offline preprocessing. Improves camera
+% trajectory accuracy and NVS over unposed baselines on Tanks&Temples and
+% CO3D-V2. Peripheral to Gaussian-LIC2 (visual-only, no LiDAR/inertial, not a
+% full SLAM loop), but relevant to the pose-tracking-robustness thread:
+% reliability-gated progressive registration is conceptually adjacent to how a
+% LIV GS-SLAM must gate which frame-to-frame constraints to trust, and the
+% retrospective sliding-window correction echoes loop-closure / local-BA
+% design. Cite in the pose-tracking / drift-mitigation discussion.
+@misc{wu2026rrto,
+  title     = {Reliability-Regulated Trajectory Optimization for
+               Progressive {COLMAP-Free} {3D} {Gaussian} Splatting},
+  author    = {Wu, Zijian and Wang, Jinliang and Lin, Zidian and Song, Ying
+               and Lu, Ziqian and Ma, Hanjie and Ye, Zhen and Jiang, Mingfeng},
+  year      = {2026},
+  eprint    = {2609.30865},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url       = {https://arxiv.org/abs/2609.30865},
+  doi       = {10.48550/arXiv.2609.30865}
+}
+
+% CollisionSplatting (Khorrambakht, Ortiz-Haro, Weiss, Righetti; NYU +
+% ANITI Toulouse + Klagenfurt; arXiv:2609.35619, 28 Sep 2026).
+% Collision-aware motion planning directly on standard 3DGS scenes.
+% A simple, modular, GPU-accelerated, probability-inspired distance metric
+% with tunable conservatism that operates on standard (unnormalized) 3DGS,
+% supporting anisotropic/isotropic Gaussians, 2DGS disks, and ellipsoidal or
+% spherical multi-link robot primitives. Extends a point-ellipsoid scaling-
+% function distance to Gaussian obstacles via probability propagation. On-par
+% or better collision-classification vs Splat-Nav / SAFER-SPLAT / ATLASNav /
+% SPLANNING with substantially higher collision-checking throughput and lower
+% VRAM. Integrated into GPU-accelerated MPPI and RRT planners for a 7-DoF
+% manipulator and a quadruped, with real-world vision-guided navigation /
+% manipulation demos. Positions 3DGS as an action-conditioned world model
+% bridging rich perception and real-time motion planning. Peripheral to
+% Gaussian-LIC2 (planning on a built map, not SLAM), but relevant to the
+% downstream-application / deployment thread: a cooperative LIV GS-SLAM's
+% merged Gaussian map is exactly the representation such planners consume, and
+% the standard-3DGS, single-kernel, low-VRAM design is attractive for the
+% edge-node compute budget of the cooperative system. Cite in the application
+% / downstream-impact discussion.
+@misc{khorrambakht2026collisionsplatting,
+  title     = {{CollisionSplatting}: Collision-Aware Motion Planning in
+               {3DGS} Scenes with Image-Conditioned Objectives and
+               Adjustable Conservatism},
+  author    = {Khorrambakht, R. and Ortiz-Haro, Joaquim and Weiss, Stephan
+               and Righetti, Ludovic},
+  year      = {2026},
+  eprint    = {2609.35619},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2609.35619},
+  doi       = {10.48550/arXiv.2609.35619}
+}

@@ -3,45 +3,33 @@
 % ============================================
 \label{sec:implementation}
 
-Co-LIC2 is implemented as an extension of the open-source Gaussian-LIC2
-codebase~\cite{lang2026gaussian2}, preserving full backward compatibility.
+Co-LIC2 extends the open-source Gaussian-LIC2 codebase~\cite{lang2026gaussian2}
+with cooperative components, preserving full backward compatibility.
 
-\paragraph{Build and dependencies.} The per-node front-end reuses
-Gaussian-LIC2's dependency stack: ROS~2 Humble, OpenCV 4.7 (CUDA), LibTorch,
-TensorRT 8.6, CUDA 11.7, and the Coco-LIC B-spline library. Cooperative
-components add: gRPC (cross-subnet fallback), tinycbor (CBOR encoding), zstd
-(entropy coding), GTSAM (pose-graph optimization), DBoW2/NetVLAD (visual loop
-closure), and RaptorQ for keyframe FEC. All additions are gated behind CMake
-option \texttt{COOP\_ENABLED=ON}; a vanilla build remains faithful
-Gaussian-LIC2.
+\paragraph{Dependencies.} The per-node front-end reuses Gaussian-LIC2's stack
+unchanged: ROS~2 Humble, OpenCV~4.7 (CUDA), LibTorch, TensorRT~8.6, CUDA~11.7,
+and the Coco-LIC B-spline library. Cooperative components add: gRPC
+(cross-subnet fallback transport), tinycbor (CBOR encoding), zstd (entropy
+coding), GTSAM (PGO), DBoW2/NetVLAD (visual loop closure), and RaptorQ
+(keyframe FEC). All additions are gated behind CMake option
+\texttt{COOP\_ENABLED=ON}; a vanilla build remains faithful Gaussian-LIC2.
 
-\paragraph{Component layout.} New components reside under \texttt{src/coop/}:
-\begin{itemize}
-  \item \texttt{coordinator} --- node discovery, descriptor exchange, cluster-head
-    election (Alg.~\ref{alg:election});
-  \item \texttt{network\_monitor} --- per-link throughput/PDR estimation
-    (Eqs.~\ref{eq:channel}) and routing table maintenance;
-  \item \texttt{qos\_classifier} --- message-to-stream mapping with EDCA
-    DSCP marking;
-  \item \texttt{scheduler} --- deadline-aware submap pacing
-    (Alg.~\ref{alg:scheduler});
-  \item \texttt{submap\_extractor} --- spatial sub-volume carving from
-    octree-accelerated Gaussian map;
-  \item \texttt{submap\_compressor} --- knob grid search (Eq.~\ref{eq:opt}) +
-    budget controller feedback loop;
-  \item \texttt{comm\_layer} --- DDS/gRPC transport with QoS profiles;
-  \item \texttt{map\_merger} --- ICP registration (Sec.~\ref{sec:registration})
-    + Gaussian fusion (Sec.~\ref{sec:merge}) + conflict resolution
-    (Eq.~\ref{eq:confidence});
-  \item \texttt{loop\_closure\_agent} --- geometric + visual loop detection;
-  \item \texttt{pose\_graph} --- GTSAM iSAM2 wrapper with DCS robust kernel.
-\end{itemize}
-Each component is a ROS~2 LifecycleNode with documented interface contracts.
-The generalized multi-sensor front-end modifies only Coco-LIC's
-\texttt{spline\_estimator} to parameterize $N_c$, $N_l$.
+\paragraph{Component layout.} New modules reside in \texttt{src/coop/}:
+\texttt{coordinator} (discovery + election), \texttt{network\_monitor}
+(throughput/PDR estimation + routing), \texttt{qos\_classifier} (stream mapping
++ DSCP marking), \texttt{scheduler} (deadline-aware pacing),
+\texttt{submap\_extractor} (octree-carved spatial extraction),
+\texttt{submap\_compressor} (NPV-optimal knob grid search + budget
+controller), \texttt{comm\_layer} (DDS/gRPC transport),
+\texttt{map\_merger} (G2G-ICP + fusion + conflict resolution),
+\texttt{loop\_closure\_agent} (geometric + visual loops), and
+\texttt{pose\_graph} (GTSAM iSAM2 with DCS robust kernel). Each is a ROS~2
+LifecycleNode with documented interface contracts. The generalized multi-sensor
+front-end modifies only Coco-LIC's \texttt{spline\_estimator} to parameterize
+$N_c$ and $N_l$.
 
 \paragraph{Configuration.} All parameters (Table~\ref{tab:config}) are ROS~2
-parameters, tunable per deployment via YAML without recompilation.
+parameters tunable via YAML without recompilation.
 
 \begin{table}[t]
   \centering
@@ -69,15 +57,6 @@ parameters, tunable per deployment via YAML without recompilation.
   \end{tabular}
 \end{table}
 
-\paragraph{Backward compatibility.} Setting \texttt{coop\_enabled:=false} runs
-the unmodified Gaussian-LIC2 pipeline---identical odometry, identical local
-map PSNR---satisfying the zero-regression goal on all existing single-node
-datasets (FAST-LIVO2, M2DGR, MCD).
-
-\paragraph{Testing plan.} We plan a three-phase validation: (1) unit-test
-suite for protocol FSMs, serialization, and scheduler convergence (in simulation);
-(2) multi-rig emulation on a single machine with virtualized wireless links
-(ns-3 integration for Wi-Fi~6 channel models); (3) physical deployment with
-2--4 heterogeneous rigs (LiDAR+stereo UGV + monocular-inertial drone + surveying
-vehicle) over real Wi-Fi~6 APs, measuring all metrics defined in
-Section~\ref{sec:analysis}.
+\paragraph{Backward compatibility.} With \texttt{coop\_enabled:=false}, the
+system runs unmodified Gaussian-LIC2---identical odometry and PSNR on all
+existing single-node datasets.

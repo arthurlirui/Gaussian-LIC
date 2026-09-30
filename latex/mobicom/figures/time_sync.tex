@@ -1,0 +1,40 @@
+% Time synchronization architecture diagram
+% GPS → PPS → fan-out to LiDAR, Orin kernel, camera trigger generator
+\begin{tikzpicture}[
+  font=\fontsize{6}{7.2}\selectfont,
+  >=Stealth,
+  node distance=0.4cm and 0.6cm,
+  box/.style={draw, rounded corners, minimum width=2.0cm, minimum height=0.45cm, align=center, inner sep=2pt},
+  sync/.style={->, very thick},
+]
+
+% GPS module
+\node[box, fill=yellow!12] (gps) {u-blox ZED-F9P (GPS+PPS)};
+
+% PPS fan-out
+\node[box, fill=orange!12, below=0.8cm of gps] (pps) {PPS Fan-Out (1 Hz)};
+
+% LiDAR
+\node[box, fill=green!12, right=1.0cm of pps, yshift=0.5cm] (lidar) {LiDARs $\times$2 Mid-360};
+
+% Orin GPIO (middle row)
+\node[box, fill=blue!10, right=1.0cm of pps, yshift=-0.5cm] (orin) {Orin GPIO PPS};
+
+% Camera trigger gen
+\node[box, fill=red!10, right=0.8cm of pps] (trig) {STM32G0 Trig.\@ Gen.\@ (30 Hz)};
+
+% Cameras
+\node[box, fill=gray!10, right=1.0cm of trig, minimum height=0.9cm] (cams) {Cameras $\times$4 Alvium};
+
+% Arrows
+\draw[sync] (gps.south) -- (pps.north);
+\draw[sync, green!50!black] (pps.east) -- (lidar.west);
+\draw[sync, blue!60!black] (pps.east) -- (orin.west);
+\draw[sync, red!60!black] (pps.east) -- (trig.west);
+\draw[sync] (trig.east) -- (cams.west);
+
+% Chrony
+\node[box, fill=purple!8, below=0.8cm of orin] (chrony) {chrony (PTP)};
+\draw[sync, purple!60!black, dashed] (orin.south) -- (chrony.north);
+
+\end{tikzpicture}
