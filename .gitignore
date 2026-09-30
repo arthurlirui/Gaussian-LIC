@@ -24,3 +24,7 @@ third_party/
 
 __pycache__/
 *.py[cod]
+
+# 调研文献 PDF 不入库（arXiv 可随时重下，仓库保持轻量；入库文本为 bib/README）
+*.pdf
+latex/papers/
