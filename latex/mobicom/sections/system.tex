@@ -17,6 +17,16 @@ extrinsics $T_{B_i\leftarrow S}$, and time offsets $\Delta t_S$ relative to
 the IMU are calibrated (Section~\ref{sec:calibration}) and persisted in the
 signed node descriptor (Section~\ref{sec:descriptor}).
 
+\paragraph{Node descriptor.}
+\label{sec:descriptor}
+Each node advertises a signed, CBOR-encoded \emph{node descriptor}
+containing its sensor inventory (models, intrinsics, extrinsics, frame
+rates), compute and communication tiers, power budget, and an Ed25519
+public key. Descriptors are exchanged at join time and verified before any
+data is merged---preventing unauthorized nodes from polluting the shared
+map and enabling capability-weighted merging across the heterogeneous node
+set (goal G6).
+
 \subsection{Wireless Channel Model}
 
 \label{sec:channel}
@@ -117,6 +127,17 @@ rendered at the spline-evaluated pose, as in Gaussian-LIC2.
 the IMU are jointly estimated with the spline in a sliding-window Gauss-Newton
 solve with B-spline motion prior, yielding the per-node trajectory and local
 Gaussian map $\GaussianMap_i$.
+
+\begin{figure}[t]
+  \centering
+  \resizebox{\columnwidth}{!}{\input{figures/dataflow.tex}}
+  \caption{Per-node data flow. Sensors feed the CT fusion front-end, which
+  produces the trajectory and updates the local Gaussian map. Submaps are
+  extracted, compressed, and QoS-classified for transmission; incoming
+  submaps are merged, loop-closure constraints feed the pose graph, and
+  corrections are applied back to the local map.}
+  \label{fig:dataflow}
+\end{figure}
 
 \subsection{Traffic Characterization}
 
