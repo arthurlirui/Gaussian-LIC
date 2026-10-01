@@ -2097,3 +2097,92 @@
   url       = {https://arxiv.org/abs/2609.35619},
   doi       = {10.48550/arXiv.2609.35619}
 }
+% Addendum 25 (1 Oct 2026) — two new papers surveyed.
+
+% MAGS-SLAM (Cao, Shao, Zhai, Zhang, Nguyen, Wang, Huang; ETH Zurich +
+% Liverpool + Harbin Eng + Ottawa + Wuhan + SJTU + Imperial; arXiv:2605.10760,
+% v1 11 May 2026, v2 27 Jul 2026). The first monocular RGB-only multi-agent
+% 3DGS SLAM framework. Each agent independently runs a DROID-BA monocular
+% front-end with Joint Depth-Scale Adjustment (JDSA) coupling Metric3D-v2
+% monocular depth priors into dense bundle adjustment, incrementally builds
+% local Gaussian submaps, and exchanges compact submap summaries (128-D
+% DROID descriptor + <=512 sparse 3D points + downsampled registration cloud
+% + AABB + anchor keyframe) instead of raw observations. A communication-
+% efficient coordinator establishes cross-agent constraints via cosine
+% retrieval, hybrid sparse+LoFTR matching, RANSAC Umeyama Sim(3), spatial-
+% extent gate, and ICP refinement, then solves a global Sim(3) submap pose
+% graph (MaPGBA) coupling geometric and anchor-image photometric residuals.
+% Asynchronous occupancy-aware fusion deduplicates borrowed Gaussians against
+% target-agent occupied + free-space voxels (0.10 m voxel, 64-bit spatial
+% hash), followed by joint pose-Gaussian photometric refinement with per-
+% keyframe exposure compensation. On ReplicaMultiagent, RGB-only achieves
+% 43.24 dB PSNR — exceeding all RGB-D collaborative baselines (CoMA-SLAM,
+% MAC-Ego3D, MAGiC-SLAM, GRAND-SLAM); on AriaMultiagent (3 agents) mean ATE
+% 0.54 cm beats MAGiC-SLAM RGB-D 0.65 cm; on ETH3D +5 dB PSNR over MAC-Ego3D.
+% Ablation: removing Sim(3) scale (degenerate to SE(3)) drops PSNR 21.72 dB
+% — scale alignment is the single most critical component; occupancy-aware
+% fusion second (-7.17 dB). Releases ReplicaMultiagent Plus benchmark (4
+% agents, long-horizon trajectories, GT geometry + semantic annotations).
+% Directly relevant to the cooperative multi-node thread of Co-LIC2
+% [[co-lic2-design-paper]]: MAGS-SLAM is the visual-only RGB cooperative
+% counterpart to cite alongside CoRef-GS (A23, semantic/registration fusion)
+% and ChronoFuseGS (A24, temporal-axis fusion). Key contrast with Co-LIC2:
+% (1) monocular-only vs LIV fusion — MAGS-SLAM must solve scale ambiguity via
+% Sim(3) + Metric3D priors, while Co-LIC2's LiDAR provides metric scale
+% directly, simplifying inter-node alignment to SE(3); (2) its occupancy-
+% aware deduplication (occupied + free-space voxel test) is directly
+% transferable to the LIV setting for cooperative Gaussian-map fusion /
+% deduplication across nodes; (3) compact submap summaries + coordinator
+% architecture informs the communication-efficient protocol design. Cite in
+% the cooperative / multi-agent related-work section as the RGB-only baseline.
+@misc{cao2026magsslam,
+  title     = {{MAGS-SLAM}: Monocular Multi-Agent {Gaussian Splatting} {SLAM}
+               for Geometrically and Photometrically Consistent
+               Reconstruction},
+  author    = {Cao, Zhihao and Shao, Qi and Zhai, Shuhao and Zhang, Jing and
+               Nguyen, Anh and Wang, Hesheng and Huang, Baoru},
+  year      = {2026},
+  eprint    = {2605.10760},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2605.10760},
+  doi       = {10.48550/arXiv.2605.10760}
+}
+
+% DynActiveGS (Duan, Luo, Zhao, Chiang, Liu, Wang; Tsinghua SIGS + Peng Cheng
+% Lab + Huawei + HIT Shenzhen; arXiv:2608.01178, v1 2 Aug 2026, v2 27 Sep
+% 2026; accepted to ACM Multimedia 2026). Dynamic-aware active reconstruction
+% framework based on 3DGS for autonomous exploration in dynamic environments.
+% Incrementally reconstructs a 3D Gaussian scene while suppressing motion-
+% corrupted observations via online pixel-wise uncertainty prediction and
+% uncertainty-weighted Gaussian optimization. Explicitly decomposes
+% uncertainty into structural uncertainty (under-reconstructed static
+% regions) and motion-induced uncertainty (dynamically unreliable areas),
+% enabling the system to distinguish where to look harder from where not to
+% trust observations. These uncertainty fields drive dynamic-aware viewpoint
+% selection (local-global scoring on a Voronoi graph) and motion-constrained
+% path planning for informative yet stable observations, forming a unified
+% closed-loop perception-planning-reconstruction pipeline. Consistent
+% improvements over active-reconstruction baselines (ActiveSplat, ActiveGS)
+% in reconstruction accuracy, completeness, rendering quality, and
+% exploration efficiency on dynamic benchmarks. Peripheral to Gaussian-LIC2
+% (RGB-D active reconstruction, no LiDAR/inertial, not full SLAM) but
+% relevant to the robustness / dynamic-environment thread: the structural-
+% vs-motion uncertainty decomposition is transferable to LIV GS-SLAM for
+% distinguishing geometric under-coverage from dynamic-object contamination
+% in the Gaussian map, and the closed-loop active-viewpoint idea connects to
+% keyframe/active-view selection. Cite in the dynamic-scene / robustness
+% discussion.
+@misc{duan2026dynactivegs,
+  title     = {{DynActiveGS}: Active {Gaussian Splatting} for Dynamic Scene
+               Reconstruction},
+  author    = {Duan, Hongbo and Luo, Pengting and Zhao, Chengzhi and
+               Chiang, Yuanhao and Liu, Fangming and Wang, Xueqian},
+  year      = {2026},
+  eprint    = {2608.01178},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url       = {https://arxiv.org/abs/2608.01178},
+  doi       = {10.48550/arXiv.2608.01178},
+  note      = {Accepted to ACM Multimedia 2026}
+}

@@ -1,4 +1,4 @@
-# Gaussian-LIC2 — Related Work Survey (2026-09-08, updated 2026-09-30)
+# Gaussian-LIC2 — Related Work Survey (2026-09-08, updated 2026-10-01)
 
 This directory collects **recent related work** surveyed via Doubao web search,
 along with their original PDFs and a consolidated BibTeX file.
@@ -2102,6 +2102,95 @@ New PDFs downloaded:
 `latex/papers/` now holds **100 PDFs**; `latex/bib/references.bib` now
 holds **109 BibTeX entries** (`grep -c "^@" bib/references.bib` = 109,
 `ls papers/*.pdf | wc -l` = 100). The 9-entry gap is the usual set of
+surveyed-without-arXiv-PDF foundational works (Kerbl 3DGS, Mip-Splatting,
+Scaffold-GS, Stop-ThePop, Taming-3DGS, iMAP) plus a few venue-only /
+library-software / MDPI-403 entries (GTSAM, LV-GS SLAM).
+
+## Addendum 25 (2026-10-01) — two newly surveyed related works
+
+### 24-hour code review
+
+The last 24 hours of git history (since 2026-09-30 ~02:00) contain two
+commits, both **docs-only / no source-tree changes**:
+
+- `c55364d` (2026-09-30 13:35, "docs(latex): 添加新调研文献并精简MobiCom论文草稿")
+  — 26 files, +2430/−1590 lines, entirely under `latex/` (README.md,
+  bib/references.bib, the `latex/mobicom/` acmart sigconf draft with
+  sections/figures/mobicom_refs.bib + recompiled main.pdf, and
+  `latex/paper/main.pdf`). No code under `src/`, `include/`, `launch/`,
+  `config/`, or `CMakeLists.txt` was touched.
+- `e37c5c5` (2026-09-30 13:49, "chore(gitignore): 忽略调研文献PDF，保持仓库轻量")
+  — 1 file, +4 lines to `.gitignore` (excluding the `latex/papers/*.pdf`
+  bulk from version control). No source-tree changes.
+
+So the Gaussian-LIC2 implementation tree itself is unchanged since
+Addendum 24; this round is purely a literature-refresh pass.
+
+### New papers added this round
+
+Two genuinely new papers not in the inventory were identified and added.
+Re-appearing candidates already in the bib were ruled out: RRG-SLAM
+(A24, `liu2026rrgslam`), LiTe-GS (A23, `pandey2026litegs`), CoRef-GS
+(A23, `zhou2026corefgs`), LV-GS SLAM (`he2026lvgsslam`), Structured-Li-GS
+(A18, `weng2026structuredligs`), Wanderland (`liu2026wanderland`).
+
+| Paper | Venue / date | Sensor | Key idea | Relation to Gaussian-LIC2 |
+|---|---|---|---|---|
+| **MAGS-SLAM** (`cao2026magsslam`, arXiv:2605.10760, v2 27 Jul 2026) | arXiv (cs.RO) | RGB only (monocular) | First monocular RGB-only multi-agent 3DGS SLAM: per-agent DROID-BA + Metric3D-v2 JDSA local Gaussian submaps, compact submap summaries (128-D desc + sparse 3D pts + anchor KF), coordinator builds global **Sim(3)** submap pose graph (MaPGBA) coupling geometric + photometric residuals, occupancy-aware Gaussian fusion (occupied + free-space voxel dedup), joint pose-Gaussian photometric refinement. RGB-only beats RGB-D collaborative baselines (43.24 dB PSNR on ReplicaMultiagent, +5 dB on ETH3D over MAC-Ego3D). Releases ReplicaMultiagent Plus (4 agents, long-horizon, semantic). | **Cooperative multi-node thread — direct.** The visual-only RGB cooperative counterpart to Co-LIC2 [[co-lic2-design-paper]]. Key contrast: MAGS-SLAM must solve monocular scale ambiguity via Sim(3) + Metric3D priors, while Co-LIC2's LiDAR yields metric scale directly (inter-node alignment is SE(3), not Sim(3)). Its occupancy-aware dedup (occupied + free-space voxel test, 0.10 m voxels) is directly transferable to LIV cooperative Gaussian-map fusion; its compact-submap-summary + coordinator architecture informs the communication-efficient protocol design. Cite as the RGB-only multi-agent baseline alongside CoRef-GS (A23, semantic/registration) and ChronoFuseGS (A24, temporal fusion). |
+| **DynActiveGS** (`duan2026dynactivegs`, arXiv:2608.01178, v2 27 Sep 2026) | ACM Multimedia 2026 | RGB-D | Dynamic-aware active reconstruction: online pixel-wise uncertainty prediction + uncertainty-weighted Gaussian optimization suppresses motion-corrupted observations; explicitly decomposes uncertainty into **structural uncertainty** (under-reconstructed static regions) vs **motion-induced uncertainty** (dynamically unreliable areas), driving dynamic-aware viewpoint selection (Voronoi-graph local-global scoring) + motion-constrained path planning in a closed-loop pipeline. Beats active-reconstruction baselines (ActiveSplat, ActiveGS) on dynamic benchmarks. | **Robustness / dynamic-environment thread — peripheral.** RGB-D active reconstruction, no LiDAR/inertial, not full SLAM, but the structural-vs-motion uncertainty decomposition is transferable to LIV GS-SLAM for distinguishing geometric under-coverage from dynamic-object contamination in the Gaussian map; the closed-loop active-viewpoint idea connects to keyframe/active-view selection. Cite in the dynamic-scene / robustness discussion. |
+
+### Why these matter
+
+1. **MAGS-SLAM** is the most directly relevant new work for the
+   cooperative multi-node design. It is the first system to show that a
+   *pure-RGB* multi-agent 3DGS SLAM can match or beat RGB-D collaborative
+   baselines, by correctly handling cross-agent scale via a Sim(3)
+   submap pose graph and deduplicating Gaussians with an occupancy-aware
+   (occupied + free-space) voxel test. For Co-LIC2 this matters in two
+   ways. First, it validates the submap-summary + coordinator
+   architecture as a communication-efficient collaboration pattern that
+   scales beyond two agents (4 agents in ReplicaMultiagent Plus).
+   Second, it gives a concrete baseline to position against: Co-LIC2's
+   LIV fusion removes the scale-ambiguity problem that dominates
+   MAGS-SLAM's design (its ablation shows dropping Sim(3)→SE(3) costs
+   21.72 dB), so the LIV setting should simplify the hardest part of
+   cooperative Gaussian SLAM while the occupancy-aware fusion +
+   compact-summary ideas still carry over.
+
+2. **DynActiveGS** extends the robustness thread into dynamic
+   environments. The structural-vs-motion uncertainty decomposition is
+   a useful conceptual tool: in a LIV GS-SLAM map, "under-reconstructed
+   static regions" (need more keyframes) and "dynamically contaminated
+   regions" (need to reject observations) call for opposite responses,
+   and DynActiveGS shows that explicitly separating the two uncertainty
+   fields — rather than collapsing them into a single scalar — improves
+   both reconstruction and exploration. This is a citable reference for
+   any dynamic-object handling / uncertainty-aware mapping discussion in
+   the Co-LIC2 paper, even though DynActiveGS itself is RGB-D and
+   offline-active rather than LIV and online-SLAM.
+
+### Reproducing the Addendum 25 survey
+
+Searches were run via `mcp__doubao-search__web_search` on 2026-10-01
+with `OneWeek` and `OneMonth` time-range filters:
+
+1. `3DGS SLAM LiDAR inertial visual 2026` (OneWeek, 5 results) — re-confirmed Structured-Li-GS (A18); surfaced the Unified Multi-Modal Landmark Tracking LIVO paper (a CSDN review of a non-3DGS tightly-coupled LIVO paper, excluded as not Gaussian-based).
+2. `Gaussian Splatting SLAM real-time tracking mapping arXiv 2026` (OneWeek, 6 results) — re-confirmed LiTe-GS (A23) and RRG-SLAM (A24); surfaced **DynActiveGS** (arXiv:2608.01178, v2 27 Sep 2026, ACM MM 2026).
+3. `cooperative multi-agent multi-robot Gaussian Splatting map fusion 2026` (OneMonth, 16 results) — re-confirmed CoRef-GS (A23); surfaced **MAGS-SLAM** (arXiv:2605.10760, v2 27 Jul 2026, the first monocular RGB-only multi-agent 3DGS SLAM).
+4. `LiDAR-Inertial-Visual odometry SLAM Gaussian splatting online 2026` (OneMonth, 14 results) — re-confirmed LV-GS SLAM (`he2026lvgsslam`), ArborSplat (A17, `masini2026arborsplat`), Wanderland (`liu2026wanderland`, already in bib); no new LIV GS-SLAM papers this window.
+5. `distributed collaborative Gaussian splatting SLAM multi-robot map merging 2026 arXiv` (OneMonth, 11 results) — re-confirmed CoRef-GS (A23) and HAMMER (already noted); surfaced ScaleGS (a distributed *training* framework for large-scale 3DGS, not SLAM, excluded) and MAGS-SLAM (confirmed, added).
+
+New PDFs downloaded:
+`papers/Cao2026_MAGSSLAM.pdf` (arXiv:2605.10760, via
+`curl -sL -o ... https://arxiv.org/pdf/2605.10760` — ~3.0 MB, valid PDF),
+`papers/Duan2026_DynActiveGS.pdf` (arXiv:2608.01178, via
+`curl -sL -o ... https://arxiv.org/pdf/2608.01178` — ~5.1 MB, valid PDF).
+
+### Inventory
+
+`latex/papers/` now holds **102 PDFs**; `latex/bib/references.bib` now
+holds **111 BibTeX entries** (`grep -c "^@" bib/references.bib` = 111,
+`ls papers/*.pdf | wc -l` = 102). The 9-entry gap is the usual set of
 surveyed-without-arXiv-PDF foundational works (Kerbl 3DGS, Mip-Splatting,
 Scaffold-GS, Stop-ThePop, Taming-3DGS, iMAP) plus a few venue-only /
 library-software / MDPI-403 entries (GTSAM, LV-GS SLAM).
