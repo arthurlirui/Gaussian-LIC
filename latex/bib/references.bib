@@ -2186,3 +2186,339 @@
   doi       = {10.48550/arXiv.2608.01178},
   note      = {Accepted to ACM Multimedia 2026}
 }
+
+% Addendum 26 (2026-10-02) — two new papers surveyed.
+
+% BayesianGS-SLAM (Kang, Ha, Lee, Yu; Sungkyunkwan Univ.; arXiv:2609.24140,
+% 21 Sep 2026). Uncertainty-aware 3DGS-SLAM via a tractable probabilistic
+% formulation that decomposes predictive uncertainty into a sensor-noise
+% component and an opacity-induced map-representation component, propagated
+% through the rendering process by linearization. The same predictive
+% uncertainty is reused across the entire SLAM pipeline: uncertainty-
+% augmented mapping, uncertainty-normalized robust tracking, and a
+% predictive-surprise (negative posterior-predictive likelihood) keyframe-
+% selection criterion that reduces redundant mapping updates. Unlike prior
+% uncertainty-aware neural-rendering SLAM (UncLe-SLAM: depth-only; CG-SLAM:
+% depth-only; VarSplat: color-only; VBGS-SLAM: variational params), this is
+% the first to estimate predictive uncertainty for BOTH color and depth and
+% integrate it into mapping, tracking, AND keyframe selection. Evaluations
+% on real-world RGB-D datasets show substantially improved depth-
+% uncertainty–error ranking vs. existing uncertainty-aware SLAM, fewer
+% keyframes/mapping calls at competitive tracking+rendering quality.
+% Peripheral to Gaussian-LIC2 (RGB-D, no LiDAR/inertial) but relevant to the
+% uncertainty-aware SLAM thread alongside VarSplat (in bib) and VBGS-SLAM
+% (in bib): the unified sensor-noise + map-representation decomposition and
+% the predictive-surprise keyframe criterion are transferable to LIV GS-SLAM
+% for uncertainty-weighted tracking/mapping and information-driven keyframe
+% selection. Cite in the uncertainty/robustness discussion.
+@misc{kang2026bayesiangssslam,
+  title     = {{BayesianGS-SLAM}: Uncertainty-Aware Neural Rendering {SLAM}
+               via Probabilistic Formulation},
+  author    = {Kang, Kyeongsu and Ha, Seongbo and Lee, Sibaek and Yu, Hyeonwoo},
+  year      = {2026},
+  eprint    = {2609.24140},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2609.24140},
+  doi       = {10.48550/arXiv.2609.24140}
+}
+
+% CognitiveReality (Kozlov, Maliukov, Marchenko, Plotnikov, Altamirano
+% Cabrera, Tsetserukou; arXiv:2609.31418, 25 Sep 2026). Robot-agnostic
+% semantic Gaussian mapping with an LLM agent for immersive collaborative VR
+% teleoperation. Turns a robot's RGB-D stream into a live, semantically
+% indexed Gaussian-TSDF map shared by a VR operator and a tool-using
+% language agent. One mapper binary serves any platform via configuration:
+% ingests poses from robot SLAM, joint kinematics, motion capture, or an
+% inline visual tracker; bridges localization outages with a shadow tracker
+% + keyframe-anchored PnP; maintains open-vocabulary instance identities
+% with per-object quality at 2 Hz. Speech and controller rays are grounded
+% against persistent scene objects via validated typed tools and operator-
+% confirmed robot actions. Local Qwen3-VL-8B router reaches 81.24% tool
+% exact match; merge-aware replay redirects 101 absorbed object IDs; on
+% robot data exceeds Gaussian-plus-SDF baseline by 2-8 dB; pose error
+% through 5-40 s SLAM outages stays 1-8 cm; deployed live on two quadrupeds
+% (26/30 navigation + 20/20 re-observation requests executed). Relevant to
+% Gaussian-LIC2's cooperative multi-node thread: the robot-agnostic pose-
+% ingestion design (any SLAM backend, including LIV) and the persistent
+% open-vocabulary instance indexing with quality tracking are transferable
+% to a cooperative LIV GS-SLAM where multiple nodes contribute to a shared
+% semantic Gaussian map; the outage-bridging shadow tracker connects to
+% robustness under SLAM dropouts. Cite in the cooperative / semantic-mapping
+% discussion.
+@misc{kozlov2026cognitivereality,
+  title     = {{CognitiveReality}: Robot-Agnostic Semantic {Gaussian} Mapping
+               with an {LLM} Agent for Immersive Collaborative {VR}
+               Teleoperation},
+  author    = {Kozlov, Timofei and Maliukov, Dmitrii and Marchenko, Andrey
+               and Plotnikov, Dmitrii and Altamirano Cabrera, Miguel
+               and Tsetserukou, Dzmitry},
+  year      = {2026},
+  eprint    = {2609.31418},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2609.31418},
+  doi       = {10.48550/arXiv.2609.31418}
+}
+
+% Addendum 27 (2026-10-03) — four new papers surveyed.
+
+% Omni-LIVO (Cao, Zhang, He, ..., Wang; Hangzhou Inst. Advanced Study, UCAS
+% / Shanghai Inst. Technical Physics, CAS; IEEE RA-L vol.11 no.4 pp.4369-
+% 4376, Apr 2026; arXiv:2509.15673 v5 29 Mar 2026). Tightly-coupled
+% multi-camera LIVO extending FAST-LIVO2: a Cross-View temporal-migration
+% direct-alignment strategy preserves photometric consistency across
+% non-overlapping camera views as patches transition between cameras, and
+% the ESIKF is extended with multi-view updates and adaptive per-view
+% covariance to handle heterogeneous measurement reliability. LiDAR-
+% derived depth drives multi-camera sparse direct alignment, enabling
+% extended spatial coverage beyond single-camera LIVO. Evaluated on public
+% benchmarks + custom dataset, outperforming SOTA LIVO / LIO / VI-SLAM
+% baselines in accuracy and robustness; deployed on the Omni-Bot
+% underground-parking inspection robot (four-view panoramic camera +
+% 360deg LiDAR + IMU). Directly relevant to Gaussian-LIC2: the same
+% FAST-LIVO2 lineage, and the multi-camera extension is the natural
+% counterpart to a single-node multi-camera LIV rig — the cross-view
+% patch migration and adaptive multi-view ESIKF are transferable to a
+% cooperative LIV setting where different nodes / cameras observe
+% non-overlapping regions of the same LiDAR-colored map. Cite alongside
+% FAST-LIVO2 and GS-LIVO as the multi-camera LIVO extension.
+@article{cao2026omnilivo,
+  title     = {{Omni-LIVO}: Robust {RGB}-Colored Multi-Camera
+               Visual-Inertial-{LiDAR} Odometry via Photometric Migration
+               and {ESIKF} Fusion},
+  author    = {Cao, Yinong and Zhang, Chenyang and He, Xin and Chen, Yuwei
+               and Pu, Chengyu and Wang, Bingtao and Wu, Kaile
+               and Zhu, Shouzheng and Han, Fei and Liu, Shijie
+               and Li, Chunlai and Wang, Jianyu},
+  journal   = {IEEE Robotics and Automation Letters},
+  volume    = {11},
+  number    = {4},
+  pages     = {4369--4376},
+  year      = {2026},
+  eprint    = {2509.15673},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2509.15673},
+  doi       = {10.1109/LRA.2026.3662590}
+}
+
+% SA-LIVO (Cao, He, Zhu, ..., Wang; arXiv:2606.25699 v2 6 Aug 2026, v1 24
+% Jun 2026). Subspace-Aware LIVO: addresses the independent-failure-mode
+% problem in tightly-coupled LIVO (LiDAR degeneracy when scan geometry is
+% under-constrained; vision degradation under poor illumination / texture
+% absence) which existing modality-level countermeasures (binary
+% degeneracy detection, covariance inflation, scene-level quality gating)
+% cannot resolve directionally. SAIF (Subspace-Aware Information Fusion)
+% eigendecomposes the joint LiDAR-visual information matrix and gates each
+% eigendirection by a single-threshold linear clamp, attenuating
+% degenerate directions while passing well-observed ones at full
+% strength; robust per-residual gating + a scene-level quality factor
+% screen corrupted measurements. LiDAR and visual residuals share one
+% InEKF loop at a shared linearization point (eliminating sequential-
+% update mismatch), and photometric Jacobians are assembled once before
+% the loop and reused across iterations (visual information contributes
+% only where LiDAR is deficient). On 29 sequences (HILTI'22, Newer
+% College, Oxford Spires) + concurrent-degradation scenarios: competitive
+% accuracy, bounded drift where R3LIVE / SR-LIVO diverge; 12.3 ms/frame
+% laptop CPU, 26.8 ms embedded ARM without GPU, 3.6-6.3x lower peak
+% memory. Directly relevant to Gaussian-LIC2: same FAST-LIVO2 LIVO
+% lineage; the direction-selective subspace-aware fusion is the
+# principled degeneracy-handling counterpart to ad-hoc modality gating,
+% transferable to a LIV GS-SLAM where LiDAR and visual residuals must be
+% fused per-direction under geometric / photometric degradation, and the
+% single-loop InEKF with reused photometric Jacobians is an efficiency
+% pattern relevant to embedded cooperative-node deployment. Cite in the
+% LIVO / degeneracy-handling discussion.
+@misc{cao2026salivo,
+  title     = {{SA-LIVO}: Efficient {LiDAR}-Inertial-Visual Odometry with
+               Subspace-Aware Degeneracy Handling},
+  author    = {Cao, Yinong and He, Xin and Zhu, Shouzheng and Wang, Senyuan
+               and Jiang, Changhui and Zhang, Chenyang and He, Pingfeng
+               and Wang, Tingwei and Chen, Yuwei and Liu, Shijie
+               and Li, Chunlai and Huang, Genghua and Wang, Jianyu},
+  year      = {2026},
+  eprint    = {2606.25699},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2606.25699},
+  doi       = {10.48550/arXiv.2606.25699}
+}
+
+% FIRE-LIVWO (Hu, Li, Wu, ..., Zhou; China Univ. Mining & Technology;
+% arXiv:2609.05325 v1 4 Sep 2026). Failure-Immune mmWave-Radar-Enhanced
+% LiDAR-Inertial-Visual-Wheel Odometry: a tightly-coupled IESKF-based
+% multi-modal odometry for large-scale underground coal mines with
+% combined visual + geometric degeneracy. Fuses 4D mmWave radar, LiDAR,
+% and visual features within a unified VoxelMap; jointly constructs
+% LiDAR-radar point-to-plane residuals + sparse visual photometric
+% residuals; exploits mmWave penetration in smoke/dust with pointwise
+% Doppler velocity constraints; tightly couples wheel odometry with non-
+% holonomic constraints (NHC) + online lever-arm compensation for long-
+% corridor geometric degeneracy; a degradation-detection + adaptive
+% fusion model-switching strategy grounded in geometric + visual
+% observability analysis quantifies observability online and dynamically
+% adjusts modality weights/activation. Real-world underground coal-mine
+% experiments: avg localization error 5.677 m, superior to baselines;
+% open-sourced. Relevant to Gaussian-LIC2: the multi-modal degeneracy-
+% handling + adaptive fusion switching is the most aggressive extension
+% of the LIVO degeneracy-handling thread (cf. SA-LIVO's subspace-aware
+% approach) — adds mmWave radar + wheel odometry as complementary
+% modalities under combined smoke/dust visual failure + corridor
+% geometric failure. Peripheral to the core LIV GS-SLAM design but
+% relevant to the robustness / degeneracy-handling discussion and to
+% extreme-environment deployment. Cite alongside SA-LIVO in the
+% degeneracy-handling discussion.
+@misc{hu2026firelivwo,
+  title     = {{FIRE-LIVWO}: Robust {LiDAR}-Inertial-Visual-Wheel Odometry
+               via Failure-Immune mmWave Radar Enhancement},
+  author    = {Hu, Kun and Li, Menggang and Wu, Kaidi and Jin, Zhiwen
+               and Zhao, Yingjie and Tang, Chaoquan and Zhou, Gongbo
+               and Hu, Eryi},
+  year      = {2026},
+  eprint    = {2609.05325},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2609.05325},
+  doi       = {10.48550/arXiv.2609.05325}
+}
+
+% StreamRig (Wei, Ye, Wang, Zheng, Huang, Xiong, Wang; Zhejiang Univ.;
+% arXiv:2609.40244 v1 30 Sep 2026). Streaming multi-camera odometry on a
+% frozen multi-view 3D foundation model: the first streaming odometer to
+% transfer a frozen multi-view 3D foundation model to general multi-
+% camera rigs. A frozen front-end jointly encodes synchronized images
+% with intrinsics + rig extrinsics; a Rig-Resampler compresses each
+% camera's features into a few latent tokens; a CausalBridge applies
+% causal attention with a key-value cache; a lightweight head regresses
+% rig poses; a periodic re-anchoring protocol supports stable long-
+% sequence pose estimation. Only 74.6M trainable parameters, relative
+% poses as sole supervision; two-stage training (group relocalization
+% pretraining + causal rig training). Evaluated on NCLT, TartanGround,
+% KITTI-360, + a self-collected humanoid-robot rig (zero-shot real-world
+% transfer from simulation): lowest translation + rotation drift among
+% eva
+luated non-oracle methods; 5-camera inference lower memory + latency
+than monocular CUT3R. Relevant to Gaussian-LIC2: peripheral (visual-
+only learned odometry, no LiDAR/inertial, no Gaussian map) but the
+multi-camera rig-aware streaming formulation is a reference for
+learned multi-camera front-ends that could complement a LIV GS-SLAM,
+and the freeze-and-stream transfer recipe (frozen 3D foundation model
++ compact trained pose back-end) is a relevant pattern for future
+learned-frontend integration. Cite in the multi-camera / learned-
+odometry discussion.
+@misc{wei2026streamrig,
+  title     = {{StreamRig}: Exploiting Intra-Rig Geometry for Streaming
+               Multi-Camera Odometry},
+  author    = {Wei, Yufei and Ye, Shuhao and Wang, Qi and Zheng, Xin
+               and Huang, Qing and Xiong, Rong and Wang, Yue},
+  year      = {2026},
+  eprint    = {2609.40244},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url       = {https://arxiv.org/abs/2609.40244},
+  doi       = {10.48550/arXiv.2609.40244}
+}
+
+% Addendum 28 (2026-10-04): 3 new entries — AGILE-GS, EvenSplat, UnRL.
+
+@misc{khass2026agilegs,
+  title     = {{AGILE-GS}: Anchor-Guided Fast Next-Best-View Selection
+               for Active {3D} Gaussian Splatting},
+  author    = {Khass, Amirhossein Mollaei and Motee, Nader},
+  year      = {2026},
+  eprint    = {2609.34176},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url       = {https://arxiv.org/abs/2609.34176},
+  doi       = {10.48550/arXiv.2609.34176}
+}
+
+@misc{wu2026evensplat,
+  title     = {{EvenSplat}: Coupled {2D-3D} Decomposition for {Gaussian}
+               Splatting under Exposure and Illumination Variation},
+  author    = {Wu, Tongyu and Edwards, Jacob and Cui, Ziteng and Jiang,
+               Caigui and Wang, Cheng},
+  year      = {2026},
+  eprint    = {2610.01876},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.CV},
+  url       = {https://arxiv.org/abs/2610.01876},
+  doi       = {10.48550/arXiv.2610.01876}
+}
+
+@inproceedings{ozkan2026unrl,
+  title     = {Uncertainty-Aware {RL}-Controlled Adaptive {3D} Mapping},
+  author    = {Ozkan, Alpay and Aydin, Tunc Ozan and Pollefeys, Marc and
+               Trisovic, Jelena and Barath, Daniel},
+  booktitle = {British Machine Vision Conference ({BMVC})},
+  year      = {2026},
+  eprint    = {2610.00188},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.LG},
+  url       = {https://arxiv.org/abs/2610.00188},
+  doi       = {10.48550/arXiv.2610.00188}
+}
+
+% Addendum 29 (2026-10-05): 4 new entries — LiDAR-VGGT, G2VLO,
+% FillFusion-GS, MANG-SLAM. LiDAR-VGGT has an arXiv preprint (PDF saved);
+% the other three are IEEE RA-L journal-only (no arXiv preprint as of
+% the search date) and are recorded as DOI-only BibTeX entries.
+
+@article{wang2026lidarvggt,
+  title     = {{LiDAR-VGGT}: Cross-Modal Coarse-to-Fine Fusion for
+               Globally Consistent and Metric-Scale Dense Mapping},
+  author    = {Wang, Lijie and Guo, Lianjie and Xu, Ziyi and Wang, Qianhao
+               and Gao, Fei and Chen, Xieyuanli},
+  journal   = {IEEE Robotics and Automation Letters},
+  volume    = {11},
+  number    = {4},
+  pages     = {4721--4728},
+  year      = {2026},
+  eprint    = {2511.01186},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.RO},
+  url       = {https://arxiv.org/abs/2511.01186},
+  doi       = {10.1109/LRA.2026.3666387}
+}
+
+@article{tu2026g2vlo,
+  title     = {{G$^{2}$VLO}: Accurate and Generic {2D} {Gaussian} Based
+               Visual-{LiDAR} Odometry},
+  author    = {Tu, Diantao and Cui, Hainan and Tao, Peilin and Liu,
+               Yangdong and Shen, Shuhan},
+  journal   = {IEEE Robotics and Automation Letters},
+  volume    = {11},
+  number    = {6},
+  pages     = {6911--6918},
+  year      = {2026},
+  note      = {IEEE RA-L journal-only; no arXiv preprint as of 2026-10-05},
+  doi       = {10.1109/LRA.2026.3682983}
+}
+
+@article{sun2026fillfusiongs,
+  title     = {{FillFusion-GS}: From Sparse Scans to Dense Scenes via
+               Visual-Structure-Guided {3D} {Gaussian} Splatting},
+  author    = {Sun, Yunda and Wang, Zhong and Zhang, Lin and Shen, Ying
+               and Zhao, Shengjie},
+  journal   = {IEEE Robotics and Automation Letters},
+  volume    = {11},
+  number    = {7},
+  pages     = {8688--8695},
+  year      = {2026},
+  note      = {IEEE RA-L journal-only; no arXiv preprint as of 2026-10-05},
+  doi       = {10.1109/LRA.2026.3700382}
+}
+
+@article{li2026mangslam,
+  title     = {{MANG-SLAM}: Multi-Agent Neural Submap and {Gaussian}
+               Representation for Dense Mapping},
+  author    = {Li, Yonghao and Ye, Ping and Jia, Qingxuan},
+  journal   = {IEEE Robotics and Automation Letters},
+  volume    = {11},
+  number    = {2},
+  pages     = {2242--2249},
+  year      = {2026},
+  note      = {IEEE RA-L journal-only; no arXiv preprint as of 2026-10-05},
+  doi       = {10.1109/LRA.2025.3643274}
+}

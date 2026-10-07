@@ -1,4 +1,4 @@
-# Gaussian-LIC2 — Related Work Survey (2026-09-08, updated 2026-10-01)
+# Gaussian-LIC2 — Related Work Survey (2026-09-08, updated 2026-10-05)
 
 This directory collects **recent related work** surveyed via Doubao web search,
 along with their original PDFs and a consolidated BibTeX file.
@@ -58,7 +58,7 @@ latex/
 
 ## Recent code update review (last 24 h)
 
-**No commits in the last 24 hours** (re-checked 2026-09-17). The most recent commits are:
+**No commits in the last 24 hours** (re-checked 2026-10-04). The most recent commits are:
 
 | commit   | date       | author    | change |
 |----------|------------|-----------|--------|
@@ -2194,3 +2194,538 @@ holds **111 BibTeX entries** (`grep -c "^@" bib/references.bib` = 111,
 surveyed-without-arXiv-PDF foundational works (Kerbl 3DGS, Mip-Splatting,
 Scaffold-GS, Stop-ThePop, Taming-3DGS, iMAP) plus a few venue-only /
 library-software / MDPI-403 entries (GTSAM, LV-GS SLAM).
+
+## Addendum 26 (2026-10-02) — two newly surveyed related works
+
+### 24-hour code review
+
+The last 24 hours of git history (since 2026-10-01 ~02:00) contain two
+commits, both **docs-only / no source-tree changes**:
+
+- `c3b426f` (2026-10-01 21:03, "docs(latex): 添加新调研文献并更新相关工作综述日期")
+  — 2 files, +180/−2 lines, entirely under `latex/` (README.md Addendum 25
+  appended, bib/references.bib +91 lines for MAGS-SLAM + DynActiveGS). No
+  code under `src/`, `include/`, `launch/`, `config/`, or `CMakeLists.txt`
+  was touched.
+- `1bbb9e6` (2026-10-01 21:11, "fix(mobicom): 修复未定义引用、标题书签警告并恢复数据流程图")
+  — 5 files, +279/−239 lines, all under `latex/mobicom/` (recovered the
+  Node Descriptor anchor `sec:descriptor` to clear three `??` undefined
+  references in calibration/hardware/system; switched `\title` to
+  `\texorpdfstring` to silence hyperref PDF-bookmark Unicode warnings;
+  re-attached the orphan `dataflow.tex` figure into §3 fusion subsection
+  as `fig:dataflow`, all 8 figures now live; full 4-pass recompile to 0
+  undefined refs/citations, 0 overfull, 15 pages). No source-tree changes.
+
+So the Gaussian-LIC2 implementation tree itself is unchanged since
+Addendum 25; this round is purely a literature-refresh pass on top of a
+MobiCom-draft fix-up.
+
+### New papers added this round
+
+Two genuinely new papers not in the inventory were identified and added.
+Re-appearing candidates already in the bib were ruled out: VarSplat
+(`tran2026varsplat`, CVPR 2026), VBGS-SLAM (`zhu2026vbgsslam`), Pi3MOS-SLAM
+(`zhong2026pi3mosslam`), LV-GS SLAM (`he2026lvgsslam`), ArborSplat
+(`masini2026arborsplat`, A17), Wanderland (`liu2026wanderland`),
+Dual-Covariance GS-SLAM (`tan2026dualcovgsslam`, A17), FilterGS
+(arXiv:2603.23891, non-SLAM LoD rendering acceleration, excluded),
+UGOD (arXiv:2609.39089, sparse-view 3DGS not SLAM, excluded).
+
+| Paper | Venue / date | Sensor | Key idea | Relation to Gaussian-LIC2 |
+|---|---|---|---|---|
+| **BayesianGS-SLAM** (`kang2026bayesiangssslam`, arXiv:2609.24140, 21 Sep 2026) | arXiv (cs.RO) | RGB-D | Uncertainty-aware 3DGS-SLAM via a tractable probabilistic formulation: decomposes predictive uncertainty into a **sensor-noise** component and an **opacity-induced map-representation** component, propagated through rendering by linearization. The same predictive uncertainty is reused across the whole SLAM pipeline — uncertainty-augmented mapping, uncertainty-normalized robust tracking, and a **predictive-surprise** (negative posterior-predictive likelihood) keyframe-selection criterion that cuts redundant mapping updates. First uncertainty-aware GS-SLAM to estimate predictive uncertainty for **both color and depth** and integrate it into mapping + tracking + keyframe selection. On real-world RGB-D datasets: substantially improved depth-uncertainty–error ranking vs. UncLe-SLAM / CG-SLAM / VarSplat / VBGS-SLAM, fewer keyframes/mapping calls at competitive tracking+rendering. | **Uncertainty / robustness thread — peripheral but direct conceptual fit.** RGB-D (no LiDAR/inertial), but sits squarely in the uncertainty-aware GS-SLAM family already in the bib (VarSplat, VBGS-SLAM). The unified sensor-noise + map-representation decomposition is the cleanest formulation yet of "where does 3DGS-SLAM uncertainty come from" and transfers cleanly to LIV GS-SLAM: LiDAR depth uncertainty and visual appearance uncertainty can enter as separate sensor-noise terms, while Gaussian-map coverage enters as the opacity-induced term. The predictive-surprise keyframe criterion is directly transferable to information-driven keyframe selection in LIV GS-SLAM. Cite alongside VarSplat/VBGS-SLAM in the uncertainty-aware discussion. |
+| **CognitiveReality** (`kozlov2026cognitivereality`, arXiv:2609.31418, 25 Sep 2026) | arXiv (cs.RO) | RGB-D + (any SLAM backend) | Robot-agnostic semantic Gaussian mapping with an LLM agent for collaborative VR teleoperation: one mapper binary serves any platform via config, ingesting poses from robot SLAM / joint kinematics / motion capture / inline visual tracker; bridges localization outages via a **shadow tracker + keyframe-anchored PnP** (pose error 1–8 cm over 5–40 s outages); maintains **open-vocabulary instance identities with per-object quality at 2 Hz**; speech + controller rays grounded against persistent scene objects via validated typed tools (local Qwen3-VL-8B router at 81.24% tool exact match); Gaussian-TSDF map beats Gaussian+SDF baseline by 2–8 dB; deployed live on two quadrupeds (26/30 navigation + 20/20 re-observation requests). | **Cooperative / semantic-mapping thread — relevant.** The **robot-agnostic pose-ingestion design** (any SLAM backend, including a LIV one) is the closest existing analogue to a cooperative-map node that does not assume a single tracker; the **persistent open-vocabulary instance indexing with quality tracking** transfers to a cooperative LIV GS-SLAM where multiple nodes contribute to a shared semantic Gaussian map and need per-object provenance/quality; the **outage-bridging shadow tracker** connects to robustness under inter-node communication or SLAM dropouts. Cite in the cooperative multi-node + semantic-mapping discussion. |
+
+### Why these matter
+
+1. **BayesianGS-SLAM** tightens the uncertainty-aware GS-SLAM story.
+   VarSplat (in bib) learns per-splat *color* variance and uses it in
+   tracking/registration/loop detection; VBGS-SLAM (in bib) puts
+   variational posteriors over Gaussian *parameters* for closed-form
+   updates. BayesianGS-SLAM is the first to argue — and demonstrate —
+   that the right move is to decompose predictive uncertainty into
+   **sensor-noise** + **opacity-induced map-representation** terms for
+   *both* color and depth, and then reuse that single quantity across
+   mapping, tracking, *and* keyframe selection. For Co-LIC2 this is
+   useful in two ways. First, it gives a principled place to insert
+   LiDAR-specific sensor-noise terms alongside the visual ones in a LIV
+   GS-SLAM, rather than bolting on a separate depth-uncertainty model.
+   Second, its **predictive-surprise keyframe criterion** (negative
+   posterior-predictive likelihood, an information-gain quantity) is a
+   cleaner, principled replacement for the heuristic keyframe triggers
+   common in GS-SLAM, and it explicitly reduces redundant mapping
+   updates — relevant to the cooperative setting where each node's
+   mapping budget is constrained.
+
+2. **CognitiveReality** extends the cooperative/semantic thread. It is
+   not a multi-*agent* SLAM system like CoRef-GS / MAGS-SLAM, but its
+   architecture is the closest existing analogue to a **single-node
+   cooperative map server**: a robot-agnostic mapper that ingests poses
+   from any SLAM backend and maintains a shared, semantically indexed
+   Gaussian map that multiple consumers (here, a VR operator + an LLM
+   agent) read and write. Three design elements are directly
+   transferable to Co-LIC2's cooperative LIV GS-SLAM: (a) the
+   robot-agnostic pose ingestion, which generalizes naturally to
+   multi-node pose streams from heterogeneous LIV rigs; (b) persistent
+   open-vocabulary instance identities with per-object quality tracking,
+   which is exactly the per-object provenance a cooperative semantic
+   Gaussian map needs when multiple nodes observe the same instance;
+   and (c) the shadow tracker + keyframe-anchored PnP that bridges SLAM
+   outages, relevant to inter-node communication gaps or tracker
+   failures in a cooperative deployment.
+
+### Reproducing the Addendum 26 survey
+
+Searches were run via `mcp__doubao-search__web_search` on 2026-10-02
+with `OneWeek` and `OneMonth` time-range filters:
+
+1. `Gaussian Splatting SLAM LiDAR visual inertial 2026` (OneWeek, 4 results)
+   — re-confirmed MonoGS (CVPR 2024, in bib); surfaced DroneSplat+
+   (TPAMI Oct 2026, drone RGB 3DGS reconstruction, excluded as non-SLAM)
+   and the Uncertainty-Driven 3DGS RGB-D SLAM (Jiang et al., TASE 2026)
+   which itself cites VarSplat/VBGS-SLAM already in the bib.
+2. `3DGS SLAM multi-agent cooperative map fusion 2026 arXiv` (OneWeek, 5
+   results) — re-confirmed MAGS-SLAM (A25); surfaced **CognitiveReality**
+   (arXiv:2609.31418, 25 Sep 2026) and HAMMER (arXiv:2501.14147, LRA
+   2025, server-based collaborative semantic 3DGS — ruled out as already
+   considered and not LIV/cooperative-SLAM-core).
+3. `LiDAR inertial visual Gaussian Splatting SLAM real-time 2026 arXiv`
+   (OneMonth, 12 results) — re-confirmed Wanderland (`liu2026wanderland`,
+   CVPR 2026), LV-GS SLAM (`he2026lvgsslam`), ArborSplat (A17),
+   Dual-Covariance GS-SLAM (A17); no new LIV GS-SLAM papers this window.
+4. `VarSplat uncertainty-aware 3D Gaussian Splatting RGB-D SLAM arXiv`
+   (no time-range, 20 results) — re-confirmed VarSplat, VBGS-SLAM,
+   GAVIS, UNG-GS, PUP-3DGS, POp-GS; surfaced **BayesianGS-SLAM**
+   (arXiv:2609.24140, 21 Sep 2026) as the new uncertainty-aware GS-SLAM
+   entry not yet in the inventory.
+5. `Gaussian Splatting SLAM 2026 new arXiv October September large-scale
+   outdoor` (OneWeek, 11 results) — re-confirmed FilterGS (non-SLAM LoD
+   rendering), RRG-SLAM (A24), RRTO-CF3DGS (A24); surfaced UGOD
+   (arXiv:2609.39089, sparse-view 3DGS, excluded as non-SLAM) and a
+   batch of feed-forward / dynamic-3DGS papers (AESplat, DispFlow-GS,
+   NRF-GS, SurgGMF) all excluded as non-SLAM.
+
+### Inventory
+
+After Addendum 26 the survey holds **113 BibTeX entries** in
+`bib/references.bib` and **104 PDFs** in `papers/`. The 24-h code review
+recorded two docs-only commits (Addendum 25 survey files + a MobiCom
+undefined-reference/figure fix); no source-tree changes. RMGS-SLAM
+(arXiv:2604.12942) remains the closest contemporary LiDAR-Inertial-Visual
+3DGS SLAM head-to-head baseline; VIGS-SLAM (A22) the visual-inertial
+baseline; CoRef-GS (A23) the cooperative multi-agent visual+semantic
+baseline; MAGS-SLAM (A25) the cooperative multi-agent RGB-only baseline;
+ChronoFuseGS (A24) the temporal-axis Gaussian-map-fusion counterpart;
+and BayesianGS-SLAM (A26) now joins VarSplat + VBGS-SLAM as the
+uncertainty-aware GS-SLAM family to cite in the robustness discussion.
+
+## Addendum 27 (2026-10-03) — four newly surveyed related works
+
+### 24-hour code review
+
+The last 24 hours of git history (since 2026-10-02 ~02:10) contain **no
+new commits** — the last commit is still `1bbb9e6` (2026-10-01 21:11,
+"fix(mobicom): 修复未定义引用、标题书签警告并恢复数据流程图"). The working
+tree carries uncommitted edits to `latex/README.md` and
+`latex/bib/references.bib` from Addendum 26 (+199 lines, the
+BayesianGS-SLAM + CognitiveReality entries). No code under `src/`,
+`include/`, `launch/`, `config/`, or `CMakeLists.txt` was touched. So the
+Gaussian-LIC2 implementation tree is unchanged since Addendum 26; this
+round is purely a literature-refresh pass.
+
+### New papers added this round
+
+Four genuinely new papers not in the inventory were identified and
+added. The Doubao search surfaced a productive cluster around the
+**FAST-LIVO2-lineage LIVO family** — the same lineage Gaussian-LIC2
+builds on — so this round substantially strengthens the LIVO /
+multi-camera / degeneracy-handling coverage. Re-appearing candidates
+already in the bib were ruled out: Structured-Li-GS (A18, ISPRS 2026),
+Pi3MOS-SLAM (`zhong2026pi3mosslam`, CVPR 2026), MCGS-SLAM
+(`cao2026mcgsslam`, ICRA 2026), RRG-SLAM (A24), CoRef-GS (A23),
+DroneSplat+ (TPAMI Oct 2026, drone RGB 3DGS, non-SLAM, excluded),
+AESplat / NRF-GS (feed-forward / appearance 3DGS, non-SLAM, excluded),
+MonoGS (CVPR 2024, in bib).
+
+| Paper | Venue / date | Sensor | Key idea | Relation to Gaussian-LIC2 |
+|---|---|---|---|---|
+| **Omni-LIVO** (`cao2026omnilivo`, arXiv:2509.15673 v5 29 Mar 2026; IEEE RA-L 11(4):4369–4376, Apr 2026) | IEEE RA-L 2026 | Multi-camera + LiDAR + IMU | Tightly-coupled **multi-camera LIVO extending FAST-LIVO2**. A Cross-View temporal-migration direct-alignment strategy preserves photometric consistency across **non-overlapping** camera views as patches transition between cameras; the ESIKF is extended with multi-view updates + adaptive per-view covariance for heterogeneous measurement reliability; LiDAR-derived depth drives multi-camera sparse direct alignment for extended spatial coverage. Outperforms SOTA LIVO / LIO / VI-SLAM baselines; deployed on the Omni-Bot underground-parking inspection robot (4-view panoramic camera + 360° LiDAR + IMU). | **Direct LIVO-lineage relative — high relevance.** Same FAST-LIVO2 base as Gaussian-LIC2. The multi-camera extension is the natural counterpart to a single-node multi-camera LIV rig, and the cross-view patch migration + adaptive multi-view ESIKF transfer to a cooperative LIV setting where different nodes / cameras observe non-overlapping regions of the same LiDAR-colored map. Cite alongside FAST-LIVO2 / GS-LIVO as the multi-camera LIVO extension. |
+| **SA-LIVO** (`cao2026salivo`, arXiv:2606.25699 v2 6 Aug 2026, v1 24 Jun 2026) | arXiv (cs.RO) | LiDAR + camera + IMU | **Subspace-Aware LIVO** addressing independent failure modes (LiDAR degeneracy vs vision degradation). SAIF eigendecomposes the **joint LiDAR-visual information matrix** and gates each eigendirection by a single-threshold linear clamp — attenuating degenerate directions, passing well-observed ones at full strength; robust per-residual gating + scene-level quality factor screen corrupted measurements. LiDAR + visual residuals share **one InEKF loop at a shared linearization point**, and photometric Jacobians are assembled once and reused across iterations (visual information contributes only where LiDAR is deficient). 29 sequences (HILTI'22, NCD, Oxford Spires): competitive accuracy, bounded drift where R3LIVE / SR-LIVO diverge; 12.3 ms/frame laptop CPU, 26.8 ms embedded ARM w/o GPU, 3.6–6.3× lower peak memory. | **Direct LIVO-lineage relative — high relevance for robustness.** Same FAST-LIVO2 lineage. The direction-selective subspace-aware fusion is the principled degeneracy-handling counterpart to ad-hoc modality gating, directly transferable to a LIV GS-SLAM where LiDAR and visual residuals must be fused per-direction under geometric / photometric degradation; the single-loop InEKF with reused photometric Jacobians is an efficiency pattern relevant to embedded cooperative-node deployment. Cite in the LIVO / degeneracy-handling discussion. |
+| **FIRE-LIVWO** (`hu2026firelivwo`, arXiv:2609.05325 v1 4 Sep 2026) | arXiv (cs.RO) | LiDAR + camera + IMU + 4D mmWave radar + wheel | **Failure-Immune mmWave-Radar-Enhanced LiDAR-Inertial-Visual-Wheel Odometry** for large-scale underground coal mines with combined visual + geometric degeneracy. IESKF-based tightly-coupled multi-modal fusion in a unified VoxelMap: LiDAR-radar point-to-plane residuals + sparse visual photometric residuals + pointwise Doppler velocity constraints (mmWave penetration in smoke/dust) + wheel odometry with non-holonomic constraints + online lever-arm compensation (long-corridor geometric degeneracy). A degradation-detection + adaptive fusion model-switching strategy grounded in geometric + visual observability analysis dynamically adjusts modality weights/activation. Real-world coal-mine experiments: avg error 5.677 m, superior to baselines; open-sourced. | **Robustness / degeneracy-handling thread — peripheral but relevant.** The most aggressive extension of the LIVO degeneracy-handling thread (cf. SA-LIVO's subspace-aware approach): adds mmWave radar + wheel odometry as complementary modalities under combined smoke/dust visual failure + corridor geometric failure. Peripheral to the core LIV GS-SLAM design but relevant to the robustness / degeneracy-handling discussion and to extreme-environment deployment. Cite alongside SA-LIVO in the degeneracy-handling discussion. |
+| **StreamRig** (`wei2026streamrig`, arXiv:2609.40244 v1 30 Sep 2026) | arXiv (cs.CV) | Multi-camera (visual only) | **Streaming multi-camera odometry on a frozen multi-view 3D foundation model** — the first streaming odometer to transfer a frozen multi-view 3D foundation model to general multi-camera rigs. A frozen front-end jointly encodes synchronized images with intrinsics + rig extrinsics; a Rig-Resampler compresses each camera's features into a few latent tokens; a CausalBridge applies causal attention with a key-value cache; a lightweight head regresses rig poses; periodic re-anchoring supports stable long-sequence estimation. Only 74.6M trainable params, relative poses as sole supervision; two-stage training (group relocalization pretraining + causal rig training). Evaluated on NCLT, TartanGround, KITTI-360 + a humanoid-robot rig (zero-shot real-world transfer): lowest drift among non-oracle methods; 5-camera inference lower memory + latency than monocular CUT3R. | **Multi-camera / learned-odometry thread — peripheral.** Visual-only learned odometry, no LiDAR / inertial / Gaussian map. The multi-camera rig-aware streaming formulation is a reference for learned multi-camera front-ends that could complement a LIV GS-SLAM, and the freeze-and-stream transfer recipe (frozen 3D foundation model + compact trained pose back-end) is a relevant pattern for future learned-frontend integration. Cite in the multi-camera / learned-odometry discussion. |
+
+### Why these matter
+
+1. **Omni-LIVO + SA-LIVO** strengthen the FAST-LIVO2-lineage LIVO
+   coverage — the same lineage Gaussian-LIC2 builds on. **Omni-LIVO**
+   is the multi-camera extension of FAST-LIVO2, and its Cross-View
+   temporal patch migration + adaptive multi-view ESIKF are the closest
+   existing analogues to what a cooperative LIV node would need when
+   different cameras / nodes observe non-overlapping regions of a shared
+   LiDAR-colored map. **SA-LIVO** is the principled degeneracy-handling
+   entry: rather than gating modalities wholesale, it eigendecomposes
+   the joint LiDAR-visual information matrix and gates per-eigendirection,
+   so visual residuals are steered into exactly the pose directions
+   LiDAR under-constrains. The single-loop InEKF with once-assembled
+   reused photom
+etric Jacobians is an efficiency pattern directly
+relevant to embedded cooperative-node deployment. Together they frame
+the LIVO design space Gaussian-LIC2 sits in: multi-camera coverage
+(Omni-LIVO) + direction-selective robust fusion (SA-LIVO).
+
+2. **FIRE-LIVWO** extends the degeneracy-handling thread to the most
+   extreme multi-modal setting yet surveyed (LiDAR + camera + IMU + 4D
+   mmWave radar + wheel), with an observability-grounded adaptive
+   fusion-switching strategy. It is the reference for what LIVO-style
+   tight coupling looks like under combined visual + geometric failure
+   (smoke/dust + long corridors), and is the natural contrast to
+   SA-LIVO's direction-selective approach: FIRE-LIVWO switches
+   modalities, SA-LIVO switches directions within the fused update.
+
+3. **StreamRig** adds a learned-multi-camera-odometry reference. It is
+   not a LIVO system and builds no Gaussian map, but it is the current
+   state of the art for streaming rig-aware visual odometry and its
+   freeze-and-stream transfer recipe (frozen 3D foundation model +
+   compact trained pose back-end) is a relevant pattern for any future
+   learned-frontend integration into a LIV GS-SLAM.
+
+### Reproducing the Addendum 27 survey
+
+Searches were run via `mcp__doubao-search__web_search` on 2026-10-03
+with `OneWeek` and `OneMonth` time-range filters:
+
+1. `3DGS SLAM LiDAR visual inertial 2026 arxiv` (OneWeek, 6 results)
+   — re-confirmed Structured-Li-GS (A18), Pi3MOS-SLAM (in bib), RRG-SLAM
+   (A24); surfaced an LIO-SLAM indoor-improvement paper (Sun Yat-sen
+   Univ. J., 2026) excluded as a non-Gaussian LIO/VIO engineering paper.
+2. `Gaussian Splatting SLAM real-time mapping tracking 2026` (OneWeek,
+   5 results) — re-confirmed MonoGS (CVPR 2024, in bib), RRG-SLAM (A24);
+   surfaced Gassidy (dynamic-env 3DGS-SLAM, blog repost, not separately
+   added) and a medical-lab digital-twin 3DGS application (excluded as
+   non-SLAM application).
+3. `3D Gaussian Splatting SLAM arxiv 2609 2610 new method` (OneWeek,
+   12 results) — re-confirmed RRG-SLAM (A24), CoRef-GS (A23),
+   DroneSplat+ (excluded), MCGS-SLAM (in bib); surfaced AESplat
+   (arXiv:2609.36693, feed-forward pose-free 3DGS, non-SLAM, excluded),
+   NRF-GS (arXiv:2609.37115, neural residual appearance field for 3DGS,
+   non-SLAM, excluded), a Prior-Driven Normals/Depths-Regularization
+   3DGS paper (arXiv:2609.36969, SfM-prior 3DGS, non-SLAM, excluded).
+4. `collaborative multi-agent Gaussian Splatting mapping fusion 2026
+   arxiv` (OneMonth, 14 results) — re-confirmed CoRef-GS (A23),
+   MCGS-SLAM (in bib), NRF-GS (excluded); no new cooperative entries.
+5. `LiDAR inertial visual odometry LIVO SLAM 2026 new` (OneMonth, 20
+   results) — re-confirmed FAST-LIVO2 (in bib), Dynamic-LIVO (in bib);
+   surfaced **Omni-LIVO** (RA-L Apr 2026, arXiv:2509.15673),
+   **SA-LIVO** (arXiv:2606.25699), **FIRE-LIVWO** (arXiv:2609.05325),
+   and **StreamRig** (arXiv:2609.40244) as new LIVO / multi-camera
+   odometry entries not yet in the inventory; also surfaced a LiLi Lie-
+   theory degeneracy-detection paper (arXiv:2609.17145, LIO degeneracy
+   detector only, excluded as not a full LIVO system).
+6. `Omni-LIVO multi-camera visual inertial LiDAR odometry arxiv 2026`
+   (OneMonth, 12 results) — confirmed Omni-LIVO arXiv ID 2509.15673,
+   RA-L vol.11 no.4 pp.4369–4376, DOI 10.1109/LRA.2026.3662590, and the
+   Omni-Bot deployment paper (UPINLBS Dec 2025, excluded as the
+   application paper, Omni-LIVO itself added).
+7. `SA-LIVO Subspace-Aware degeneracy arxiv 2606` (OneMonth, 10 results)
+   — confirmed SA-LIVO arXiv:2606.25699 (v1 24 Jun 2026, v2 6 Aug 2026);
+   also surfaced FAST-LIVGO (arXiv:2606.19190, LIVO+GNSS degeneracy-
+   robust odometry) as a related but already-lineage-covered entry
+   (excluded to keep the degeneracy-handling set focused on SA-LIVO +
+   FIRE-LIVWO).
+
+### Inventory
+
+After Addendum 27 the survey holds **117 BibTeX entries** in
+`bib/references.bib` and **108 PDFs** in `papers/`. The 24-h code review
+recorded no new commits and no source-tree changes (uncommitted
+Addendum 26 working-tree edits only). RMGS-SLAM (arXiv:2604.12942)
+remains the closest contemporary LiDAR-Inertial-Visual 3DGS SLAM head-
+to-head baseline; VIGS-SLAM (A22) the visual-inertial baseline; CoRef-GS
+(A23) the cooperative multi-agent visual+semantic baseline; MAGS-SLAM
+(A25) the cooperative multi-agent RGB-only baseline; ChronoFuseGS (A24)
+the temporal-axis Gaussian-map-fusion counterpart; BayesianGS-SLAM (A26)
+joins VarSplat + VBGS-SLAM as the uncertainty-aware GS-SLAM family;
+Omni-LIVO (A27) is now the multi-camera LIVO extension in the FAST-LIVO2
+lineage; SA-LIVO (A27) the direction-selective degeneracy-handling LIVO
+counterpart; FIRE-LIVWO (A27) the most aggressive multi-modal
+degeneracy-handling extension (LIVO + mmWave + wheel); StreamRig (A27)
+the learned multi-camera streaming-odometry reference.
+
+
+---
+
+## Addendum 28 (2026-10-04) — three newly surveyed related works
+
+### 24-hour code review
+
+The last 24 hours of git history (since 2026-10-03 ~02:10) contain **no
+new commits** — the last commit is still `1bbb9e6` (2026-10-01 21:11,
+"fix(mobicom): 修复未定义引用、标题书签警告并恢复数据流程图"). The
+working tree carries uncommitted edits to `latex/README.md` and
+`latex/bib/references.bib` carried over from Addendum 26/27 (+490 lines
+cumulative: BayesianGS-SLAM + CognitiveReality + Omni-LIVO + SA-LIVO +
+FIRE-LIVWO + StreamRig entries). No code under `src/`, `include/`,
+`launch/`, `config/`, or `CMakeLists.txt` was touched. So the
+Gaussian-LIC2 implementation tree is unchanged since Addendum 26; this
+round is again purely a literature-refresh pass.
+
+### New papers added this round
+
+Three genuinely new papers not in the inventory were identified and
+added. The Doubao search (OneWeek / OneMonth, six calls) surfaced a
+late-September / early-October batch on **3DGS view-selection cost
+control, illumination-robust 3DGS, and uncertainty-driven adaptive
+volumetric mapping** — complementary to the LIVO-family focus of
+Addendum 27. Re-appearing candidates already in the bib were ruled out:
+PanoGS-SLAM (arXiv:2609.17387, in bib), Dual-Covariance GS-SLAM
+(`tan2026dualcovgsslam`, A17, arXiv:2609.25746, in bib), LightSplat
+(arXiv:2609.07274, IROS 2026, in bib), SCOUT-SLAM (arXiv:2609.14634, in
+bib), EliGSiR (arXiv:2609.20348, in bib), LiTe-GS (`pandey2026litegs`,
+A23), RRG-SLAM (A24), CoRef-GS (A23), MAGS-SLAM (A25), Structured-Li-GS
+(A18), MCGS-SLAM (in bib), DynActiveGS (A25), MonoGS (CVPR 2024, in
+bib). Newly excluded: a Luminance-vs-Chroma 3DGS geometry-formation
+study (arXiv:2610.00749, non-SLAM 3DGS analysis), Prior-Driven Normals/
+Depths-Regularization 3DGS (arXiv:2609.36969, SfM-prior 3DGS, non-SLAM),
+EffGS (arXiv:2609.39553, 3DGS acceleration/density-control, non-SLAM),
+GS-PQM (arXiv:2610.00195, compressed-GS quality metric, non-SLAM).
+
+| Paper | Venue / date | Sensor | Key idea | Relation to Gaussian-LIC2 |
+|---|---|---|---|---|
+| **AGILE-GS** (`khass2026agilegs`, arXiv:2609.34176 v1 28 Sep 2026) | arXiv (cs.CV) | Active 3DGS (RGB, simulator) | **Anchor-guided fast Next-Best-View (NBV) selection for active 3DGS.** Decouples "where is the most informative viewpoint in SE(3)" from "which candidate in the pool best reproduces it". A virtual **anchor pose** is optimized on SE(3) by Riemannian gradient ascent on expected information gain (Fisher information) — it need not be reachable or in the pool; it marks where the model is most uncertain. Each candidate then receives an **anchor leverage score** measuring how well it reproduces the anchor's viewing geometry, and a **greedy ridge-leverage subset-selection** step distills the pool into a small, non-redundant shortlist **without rendering any candidate**. AGILE-GS takes the leading shortlist view directly (zero Fisher evaluations on candidates); AGILE-GS+ reranks the shortlist by Fisher information gain (a handful of evaluations). Matches/exceeds FisherRF / POp-GS / COVER reconstruction accuracy at **1–2 orders of magnitude lower selection latency**; validated in closed-loop embodied acquisition on a simulated manipulator. | **View-selection / cost-control thread — peripheral but relevant.** Same Lehigh group as LiTe-GS (A23) and shares the ε/ridge-leverage efficiency framing. Peripheral to the LIV GS-SLAM core (RGB active 3DGS, no LiDAR/inertial/SLAM loop) but directly relevant to **keyframe / active-view-selection cost control** in a streaming LIV GS-SLAM: the anchor-guided decoupling (continuous SE(3) information optimum → discrete pool shortlist, no per-candidate rendering) is a transferable pattern for choosing which candidate frame/keyframe to optimize next under bounded compute, complementing LiTe-GS's randomized-subset oracle-complexity bound. Cite alongside LiTe-GS in the view-selection / compute-budget discussion. |
+| **EvenSplat** (`wu2026evensplat`, arXiv:2610.01876 v1 1 Oct 2026) | arXiv (cs.CV) | RGB (multi-view 3DGS) | **Coupled 2D–3D illumination decomposition for 3DGS under exposure and illumination variation.** Standard 3DGS entangles capture-specific illumination with the geometry/color it recovers — a surface under uneven light looks different from different angles. EvenSplat couples an **image-space illumination decomposition** with an **illumination field carried by the Gaussians**, so the same explanation of the lighting is shared between the 2D and 3D views of the scene; a **camera-response network** absorbs global cross-view exposure differences and a **local exposure-compensation module** absorbs residual spatial illumination variation within a single image. Outperforms SOTA 3DGS methods across cross-view exposure, spatial illumination variation, and high-contrast lighting on real + simulated benchmarks, particularly under high-contrast illumination. | **Appearance-robustness thread — peripheral but relevant.** Not a SLAM system (offline 3DGS, no LiDAR/inertial/pose estimation), but directly addresses the **photometric-inconsistency-under-varying-illumination** problem that corrupts direct/photometric tracking in LIVO and GS-SLAM when exposure changes between views or lighting varies within a frame. The coupled 2D–3D illumination field + camera-response network is a transferable pattern for robustifying the visual residual term in a LIV GS-SLAM operating under auto-exposure / HDR / outdoor lighting changes — complementary to RRG-SLAM's (A24) reflection handling and to DynActiveGS's (A25) structural-vs-motion uncertainty split. Cite in the appearance-modeling / robust-tracking discussion. |
+| **UnRL** (`ozkan2026unrl`, arXiv:2610.00188 v1 17 Sep 2026; BMVC 2026) | BMVC 2026 | RGB-D (TSDF volumetric mapping) | **Uncertainty-Aware RL-Controlled Adaptive 3D Mapping.** Replaces fixed-resolution TSDF voxel grids with a **multi-resolution TSDF** whose subdivision is driven by **semantic entropy** (label-uncertainty, class-agnostic, no semantic-taxonomy dependence) plus **geometric curvature** and **texture richness** as scene-complexity cues. A **reinforcement-learning agent (PPO)** then learns voxel-subdivision policies under a **user-specified target memory budget** — replacing hand-tuned thresholds with a single intuitive control parameter (a physical memory amount in MB). The RL agent observes local + global voxel statistics and trades reconstruction accuracy against storage cost. Outperforms MAP-ADAPT and fixed-resolution baselines on synthetic + real-world datasets in geometric accuracy, semantic consistency, and memory–accuracy trade-off. Code + models released. | **Memory-budget / adaptive-mapping thread — peripheral but relevant.** Not a GS-SLAM (TSDF volumetric, RGB-D), but directly addresses the **bounded-memory adaptive-mapping** problem that any long-running or cooperative LIV GS-SLAM must solve — how to allocate finite Gaussian/voxel budget to where it matters most. The semantic-entropy + curvature + texture complexity cues and the **RL-under-memory-budget** formulation are transferable to adaptive Gaussian densification / pruning under a memory cap in a cooperative setting (per-node memory budget → per-node subdivision policy). Cite alongside BayesianGS-SLAM (A26) and the uncertainty-aware family in the mapping-budget / adaptive-resolution discussion. |
+
+### Why these matter
+
+1. **AGILE-GS** closes out the **view-selection / cost-control** thread
+   opened by LiTe-GS (A23). Where LiTe-GS bounds the *number* of Fisher
+   oracle evaluations via randomized subset selection (O(M log(1/ε)),
+   independent of cardinality K), AGILE-GS decouples *where the
+   informative viewpoint is* (continuous SE(3) anchor, no rendering)
+   from *which candidate approximates it* (anchor leverage score +
+   ridge-leverage subset selection, no per-candidate rendering). The
+   two are complementary: LiTe-GS is the oracle-efficient evaluator,
+   AGILE-GS is the rendering-free shortlister; together they frame the
+   NBV-cost-control design space for a streaming GS-SLAM's keyframe /
+   active-view decision under bounded compute.
+
+2. **EvenSplat** adds the **illumination-robustness** angle that the
+   survey's appearance-modeling thread (RRG-SLAM reflections A24,
+   DynActiveGS dynamic-uncertainty A25) was missing. Photometric
+   inconsistency under auto-exposure / HDR / spatial illumination
+   variation is a primary corruption source for the direct visual
+   residual in LIVO and GS-SLAM; the coupled 2D–3D illumination field +
+   camera-response network is a principled decomposition that could
+   robustify the visual term in a LIV GS-SLAM without abandoning
+   differentiable rendering.
+
+3. **UnRL** brings a **bounded-memory adaptive-mapping** formulation
+   the survey had not previously covered. The semantic-entropy +
+   curvature + texture complexity cues are class-agnostic and
+   transferable to Gaussian densification/pruning decisions, and the
+   RL-under-memory-budget formulation is a principled replacement for
+   hand-tuned densification thresholds — directly relevant to
+   cooperative LIV GS-SLAM where each node has a finite and possibly
+   heterogeneous memory budget. It joins BayesianGS-SLAM (A26) in the
+   uncertainty/budget-aware mapping discussion, with the two being
+   complementary: BayesianGS-SLAM quantifies *where* map uncertainty
+   comes from, UnRL controls *how much* memory to spend reducing it.
+
+### Reproducing the Addendum 28 survey
+
+Searches were run via `mcp__doubao-search__web_search` on 2026-10-04
+with `OneWeek` and `OneMonth` time-range filters:
+
+1. `3DGS SLAM LiDAR inertial visual Gaussian 2026` (OneWeek, 4 results)
+   — re-confirmed Structured-Li-GS (A18), LiV-GS (RA-L 2025, in bib),
+   SEGS-SLAM (ICCV 2025, in bib).
+2. `Gaussian splatting SLAM cooperative multi-agent map fusion arXiv`
+   (OneMonth, 12 results) — re-confirmed CoRef-GS (A23), HAMMER (LRA
+   2025, excluded earlier), MNE-SLAM (CVPR 2025, in bib); surfaced no
+   new cooperative-GS entries since A23/A25.
+3. `LIVO LiDAR visual inertial odometry FAST-LIVO arXiv October 2026`
+   (OneWeek, 6 results) — re-confirmed FAST-LIVO2 source-reading blog
+   posts; no new LIVO arXiv since A27's Omni-LIVO / SA-LIVO / FIRE-LIVWO.
+4. `Gaussian Splatting SLAM real-time dynamic scene tracking arXiv 2026`
+   (OneMonth, 19 results) — re-confirmed Dual-Covariance GS-SLAM (A17,
+   in bib), MonoGS (in bib), DynActiveGS (A25); newly surfaced AGILE-GS
+   (arXiv:2609.34176, added) and EffGS (arXiv:2609.39553, non-SLAM 3DGS
+   acceleration, excluded).
+5. `arXiv 2610 Gaussian splatting SLAM novel October 2026` (OneWeek, 9
+   results) — newly surfaced EvenSplat (arXiv:2610.01876, added), a
+   Luminance-vs-Chroma 3DGS geometry-formation study
+   (arXiv:2610.00749, non-SLAM analysis, excluded), GS-PQM
+   (arXiv:2610.00195, compressed-GS quality metric, excluded),
+   UnRL/Uncertainty-Aware RL-Controlled Adaptive 3D Mapping
+   (arXiv:2610.00188, BMVC 2026, added); re-confirmed RRG-SLAM (A24),
+   CollisionSplatting (A24).
+6. `visual inertial odometry Gaussian splatting online mapping arXiv
+   September October 2026` (OneMonth, 19 results) — re-confirmed
+   PanoGS-SLAM (arXiv:2609.17387, in bib), LightSplat (IROS 2026, in
+   bib), SCOUT-SLAM (arXiv:2609.14634, in bib), EliGSiR
+   (arXiv:2609.20348, in bib), VIGS-SLAM (ECCV 2026, A22), Prior-Driven
+   Normals/Depths-Regularization 3DGS (arXiv:2609.36969, non-SLAM,
+   excluded); no new LIV GS-SLAM head-to-head baseline surfaced.
+
+### Inventory
+
+After Addendum 28 the survey holds **120 BibTeX entries** in
+`bib/references.bib` and **111 PDFs** in `papers/`. The 24-h code review
+recorded no new commits and no source-tree changes (uncommitted
+Addendum 26/27 working-tree edits only, now augmented by the A28
+addendum). RMGS-SLAM (arXiv:2604.12942) remains the closest contemporary
+LiDAR-Inertial-Visual 3DGS SLAM head-to-head baseline; VIGS-SLAM (A22)
+the visual-inertial baseline; CoRef-GS (A23) the cooperative multi-
+agent visual+semantic baseline; MAGS-SLAM (A25) the cooperative
+multi-agent RGB-only baseline; ChronoFuseGS (A24) the temporal-axis
+Gaussian-map-fusion counterpart; BayesianGS-SLAM (A26) joins VarSplat +
+VBGS-SLAM as the uncertainty-aware GS-SLAM family; Omni-LIVO (A27) the
+multi-camera LIVO extension in the FAST-LIVO2 lineage; SA-LIVO (A27)
+the direction-selective degeneracy-handling LIVO counterpart;
+FIRE-LIVWO (A27) the most aggressive multi-modal degeneracy-handling
+extension (LIVO + mmWave + wheel); StreamRig (A27) the learned
+multi-camera streaming-odometry reference; AGILE-GS (A28) now joins
+LiTe-GS (A23) in the view-selection / cost-control thread; EvenSplat
+(A28) the illumination-robust 3DGS counterpart in the appearance-
+modeling thread; UnRL (A28) the bounded-memory adaptive-mapping
+counterpart in the mapping-budget discussion.
+
+---
+
+## Addendum 29 (2026-10-05) — four newly surveyed related works
+
+### 24-hour code review
+
+The last 24 hours of git history (since 2026-10-04 ~02:10) contain **no
+new commits** — the last commit is still `1bbb9e6` (2026-10-01 21:11,
+"fix(mobicom): 修复未定义引用、标题书签警告并恢复数据流程图"). The
+working tree carries uncommitted edits to `latex/README.md` and
+`latex/bib/references.bib` accumulated across Addenda 26/27/28 (+962
+lines cumulative: BayesianGS-SLAM + CognitiveReality + Omni-LIVO +
+SA-LIVO + FIRE-LIVWO + StreamRig + AGILE-GS + EvenSplat + UnRL). No
+code under `src/`, `include/`, `launch/`, `config/`, or `CMakeLists.txt`
+was touched. So the Gaussian-LIC2 implementation tree is unchanged
+since Addendum 26; this round is again purely a literature-refresh
+pass.
+
+### New papers added this round
+
+Four genuinely new papers not in the inventory were identified and
+added. The Doubao search (OneWeek / OneMonth, four calls) surfaced a
+batch spanning **LiDAR + 3D-vision-foundation-model fusion**, **2D-
+Gaussian visual-LiDAR odometry**, **LIVO-driven sparse-scan Gaussian
+densification**, and a **multi-agent neural-submap + 3DGS** SLAM.
+Re-appearing candidates already in the bib were ruled out:
+Structured-Li-GS (A18, in bib), LiV-GS (RA-L 2025, in bib), MAGS-SLAM
+(A25, in bib), CoRef-GS (A23), MAGiC-SLAM (CVPR 2025, in bib),
+GRAND-SLAM (LRA 2025, in bib), SplaTAM (in bib), MonoGS (CVPR 2024, in
+bib), VGGT-GS SLAM (`han2026vggtgsslam`, in bib), CGS-SLAM
+(`deambrogi2026cgsslam`, in bib). Newly excluded: D3GS (arXiv:2609.22941,
+sparse-view diffusion-guided 3DGS, non-SLAM), GSFix3D (3DV 2026, 3DGS
+novel-view repair, non-SLAM), Filling-the-Unseen / QA-Mask (ACM MM 2026,
+3DGS scene extrapolation, non-SLAM), LiDAR-GS++ (arXiv:2511.12304, LiDAR
+NVS re-simulation, non-SLAM), Splat-LOAM (arXiv:2503.17491, pure-LiDAR
+2DGS odometry, already excluded in earlier rounds as off-thread),
+SceneVGGT (ICIP 2026, VGGT-based semantic SLAM, off-thread VGGT
+extension), VGGT-DynMap (ICCA 2026, RGB-D VGGT dense mapping, no
+LiDAR/inertial), LEMON-Mapping (TASE 2026, multi-session point-cloud
+merging, no Gaussian/SLAM), CoMA-SLAM (AAAI 2026, in bib), DUAG-C
+(ISPRS J 2026, decentralized Gaussian consensus, no preprint and
+RGB-D-only, deferred), DGOMapping (Sensors 2026, 4DGS multi-agent, no
+preprint and dynamic-only, deferred).
+
+| Paper | Venue / date | Sensor | Key idea | Relation to Gaussian-LIC2 |
+|---|---|---|---|---|
+| **LiDAR-VGGT** (`wang2026lidarvggt`, arXiv:2511.01186 v1 3 Nov 2025; IEEE RA-L 11(4):4721–4728, Apr 2026) | arXiv → IEEE RA-L | LiDAR-IMU + RGB (LIVO setup) | **Cross-modal coarse-to-fine fusion of LiDAR-Inertial odometry with the VGGT 3D-vision foundation model for globally consistent, metric-scale dense colored mapping.** VGGT is a feed-forward transformer that infers camera poses + dense point clouds from a stack of images in one forward pass, but it lacks metric scale and degrades on long trajectories; LIVO is metric and globally consistent but sparse and exquisitely sensitive to extrinsic calibration. LiDAR-VGGT couples them in two stages: (1) **pre-fusion** — LIO poses seed VGGT per session, scale-RANSAC + a linearity-validation/rotation-correction step recovers a coarse metric scale for the VGGT point cloud even when camera motion is near-linear (a known VGGT degeneracy); (2) **post-fusion** — an enhanced cross-modal Sim(3) registration aligns the VGGT-colored clouds to the LiDAR map with a bounding-box regularization that suppresses the scale distortion induced by LiDAR-vs-camera FOV mismatch, followed by global pose-graph optimization. Outperforms both VGGT-based methods and LIVO baselines (FAST-LIVO2) on density + global consistency + color fidelity across MARS-LVIG, MUN-FRL, and a self-collected TechnologyPark dataset; robust even under inaccurate extrinsics / time sync. Releases a new colored-point-cloud evaluation toolkit (CD/CF/LCR/CCS). | **LIVO-lineage dense-mapping thread — directly relevant.** This is the first work to fuse a frozen 3D-vision foundation model (VGGT) into the LIVO loop, and it does so to fix the long-standing sparsity + extrinsic-sensitivity pain point of LIVO that the present survey's FAST-LIVO2-lineage thread (Omni-LIVO A27 multi-camera, SA-LIVO A27 degeneracy, FIRE-LIVWO A27 multi-modal) has been circling. The coarse-to-fine cross-modal Sim(3) + bbox-regularization pattern and the linearity-validation scale-recovery are transferable to a cooperative LIV GS-SLAM where per-node VGGT-style dense color could fill the gaps between sparse LiDAR-colored Gaussians. Also the natural reference for any "use a 3D foundation model to densify the LIV map" baseline. PDF saved as `Wang2026_LiDARVGGT.pdf`. |
+| **G²VLO** (`tu2026g2vlo`, IEEE RA-L 11(6):6911–6918, Jun 2026; no arXiv preprint as of 2026-10-05) | IEEE RA-L | Camera + LiDAR (no IMU) | **Accurate and generic 2D-Gaussian-based visual-LiDAR odometry.** Builds the odometry map as a set of 2D Gaussian surfels (the surface-oriented variant of 3DGS) and registers each new LiDAR scan + camera frame against the 2D-Gaussian map directly — the Gaussian map is both the rendering primitive and the registration target, in the spirit of LiV-GS (RA-L 2025, in bib) but using 2D rather than 3D Gaussians for better surface fidelity. Reported to outperform SOTA visual-LiDAR odometry on benchmark datasets. | **Visual-LiDAR odometry thread — directly relevant.** A 2D-Gaussian counterpart to LiV-GS (RA-L 2025, in bib): both register LiDAR against a Gaussian map, but G²VLO uses 2D surfels (orientation-explicit, surface-faithful) where LiV-GS uses 3D Gaussians. For a LIV GS-SLAM the choice of 2D vs 3D Gaussians is a live design decision (cf. PINGS, GS-ICP-SLAM, RMGS-SLAM); G²VLO is a clean data point on the 2D-Gaussian side of the visual-LiDAR odometry space and a head-to-head candidate for the LiDAR-visual tracking formulation. IEEE-only entry; no PDF saved (no arXiv preprint). |
+| **FillFusion-GS** (`sun2026fillfusiongs`, IEEE RA-L 11(7):8688–8695, Jul 2026; no arXiv preprint as of 2026-10-05) | IEEE RA-L | LiDAR + camera (LIVO-driven 3DGS) | **From sparse scans to dense scenes via visual-structure-guided 3D Gaussian splatting.** Uses a LIVO trajectory (cf. the present project's LIVO heritage) to align a sequence of sparse LiDAR scans + camera frames, then fills the gaps the sparse LiDAR leaves in the 3DGS map using **visual-structure guidance** — image-derived depth/normal cues steer Gaussian densification into LiDAR-unobserved regions so the final Gaussian map is dense and photo-consistent rather than sparse and hole-ridden. Targets the well-known failure mode of LiDAR-initialized 3DGS (sparse coverage → holes between scan lines) without abandoning the metric scale LiDAR provides. | **LIVO + 3DGS densification thread — directly relevant.** Addresses the sparsity problem that LiDAR-VGGT (above) tackles with a foundation model, but with a classical visual-structure-guidance approach instead — a useful contrast pair. Directly relevant to Gaussian-LIC2 because the project's LIVO backend produces exactly the sparse-LiDAR + camera-pose stream FillFusion-GS consumes; the visual-structure-guided densification is a candidate post-processing / online-densification stage on top of the LIV GS map. IEEE-only entry; no PDF saved (no arXiv preprint). |
+| **MANG-SLAM** (`li2026mangslam`, IEEE RA-L 11(2):2242–2249, Feb 2026; no arXiv preprint as of 2026-10-05) | IEEE RA-L | RGB-D (multi-agent) | **Multi-Agent Neural Submap + 3DGS for dense mapping.** Each agent independently builds **neural submaps** that guide 3DGS rendering; a server fuses the per-agent submaps (submap integration + loop-closure detection + global optimization) to correct accumulated drift, improve geometric consistency, and fill scene gaps. Targets the global-drift / loop-closure / gap-filling weaknesses of multi-agent 3DGS-SLAM (cf. MAGiC-SLAM CVPR 2025 in bib, CoMA-SLAM AAAI 2026 in bib, MAGS-SLAM A25, GRAND-SLAM LRA 2025 in bib). Validated on Replica + ScanNet, showing improved global consistency + local-detail recovery. | **Cooperative multi-agent GS-SLAM thread — directly relevant.** Joins the cooperative-multi-agent cluster (CoRef-GS A23, MAGS-SLAM A25, MAGiC-SLAM in bib, CoMA-SLAM in bib, GRAND-SLAM in bib) as another architectural data point: per-agent neural submaps + server-side submap fusion + loop closure + global optimization. The neural-submap-guides-Gaussian-rendering coupling and the server-side gap-filling are the closest analogues to the cooperative LIV GS-SLAM's per-node submap-merge design among RGB-D multi-agent works. Cite in the cooperative-multi-agent discussion alongside MAGS-SLAM and CoRef-GS. IEEE-only entry; no PDF saved (no arXiv preprint). |
+
+### Why these matter
+
+1. **LiDAR-VGGT** is the first work to fuse a frozen 3D-vision foundation
+   model into the LIVO loop, and it directly attacks the sparsity +
+   extrinsic-sensitivity pain point that the FAST-LIVO2-lineage thread
+   (Omni-LIVO, SA-LIVO, FIRE-LIVWO — all A27) has been circling. The
+   coarse-to-fine cross-modal Sim(3) + bbox-regularization +
+   linearity-validation scale-recovery pattern is transferable to
+   cooperative LIV GS-SLAM where per-node dense color from a foundation
+   model could fill the gaps between sparse LiDAR-colored Gaussians. It
+   is also the natural "use a 3D foundation model to densify the LIV
+   map" baseline the survey was missing.
+
+2. **G²VLO** and **FillFusion-GS** are two complementary LIVO-thread
+   data points the survey had not previously captured. G²VLO is the
+   2D-Gaussian counterpart to LiV-GS (RA-L 2025, in bib) on the
+   visual-LiDAR odometry side — a clean design-decision data point for
+   2D vs 3D Gaussians in the LIV tracking formulation. FillFusion-GS
+   attacks the same sparse-LiDAR coverage problem as LiDAR-VGGT but
+   with classical visual-structure guidance rather than a foundation
+   model, giving a contrast pair on the densification axis. Both are
+   directly on-thread for a LIVO-driven LIV GS-SLAM.
+
+3. **MANG-SLAM** extends the cooperative-multi-agent GS-SLAM cluster
+   (CoRef-GS A23, MAGS-SLAM A25, MAGiC-SLAM / CoMA-SLAM / GRAND-SLAM in
+   bib) with a per-agent neural-submap + server-side fusion + loop-
+   closure architecture — the closest analogue to the cooperative LIV
+   GS-SLAM's per-node submap-merge design among RGB-D multi-agent
+   works, and a useful citation in the cooperative-multi-agent
+   discussion.
+
+### Reproducing the Addendum 29 survey
+
+Searches were run via `mcp__doubao-search__web_search` on 2026-10-05
+with `OneWeek` and `OneMonth` time-range filters:
+
+1. `3DGS SLAM LiDAR inertial visual 2026 arxiv` (OneWeek, 3 results) —
+   re-confirmed Structured-Li-GS (A18), LiV-GS (RA-L 2025, in bib),
+   and a CVPR'26 Bonn dynamic-visual-SLAM post (off-thread); surfaced
+   LiDAR-VGGT (RA-L Apr 2026, added) via the FAST-LIVO citation list.
+2. `Gaussian Splatting SLAM cooperative multi-agent map fusion 2026`
+   (OneWeek, 5 results) — re-confirmed MAGS-SLAM (A25, in bib),
+   SplaTAM (in bib); newly surfaced MANG-SLAM (RA-L Feb 2026, added);
+   re-confirmed SplaTAM, MAGiC-SLAM (in bib).
+3. `LIVO LiDAR-Visual-Inertial Odometry Gaussian splatting 2026 arxiv`
+   (OneWeek, 5 results) — re-confirmed Structured-Li-GS (A18),
+   FAST-LIVO citation list (surfacing LiDAR-VGGT, G²VLO, FillFusion-GS,
+   SC-FAST-LIVO2, FAST-LIEO2); newly added G²VLO (RA-L Jun 2026,
+   IEEE-only) and FillFusion-GS (RA-L Jul 2026, IEEE-only);
+   SC-FAST-LIVO2 / FAST-LIEO2 deferred as conference/loop-closure
+   papers without preprints.
+4. `FillFusion-GS / LiDAR-VGGT / G2VLO / MANG-SLAM arxiv preprint`
+   (follow-up OneMonth + arXiv API checks) — confirmed LiDAR-VGGT has
+   arXiv:2511.01186 (PDF saved as `Wang2026_LiDARVGGT.pdf`); confirmed
+   G²VLO, FillFusion-GS, MANG-SLAM have **no arXiv preprint** as of
+   2026-10-05 (IEEE RA-L journal-only), so they are recorded as
+   DOI-only BibTeX entries without local PDFs.
+
+### Inventory
+
+After Addendum 29 the survey holds **124 BibTeX entries** in
+`bib/references.bib` and **112 PDFs** in `papers/`. The 24-h code review
+recorded no new commits and no source-tree changes (uncommitted
+Addendum 26/27/28 working-tree edits only, now augmented by the A29
+addendum). RMGS-SLAM (arXiv:2604.12942) remains the closest contemporary
+LiDAR-Inertial-Visual 3DGS SLAM head-to-head baseline; VIGS-SLAM (A22)
+the visual-inertial baseline; CoRef-GS (A23) the cooperative multi-
+agent visual+semantic baseline; MAGS-SLAM (A25) the cooperative
+multi-agent RGB-only baseline; ChronoFuseGS (A24) the temporal-axis
+Gaussian-map-fusion counterpart; BayesianGS-SLAM (A26) joins VarSplat +
+VBGS-SLAM as the uncertainty-aware GS-SLAM family; Omni-LIVO (A27) the
+multi-camera LIVO extension in the FAST-LIVO2 lineage; SA-LIVO (A27)
+the direction-selective degeneracy-handling LIVO counterpart;
+FIRE-LIVWO (A27) the most aggressive multi-modal degeneracy-handling
+extension (LIVO + mmWave + wheel); StreamRig (A27) the learned
+multi-camera streaming-odometry reference; AGILE-GS (A28) joins
+LiTe-GS (A23) in the view-selection / cost-control thread; EvenSplat
+(A28) the illumination-robust 3DGS counterpart in the appearance-
+modeling thread; UnRL (A28) the bounded-memory adaptive-mapping
+counterpart in the mapping-budget discussion; **LiDAR-VGGT (A29) now
+the foundation-model-augmented LIVO dense-mapping reference in the
+FAST-LIVO2 lineage**; **G²VLO (A29) the 2D-Gaussian visual-LiDAR
+odometry counterpart alongside LiV-GS (RA-L 2025)**; **FillFusion-GS
+(A29) the LIVO-driven sparse-scan Gaussian-densification counterpart
+alongside LiDAR-VGGT (foundation-model densification) and
+ChronoFuseGS (temporal-axis fusion)**; **MANG-SLAM (A29) joins the
+cooperative multi-agent GS-SLAM cluster alongside CoRef-GS (A23),
+MAGS-SLAM (A25), MAGiC-SLAM / CoMA-SLAM / GRAND-SLAM (in bib)**.
