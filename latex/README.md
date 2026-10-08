@@ -1,4 +1,4 @@
-# Gaussian-LIC2 — Related Work Survey (2026-09-08, updated 2026-10-05)
+# Gaussian-LIC2 — Related Work Survey (2026-09-08, updated 2026-10-08)
 
 This directory collects **recent related work** surveyed via Doubao web search,
 along with their original PDFs and a consolidated BibTeX file.
@@ -2729,3 +2729,130 @@ alongside LiDAR-VGGT (foundation-model densification) and
 ChronoFuseGS (temporal-axis fusion)**; **MANG-SLAM (A29) joins the
 cooperative multi-agent GS-SLAM cluster alongside CoRef-GS (A23),
 MAGS-SLAM (A25), MAGiC-SLAM / CoMA-SLAM / GRAND-SLAM (in bib)**.
+
+---
+
+## Addendum 30 (2026-10-08) — six newly surveyed related works
+
+**Date of this addendum:** 2026-10-08. **24-hour code review window:**
+the only commit in the past 24 h is `550215f` (2026-10-08 01:48, "docs
+(latex): 新增两篇不确定性感知SLAM文献并更新综述日期"), a docs-only
+commit (+873/−2 under `latex/README.md` and `latex/bib/references.bib`)
+that finalized the Addendum 26 entries (BayesianGS-SLAM +
+CognitiveReality) and bumped the survey "re-checked" date to 2026-10-05.
+**No source-tree (C++/Python/build) changes occurred** — the working tree
+is clean as of this round. Doubao web search was available; this round
+ran eight OneWeek/OneMonth web-search calls across 3DGS-SLAM, LIVO,
+multi-agent, dynamic-scene, and large-scale-3DGS keywords.
+
+### Newly surveyed papers
+
+| # | Paper | Venue / Date | Sensors / Modality | Key idea | Relation to Gaussian-LIC2 |
+|---|-------|--------------|---------------------|----------|---------------------------|
+| 1 | **Voxel-LIVO** `zhang2026voxellivo` | IEEE TIM 75, 28 Jan 2026 (DOI 10.1109/TIM.2026.3657488); **no arXiv** | LiDAR-Inertial-Visual (LIVO) | Unified adaptive voxel map supporting short-/mid-/long-term data association; IESKF fusion; LiDAR-map-assisted visual patch association (LM-VPA) uses LiDAR planar features for image-patch affine transforms; sequential LiDAR-visual local BA for mid-term association; hybrid keyframe-sparse + sliding-window-dense voxel map for memory-bounded long-term operation; strong under LiDAR/visual degeneracy | Direct FAST-LIVO2-lineage LIVO relative — the multi-timescale voxel-map + LM-VPA patch-warping pattern is a degeneracy-robust counterpart to SA-LIVO (A27) direction-selective and FIRE-LIVWO (A27) modality-switching; LM-VPA (LiDAR-plane-driven image-patch affine) is a candidate lightweight photometric-alignment augmentation for the LIV GS-SLAM tracking loop |
+| 2 | **DC-LIVO** (dual-confidence) `li2026dclivo` | Meas. Sci. Technol. 37(28):286306, Jul 2026 (DOI 10.1088/0957-0233/37/28/286306); **no arXiv** | LiDAR-Inertial-Visual (LIVO) | Tightly-coupled ESKF LIVO with explicit **dual-confidence** fusion + degradation awareness: LiDAR confidence from point-to-plane residual distribution, visual confidence from feature-correspondence quality under the measurement update; adaptively down-weights the degraded modality | FAST-LIVO2-lineage degeneracy-handling LIVO counterpart — complements SA-LIVO (A27, eigendirection gating) and FIRE-LIVWO (A27, modality switching) with a residual-distribution + correspondence-quality dual-confidence signal; the confidence-from-residual-distribution estimator transfers to LIV GS-SLAM as a per-residual weighting prior |
+| 3 | **HPGS-SLAM** `su2026hpgsslam` | IEEE RA-L 11(2):1882–1889, Feb 2026 (DOI 10.1109/LRA.2026.3700944); **no arXiv** | RGB-D (visual SLAM) | Hybrid point-guided dense visual SLAM: ORB-style sparse point tracking supplies accurate pose + 3D landmarks, then online 3DGS dense mapping with photorealistic reconstruction; evaluated on Replica / TUM-RGBD | Peripheral (RGB-D, no LiDAR/inertial) but joins the hybrid-tracking + GS-mapping family (cf. Photo-SLAM, GS-ICP SLAM in bib) — the sparse-point-guided GS-initialization + online-mapping pattern is a lightweight tracking alternative for LIV GS-SLAM when a feature frontend is available |
+| 4 | **DynaGSLAM** `li2026dynagslam` | WACV 2026, pp. 2434–2444 (DOI 10.1109/WACV57702.2026.00247); **no arXiv** | RGB-D, dynamic scenes | First real-time GS-SLAM achieving online GS rendering + tracking + **motion prediction of moving objects** in dynamic scenes while jointly estimating ego motion; explicitly models dynamic object trajectories instead of just filtering them | Dynamic-scene GS-SLAM counterpart — complements the dynamic-filtering approaches (DG-SLAM, GARAD-SLAM, WildGS-SLAM in bib; DynActiveGS A25 uncertainty decomposition) by *predicting* moving-object motion rather than discarding it; the joint ego-motion + dynamic-object trajectory estimation pattern is relevant to LIV GS-SLAM in populated environments where LiDAR sees dynamic objects strongly |
+| 5 | **LoCoSplat** `wang2026locosplat` | arXiv:2610.04351, 3 Oct 2026 (under review); **PDF saved** `Wang2026_LoCoSplat.pdf` | RGB feed-forward 3DGS | Real-time feed-forward 3DGS with minimal 3D reasoning: exploits that a Gaussian is a *local* primitive — once depth is predicted, scale/rotation/opacity depend only on the local point-cloud neighborhood, so a 0.14M-param pointwise MLP + fixed local average replaces heavy learned 3D networks; whole encoder runs as one fp16 CUDA graph; 33 ms / 6-view scene, 4.2× faster + 6.7× less memory than prior SOTA | Peripheral (offline feed-forward NVS, not SLAM) but the "Gaussian is local — no global 3D network needed" observation is a recipe for lightweight per-keyframe Gaussian prediction that could feed a streaming LIV GS-SLAM front-end on embedded nodes; relevant to the efficiency/embedded-deployment thread |
+| 6 | **Budgeted-GS** `wang2026budgetedgs` | arXiv:2610.03162, 2 Oct 2026 (EG 2027 preprint); **PDF saved** `Wang2026_BudgetedGS.pdf` | RGB 3DGS, large-scale | Post-hoc method turning any trained 3DGS into a factoring tree (multi-resolution moment-matched aggregates); single quality parameter selects per-view LOD fitting target-device memory so one city-scale model serves GPUs of widely different capacity; budget-centered training measures how many primitives a scene needs and trains directly at that size; grounded in a capacity-floor / budget-error law from optimal transport | Peripheral (offline large-scale rendering, not SLAM) but addresses the bounded-memory / large-scale-3DGS-rendering problem directly — the factoring-LOD + budget-error law transfers to memory-bounded cooperative LIV GS-SLAM map serving (per-node memory budget → LOD selection); joins UnRL (A28) in the memory-budget discussion |
+
+### Why these matter
+
+1. **The LIVO family keeps expanding along the degeneracy-robustness
+   axis.** Voxel-LIVO (multi-timescale voxel map + LiDAR-assisted visual
+   patch warping) and DC-LIVO (dual-confidence residual-distribution
+   weighting) are two more points in the FAST-LIVO2-lineage design space
+   that SA-LIVO (A27, eigendirection gating) and FIRE-LIVWO (A27,
+   modality switching) opened. Together they sketch a spectrum —
+   per-eigendirection gating, per-modality switching, per-residual
+   confidence, multi-timescale association — from which a robust LIV
+   GS-SLAM fusion rule can be assembled.
+
+2. **Dynamic-scene GS-SLAM is splitting into filter vs. predict camps.**
+   DynaGSLAM (WACV 2026) is the first real-time GS-SLAM to *predict*
+   moving-object motion alongside ego motion, complementing the
+   filter-and-discard camp (DG-SLAM, GARAD-SLAM, WildGS-SLAM in bib;
+   DynActiveGS A25). For LIV GS-SLAM in populated scenes, LiDAR's strong
+   dynamic-object returns make the predict camp attractive.
+
+3. **Feed-forward + budgeted 3DGS are the efficiency frontier.** LoCoSplat
+   (33 ms / scene, 0.14M params) and Budgeted-GS (factoring-LOD +
+   capacity floor) show two routes to running 3DGS under tight memory:
+   make the per-view predictor local-and-tiny, or make the trained model
+   adaptively LOD'd. Both are relevant to deploying cooperative LIV
+   GS-SLAM on memory-constrained edge nodes.
+
+### Reproducing the Addendum 30 survey
+
+Doubao web search (`web_search`), 2026-10-08, `SearchType=web`,
+time-range `OneWeek`/`OneMonth`:
+
+1. `3D Gaussian Splatting SLAM 2026 arxiv LiDAR inertial visual` (OneWeek)
+2. `Gaussian Splatting SLAM 2026 multi-agent cooperative map fusion` (OneWeek)
+3. `Gaussian Splatting SLAM 2026 arxiv uncertainty dynamic scene outdoor` (OneWeek)
+4. `LiDAR visual inertial odometry LIVO 2026 arxiv foundation model` (OneMonth)
+5. `3D Gaussian Splatting SLAM real-time 2026 arxiv October keyframe tracking` (OneWeek)
+6. `Gaussian Splatting 2026 arxiv large-scale scene reconstruction LiDAR mapping` (OneMonth)
+7. `arxiv 2610 Gaussian Splatting SLAM new method October 2026` (OneWeek)
+8. `LiDAR inertial visual odometry dual confidence degradation arXiv 2026` (OneMonth)
+
+PDFs downloaded via `curl -sL -o ... https://arxiv.org/pdf/<id>`:
+`Wang2026_LoCoSplat.pdf` (arXiv:2610.04351), `Wang2026_BudgetedGS.pdf`
+(arXiv:2610.03162). Voxel-LIVO, DC-LIVO, HPGS-SLAM, DynaGSLAM have no
+arXiv preprint as of 2026-10-08 and are DOI-only bib entries (no PDF).
+
+### Re-appearing candidates ruled out (already in bib)
+
+SplaTAM (`keetha2024splatam`), PlanarGS (NeurIPS'25, arXiv:2510.23930,
+non-SLAM indoor 3DGS, excluded), LiV-GS (`xiao2025livgs`), SEGS-SLAM
+(`wen2025segsslam`), MAGS-SLAM (`cao2026magsslam`, A25), PanoGS-SLAM
+(`mao2026panogsslam`), Cube-Splat (`guo2026cubesplat`), ArborSplat
+(`masini2026arborsplat`), Dual-Covariance GS-SLAM
+(`tan2026dualcovgsslam`, A17), LiTe-GS (`pandey2026litegs`, A23),
+CoRef-GS (`zhou2026corefgs`, A23), Dynamic-LIVO
+(`zhang2026dynamiclivo`), VIGS-SLAM (`zhu2026vigsslam`, A22), DynActiveGS
+(`duan2026dynactivegs`, A25), GauS-SLAM (`su2026gauslam`, Gaussian
+surfels, distinct from HPGS-SLAM).
+
+Newly excluded as off-thread / non-SLAM: Ex4DGS (arXiv:2410.15629, 4D
+dynamic NVS, non-SLAM), Post-Training Semantic Lifting (arXiv:2610.08756,
+3DGS semantic label lifting, non-SLAM), SteadySplats (arXiv:2610.05576,
+stochastic OIT rendering, non-SLAM), Virtual-memory-3DGS (Computers &
+Graphics 2026, large-scene rendering, non-SLAM — related to Budgeted-GS
+but purely rendering-side), PlanarGS (NeurIPS'25, indoor 3DGS with
+plane priors, non-SLAM), ADE-SLAM (ISCER 2026, dynamic RGB-D GS-SLAM but
+workshop, not separately added alongside DynaGSLAM), IO-LIO (IEEE TITS
+2026, pure-LIO voxel mapping, off the LIVO thread).
+
+### Inventory after Addendum 30
+
+After Addendum 30 the survey holds **130 BibTeX entries** in
+`latex/bib/references.bib` (124 from A29 + 6 new) and **114 PDFs** in
+`latex/papers/` (112 from A29 + 2 new arXiv PDFs; the 4 IEEE/conference-
+only entries have no PDF). RMGS-SLAM (arXiv:2604.12942) remains the
+closest contemporary LiDAR-Inertial-Visual 3DGS SLAM head-to-head
+baseline; VIGS-SLAM (A22) the visual-inertial baseline; CoRef-GS (A23)
+the cooperative multi-agent visual+semantic baseline; MAGS-SLAM (A25) the
+cooperative multi-agent RGB-only baseline; ChronoFuseGS (A24) the
+temporal-axis Gaussian-map-fusion counterpart; BayesianGS-SLAM (A26)
+joins VarSplat + VBGS-SLAM as the uncertainty-aware GS-SLAM family;
+Omni-LIVO (A27) the multi-camera LIVO extension; SA-LIVO (A27) the
+direction-selective degeneracy-handling LIVO counterpart; FIRE-LIVWO
+(A27) the most aggressive multi-modal degeneracy-handling extension;
+StreamRig (A27) the learned multi-camera streaming-odometry reference;
+AGILE-GS (A28) joins LiTe-GS (A23) in the view-selection / cost-control
+thread; EvenSplat (A28) the illumination-robust 3DGS counterpart; UnRL
+(A28) the bounded-memory adaptive-mapping counterpart; LiDAR-VGGT (A29)
+the foundation-model-augmented LIVO dense-mapping reference; G²VLO (A29)
+the 2D-Gaussian visual-LiDAR odometry counterpart; FillFusion-GS (A29)
+the LIVO-driven sparse-scan Gaussian-densification counterpart; MANG-SLAM
+(A29) joins the cooperative multi-agent GS-SLAM cluster; **Voxel-LIVO
+(A30) the multi-timescale voxel-map + LM-VPA degeneracy-robust LIVO
+counterpart**; **DC-LIVO (A30) the dual-confidence degradation-aware LIVO
+counterpart**; **HPGS-SLAM (A30) the hybrid point-guided RGB-D GS-SLAM
+counterpart in the hybrid-tracking family**; **DynaGSLAM (A30) the
+predict-camp dynamic-scene GS-SLAM counterpart (vs. the filter camp:
+DG-SLAM / GARAD-SLAM / WildGS-SLAM / DynActiveGS)**; **LoCoSplat (A30)
+the local-primitive feed-forward 3DGS efficiency reference**;
+**Budgeted-GS (A30) the factoring-LOD + budget-error-law large-scale 3DGS
+memory reference**.
