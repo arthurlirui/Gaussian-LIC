@@ -93,6 +93,9 @@ public:
         exposure_lr = node["exposure_lr"].as<double>();
         skybox_points_num = node["skybox_points_num"].as<int>();
         skybox_radius = node["skybox_radius"].as<int>();
+
+        // Jetson memory safety cap: 0 = unlimited (desktop default behaviour)
+        max_gaussians = node["max_gaussians"] ? node["max_gaussians"].as<int>() : 0;
     }
 
     /// dataset
@@ -132,6 +135,8 @@ public:
     double exposure_lr;
     int skybox_points_num;
     int skybox_radius;
+
+    int max_gaussians;  ///< Hard cap on total Gaussians (0 = unlimited)
 };
 
 struct Frame 

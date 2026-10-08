@@ -161,6 +161,7 @@ public:
     double exposure_lr_;
     int skybox_points_num_;
     int skybox_radius_;
+    int max_gaussians_;  ///< Hard cap (0 = unlimited) — Jetson memory safety
 
 
     torch::Tensor xyz_;

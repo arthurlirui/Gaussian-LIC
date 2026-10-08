@@ -1,0 +1,48 @@
+# ===========================================================================
+# fastlivo2_jetson.yaml — Memory-conservative config for Jetson Orin Nano 8GB
+# ===========================================================================
+# Key memory savings vs the desktop config:
+#   - sh_degree: 2 (was 3) → fewer SH coefficients per Gaussian (~40% less)
+#   - scaling_scale: 2.0 (was 1) → fewer total Gaussians via larger initial scale
+#   - select_every_k_frame: 10 (was 5) → half the frame insertion rate
+#   - skybox_points_num: 0 → no skybox Gaussians
+#   - max_gaussians: 300000 → hard safety cap to prevent OOM
+#   - lambda_erank: 0.01 → Taming-3DGS regularizer to bound Gaussian growth
+# ===========================================================================
+width: 640
+height: 512
+fx: 646.78472
+fy: 646.65775
+cx: 313.456795
+cy: 261.399612
+
+select_every_k_frame: 10
+depth_completion: true
+patch_size: 10
+max_depth: 20
+
+sh_degree: 2
+white_background: false
+random_background: false
+convert_SHs_python: false
+compute_cov3D_python: false
+lambda_erank: 0.01
+scaling_scale: 2
+
+position_lr: 0.00016
+feature_lr: 0.0050
+opacity_lr: 0.05
+scaling_lr: 0.005
+rotation_lr: 0.001
+lambda_dssim: 0.2
+optimize_depth: true
+lambda_depth: 0.005
+iteration_decay: false
+
+apply_exposure: false
+exposure_lr: 0.001
+skybox_points_num: 0
+skybox_radius: 1000
+
+# Jetson-only: hard cap on total Gaussian count (0 = unlimited, desktop behaviour)
+max_gaussians: 300000

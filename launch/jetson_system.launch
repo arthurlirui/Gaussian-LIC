@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!--
+  ===========================================================================
+  jetson_system.launch — Full sensor-to-Gaussian-map pipeline on Jetson Orin
+  ===========================================================================
+
+  This launch file starts the complete system on Jetson Orin Nano:
+
+    1. livox_ros_driver2  — Livox LiDAR (Mid-360 / Avia) raw driver
+    2. cocolic (Coco-LIC) — LiDAR-Inertial-Camera odometry, publishes the
+                            four topics that Gaussian-LIC consumes:
+                            /points_for_gs, /pose_for_gs,
+                            /image_for_gs, /depth_for_gs
+    3. gaussian_lic       — 3D Gaussian Splatting map builder (this repo)
+
+  Prerequisites (see jetson/SETUP_JETSON.md):
+    - All three packages in the SAME catkin workspace
+    - Livox-SDK2 installed system-wide
+    - SPNet TensorRT engine built on the Jetson (ckpt/build_trt_jetson.sh)
+
+  Usage:
+    roslaunch gaussian_lic jetson_system.launch
+
+  Customise sensor type and config via args:
+    roslaunch gaussian_lic jetson_system.launch \
+        lidar_config:=config/MID360_config.json \
+        cocolic_config:=config/ct_odometry_fastlivo2.yaml \
+        gaussian_config:=config/fastlivo2_jetson.yaml
+  ===========================================================================
+-->
+<launch>
+
+  <!-- === Sensor / LiDAR configuration ==================================== -->
+  <arg name="lidar_config"    default="$(find livox_ros_driver2)/config/MID360_config.json" />
+  <arg name="lidar_launch"    default="$(find livox_ros_driver2)/launch_ROS1/msg_MID360.launch" />
+
+  <!-- === Coco-LIC odometry configuration ================================= -->
+  <arg name="cocolic_config"  default="$(find cocolic)/config/ct_odometry_fastlivo2.yaml" />
+
+  <!-- === Gaussian-LIC configuration ====================================== -->
+  <arg name="gaussian_config" default="config/fastlivo2_jetson.yaml" />
+
+  <!-- === RViz (disabled by default for Jetson — saves GPU memory) ======== -->
+  <arg name="rviz"            default="false" />
+
+  <!-- ====================================================================== -->
+  <!-- 1. Livox LiDAR driver                                                   -->
+  <!-- ====================================================================== -->
+  <include file="$(arg lidar_launch)">
+    <arg name="config_file" value="$(arg lidar_config)" />
+  </include>
+
+  <!-- ====================================================================== -->
+  <!-- 2. Coco-LIC odometry (publishes /points_for_gs, /pose_for_gs, etc.)    -->
+  <!--     rviz is commented out to save GPU memory on Jetson.                 -->
+  <!-- ====================================================================== -->
+  <include file="$(find cocolic)/launch/odometry.launch">
+    <arg name="config_path" value="$(arg cocolic_config)" />
+  </include>
+
+  <!-- ====================================================================== -->
+  <!-- 3. Gaussian-LIC map builder                                             -->
+  <!-- ====================================================================== -->
+  <node pkg="gaussian_lic" type="gs_mapping" name="$(anon gs_mapping)" output="screen">
+    <param name="config_path"  type="string" value="$(find gaussian_lic)/$(arg gaussian_config)" />
+    <param name="result_path"  type="string" value="$(find gaussian_lic)/result" />
+    <param name="lpips_path"   type="string" value="$(find gaussian_lic)/src/lpips" />
+  </node>
+
+  <!-- ====================================================================== -->
+  <!-- 4. RViz (optional, off by default on Jetson)                            -->
+  <!-- ====================================================================== -->
+  <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz_jetson"
+        args="-d $(find gaussian_lic)/jetson/jetson.rviz" />
+
+</launch>

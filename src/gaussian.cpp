@@ -260,6 +260,7 @@ GaussianModel::GaussianModel(const Params& prm)
     exposure_lr_ = prm.exposure_lr;
     skybox_points_num_ = prm.skybox_points_num;
     skybox_radius_ = prm.skybox_radius;
+    max_gaussians_ = prm.max_gaussians;
 
     auto device_type = torch::kCUDA;
     GAUSSIAN_MODEL_INIT_TENSORS(device_type)
@@ -741,6 +742,37 @@ void extend(const std::shared_ptr<Dataset>& dataset, std::shared_ptr<GaussianMod
     torch::Tensor fused_point_cloud = std::get<0>(filtered_pkg);  // (n, 3)
     torch::Tensor fused_color = RGB2SH(std::get<1>(filtered_pkg));
     int num = fused_point_cloud.size(0);
+
+    // --- Jetson memory safety cap ------------------------------------------
+    // If max_gaussians_ > 0, limit total Gaussians to prevent OOM on
+    // memory-constrained devices (e.g. Jetson Orin Nano 8 GB shared memory).
+    if (pc->max_gaussians_ > 0)
+    {
+        int64_t current = pc->xyz_.size(0);
+        int64_t budget = static_cast<int64_t>(pc->max_gaussians_) - current;
+        if (budget <= 0)
+        {
+            std::cout << std::fixed << std::setprecision(2)
+                      << "\033[1;33m [cap] Gaussian count " << current / 1000.0
+                      << "k >= max_gaussians " << pc->max_gaussians_ / 1000.0
+                      << "k, skip insert\033[0m,";
+            dataset->pointcloud_.clear();
+            dataset->pointcolor_.clear();
+            dataset->pointdepth_.clear();
+            return;
+        }
+        if (num > budget)
+        {
+            auto idx = torch::randperm(num, torch::kLong).narrow(0, 0, budget).to(fused_point_cloud.device());
+            fused_point_cloud = fused_point_cloud.index_select(0, idx);
+            fused_color = fused_color.index_select(0, idx);
+            auto filtered_depths = std::get<2>(filtered_pkg).index_select(0, idx);
+            filtered_pkg = std::make_tuple(fused_point_cloud, std::get<1>(filtered_pkg).index_select(0, idx), filtered_depths);
+            num = static_cast<int>(budget);
+            std::cout << "\033[1;33m [cap] downsized insert to " << budget << " (max_gaussians=" << pc->max_gaussians_ << ")\033[0m,";
+        }
+    }
+
     int deg_2 = (pc->sh_degree_ + 1) * (pc->sh_degree_ + 1);
     torch::Tensor features = torch::zeros({num, 3, deg_2}, torch::kFloat32).cuda();  // (n, 3, 16)
     features.index({torch::indexing::Slice(), torch::indexing::Slice(0, 3), 0}) = fused_color;
