@@ -1,0 +1,76 @@
+% ===========================================================================
+% Figure: Timestamp-based multi-modal data alignment
+% Timeline showing synchronization across 4 modalities.
+% ===========================================================================
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[node distance=0.5cm, font=\small]
+
+% ---- Timeline axis ----
+\draw[->, thick] (0,0) -- (13,0) node[right] {time (s)};
+\foreach \x/\label in {0/0.0, 2/0.1, 4/0.2, 6/0.3, 8/0.4, 10/0.5, 12/0.6}
+{
+  \draw[thick] (\x, -0.1) -- (\x, 0.1);
+  \node[below, font=\footnotesize] at (\x, -0.1) {\label};
+}
+
+% ---- LiDAR row ----
+\node[left, font=\footnotesize\bfseries] at (-0.3, 1.5) {LiDAR};
+\foreach \x in {0.5, 2.5, 4.5, 6.5, 8.5, 10.5}
+{
+  \draw[arrow, red!70!black] (\x, 0.8) -- (\x, 1.5);
+  \node[font=\tiny, above] at (\x, 1.5) {$\PointCloud$};
+}
+\draw[red!70!black, thick, dashed] (0, 1.5) -- (12.5, 1.5);
+
+% ---- iToF row ----
+\node[left, font=\footnotesize\bfseries] at (-0.3, 2.8) {iToF};
+\foreach \x in {0.3, 1.3, 2.3, 3.3, 4.3, 5.3, 6.3, 7.3, 8.3, 9.3, 10.3, 11.3}
+{
+  \draw[arrow, orange!80!black] (\x, 2.1) -- (\x, 2.8);
+}
+\draw[orange!80!black, thick, dashed] (0, 2.8) -- (12.5, 2.8);
+\node[font=\tiny, right] at (12.5, 2.8) {$D_F$ (30 Hz)};
+
+% ---- Stereo/RGB row ----
+\node[left, font=\footnotesize\bfseries] at (-0.3, 4.1) {Stereo/RGB};
+\foreach \x in {0.4, 1.4, 2.4, 3.4, 4.4, 5.4, 6.4, 7.4, 8.4, 9.4, 10.4, 11.4}
+{
+  \draw[arrow, green!60!black] (\x, 3.4) -- (\x, 4.1);
+}
+\draw[green!60!black, thick, dashed] (0, 4.1) -- (12.5, 4.1);
+\node[font=\tiny, right] at (12.5, 4.1) {$\Image$ (30 Hz)};
+
+% ---- IMU row ----
+\node[left, font=\footnotesize\bfseries] at (-0.3, 5.4) {IMU};
+\foreach \x in {0.05, 0.25, 0.45, 0.65, 0.85, 1.05, 1.25, 1.45, 1.65, 1.85,
+                2.05, 2.25, 2.45, 2.65, 2.85, 3.05, 3.25, 3.45, 3.65, 3.85,
+                4.05, 4.25, 4.45, 4.65, 4.85, 5.05, 5.25, 5.45, 5.65, 5.85,
+                6.05, 6.25, 6.45, 6.65, 6.85, 7.05, 7.25, 7.45, 7.65, 7.85,
+                8.05, 8.25, 8.45, 8.65, 8.85, 9.05, 9.25, 9.45, 9.65, 9.85,
+                10.05, 10.25, 10.45, 10.65, 10.85, 11.05, 11.25, 11.45, 11.65, 11.85}
+{
+  \draw[blue!70!black] (\x, 4.9) -- (\x, 5.4);
+}
+\draw[blue!70!black, thick, dashed] (0, 5.4) -- (12.5, 5.4);
+\node[font=\tiny, right] at (12.5, 5.4) {IMU (200 Hz)};
+
+% ---- Aligned frame markers ----
+\foreach \x/\label in {2.5/$t_1$, 6.5/$t_2$, 10.5/$t_3$}
+{
+  \draw[thick, purple!70!black, dashed] (\x, 0) -- (\x, 5.8);
+  \node[font=\footnotesize, above, purple!70!black] at (\x, 5.8) {Aligned \label};
+}
+
+% ---- Tolerance band ----
+\draw[<->, thick, gray] (2.4, 0.5) -- (2.6, 0.5)
+  node[midway, below, font=\tiny] {$\pm\epsilon$};
+
+\end{tikzpicture}
+\caption{Timestamp-based multi-modal data alignment. The LiDAR stream
+(10--20\,Hz) defines the reference timestamps. iToF, stereo, and IMU data
+are matched within a tolerance $\epsilon = 10$\,ms. Dashed vertical lines
+mark aligned frame instances $t_1, t_2, t_3$ where all modalities are
+synchronized.}
+\label{fig:data_alignment}
+\end{figure*}

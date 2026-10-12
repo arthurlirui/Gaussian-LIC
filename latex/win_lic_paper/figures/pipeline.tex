@@ -1,0 +1,78 @@
+% ===========================================================================
+% Figure: Full system pipeline overview
+% Data sources → ISensorSource → DataAligner → DepthFusion → GaussianModel → PLY
+% ===========================================================================
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[node distance=0.8cm and 1.0cm]
+
+% ---- Row 1: Sensor sources ----
+\node[sensor] (lidar)  {LiDAR\\PointCloud};
+\node[sensor, right=of lidar] (itof)   {iToF\\Depth};
+\node[sensor, right=of itof]  (stereo) {Stereo\\RGB};
+\node[sensor, right=of stereo] (imu)   {IMU};
+
+% ---- Row 2: ISensorSource interface ----
+\node[block, below=1.2cm of itof, minimum width=9cm, fill=blue!12]
+  (iface) {\texttt{ISensorSource} (abstract interface)};
+
+% ---- Row 3: Concrete implementations (side by side) ----
+\node[blockgreen, below=0.8cm of iface, xshift=-2.8cm, minimum width=3.5cm]
+  (reader) {DatasetReader\\(offline files)};
+\node[blockorange, below=0.8cm of iface, xshift=2.8cm, minimum width=3.5cm]
+  (orbbec) {OrbbecSource\\(live SDK)};
+
+% ---- Row 4: Data aligner ----
+\node[block, below=of iface, yshift=-2.2cm, minimum width=4cm]
+  (aligner) {DataAligner\\(timestamp sync)};
+
+% ---- Row 5: Depth fusion ----
+\node[blockred, below=of aligner, minimum width=4cm]
+  (fusion) {Depth Fusion\\(LiDAR + iToF + Stereo)};
+
+% ---- Row 6: Depth completion ----
+\node[blockorange, below=of fusion, minimum width=4cm]
+  (completer) {SPNet Depth\\Completion (TensorRT)};
+
+% ---- Row 7: Gaussian model ----
+\node[blockgreen, below=of completer, minimum width=4cm]
+  (gaussian) {GaussianModel\\(3DGS)};
+
+% ---- Row 8: Output ----
+\node[block, below=of gaussian, minimum width=4cm, fill=gray!10]
+  (output) {PLY Map +\\Metrics};
+
+% ---- Arrows: sensors → interface ----
+\draw[arrow] (lidar.south) -- (iface.north -| lidar.south);
+\draw[arrow] (itof.south)  -- (iface.north -| itof.south);
+\draw[arrow] (stereo.south)-- (iface.north -| stereo.south);
+\draw[arrow] (imu.south)   -- (iface.north -| imu.south);
+
+% ---- Arrows: interface → implementations ----
+\draw[arrow] (iface.south -| reader.north) -- (reader.north);
+\draw[arrow] (iface.south -| orbbec.north) -- (orbbec.north);
+
+% ---- Arrows: implementations → aligner ----
+\draw[arrow] (reader.south) |- (aligner.west);
+\draw[arrow] (orbbec.south) |- (aligner.east);
+
+% ---- Main pipeline arrows ----
+\draw[arrow] (aligner) -- (fusion);
+\draw[arrow] (fusion)  -- (completer);
+\draw[arrow] (completer) -- (gaussian);
+\draw[arrow] (gaussian) -- (output);
+
+% ---- Group: Pluggable layer ----
+\begin{scope}[on background layer]
+  \node[group=Pluggable Sensor Layer, fit=(iface)(reader)(orbbec),
+        fill=blue!3] (pluggable) {};
+\end{scope}
+
+\end{tikzpicture}
+\caption{Overview of the \winlic{} processing pipeline. Multi-modal sensor
+data enters through the pluggable \texttt{ISensorSource} abstraction, is
+synchronized by the DataAligner, fused into a dense depth map, completed by
+the SPNet TensorRT engine, and fed into the 3D Gaussian Splatting model for
+reconstruction.}
+\label{fig:pipeline}
+\end{figure*}

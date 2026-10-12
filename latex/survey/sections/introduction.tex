@@ -1,0 +1,88 @@
+Simultaneous Localization and Mapping (SLAM) is a foundational capability
+for autonomous robots, augmented reality (AR), and autonomous navigation.
+Traditional SLAM systems---whether filter-based~\cite{qin2018vinsmono,
+xu2022fastlio2} or graph-based~\cite{campos2021orbslam3}---produce sparse
+or semi-dense maps that suffice for localization but lack the photo-realistic
+detail required for immersive visualization, semantic understanding, or
+high-fidelity simulation.  The introduction of Neural Radiance Fields
+(NeRF)~\cite{mildenhall2020nerf} and, more critically, 3D Gaussian
+Splatting~\cite{kerbl2023_3dgs} has catalyzed a paradigm shift: SLAM systems
+now aim to simultaneously estimate the camera trajectory and reconstruct a
+\emph{photo-realistic, dense, and renderable} 3D map of the environment.
+
+3DGS represents scenes as sets of anisotropic 3D Gaussian primitives with
+position, covariance, opacity, and spherical-harmonic color coefficients.
+Unlike NeRF's costly volumetric ray-marching, 3DGS employs fast
+tile-based rasterization, achieving real-time rendering at over 100~FPS on
+consumer GPUs.  This efficiency, combined with differentiable optimization,
+makes 3DGS the ideal map representation for online SLAM.
+
+However, the quality of a Gaussian-based SLAM map is fundamentally limited by
+the \emph{depth source} that seeds and supervises the Gaussians.  Early 3DGS
+SLAM systems~\cite{yan2024gsslam,keetha2024_splatam,matsuki2024monogs}
+operated with RGB-D cameras indoors, where dense active depth is readily
+available.  When deployed in large-scale outdoor environments, these systems
+degrade under violent ego-motion, varying illumination, textureless regions,
+and---most critically---the limited range of consumer RGB-D sensors.
+
+Three complementary strategies have emerged to provide the geometric priors
+needed for robust Gaussian SLAM beyond the indoor RGB-D setting:
+
+\begin{enumerate}
+    \item \textbf{LiDAR + RGB + IMU fusion} (Section~\ref{sec:lidar}):
+    Mechanically or solid-state LiDAR provides precise, long-range, but
+    sparse metric geometry.  The camera contributes rich texture, and the
+    IMU bridges motion gaps.  This configuration, well-established in
+    classical LIO/LIVO
+    systems~\cite{xu2022fastlio2,zheng2024_fastlivo2,lin2024_r3live},
+    has been extended with Gaussian Splatting mapping by a rapidly growing
+    family of works~\cite{lang2026_gaussianlic2,lang2025_gaussianlic,
+    hong2025_gslivo,xie2024_gslivm,zhao2025_lvigs,li2026_rmgs,
+    tak2026_realtimelidar,he2026lvgsslam,shi2026_litgs}.
+
+    \item \textbf{iToF Depth + RGB + IMU fusion} (Section~\ref{sec:itof}):
+    Indirect Time-of-Flight (iToF) sensors offer low-power, compact active
+    depth at the cost of extreme sparsity (as few as $8\times8$ points per
+    frame) and environmental noise sensitivity.  Recent
+    work~\cite{conti2025_tofsplatting} demonstrates that even such sparse
+    depth, when fused with multi-view geometry and monocular cues within a
+    3DGS framework, can achieve competitive SLAM performance---a crucial
+    step toward mobile and AR/VR deployment.
+
+    \item \textbf{Monocular Depth + RGB + IMU fusion} (Section~\ref{sec:monodepth}):
+    When no active depth sensor is available, learned monocular depth
+    priors~\cite{yang2024depthanythingv2} or feed-forward 3D foundation
+    models~\cite{wang2025_vggt} can substitute.  The IMU provides metric
+    scale and motion continuity.  This axis spans pure visual-inertial
+    Gaussian SLAM~\cite{zhu2026_vigssslam,zhang2026_hislam2,
+    seo2026_gaussianflow,zhou2026_geogs,zheng2025_wildgssslam,
+    han2026_vggtgssslam,zhang2026_vimgs,deambrogi2026_cgssslam,
+    sun2024_mm3dgs,zhu2026_mygosplat,kruzhkov2026_monoemgs} and is the
+    most hardware-accessible but algorithmically challenging configuration.
+\end{enumerate}
+
+\textbf{Scope and methodology.}  This survey covers papers published or
+posted as preprints through October~2026, identified through systematic web
+searches using the Doubao search API with keywords combining ``Gaussian
+Splatting,'' ``SLAM,'' ``LiDAR,'' ``ToF,'' ``monocular depth,'' ``visual
+inertial,'' and related terms.  For each paper, we downloaded the arXiv PDF
+(when available), read the full method section, and searched for open-source
+code repositories.  Papers already present in the project's related-work
+bibliography (130+ entries accumulated over 30+ survey addenda) were
+cross-referenced to avoid duplication.  We focus on systems that perform
+\emph{online} or \emph{real-time} SLAM with 3DGS as the primary map
+representation, excluding offline 3DGS reconstruction and non-SLAM novel-view
+synthesis.
+
+\textbf{Contributions.}  This survey provides:
+\begin{itemize}
+    \item A structured taxonomy of multimodal Gaussian Splatting SLAM along
+    three depth-source axes (LiDAR, iToF, monocular depth).
+    \item Per-paper analysis of architecture, depth fusion strategy, code
+    availability, and key results for 25+ representative systems.
+    \item A cross-category comparison identifying the accuracy--cost--robustness
+    trade-off landscape.
+    \item A discussion of open challenges: depth completion under degeneracy,
+    scale consistency, memory-bounded mapping, and real-time deployment on
+    embedded platforms.
+\end{itemize}

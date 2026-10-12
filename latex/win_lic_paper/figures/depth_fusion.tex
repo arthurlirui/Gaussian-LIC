@@ -1,0 +1,70 @@
+% ===========================================================================
+% Figure: Multi-modal depth fusion data flow
+% LiDAR sparse + iToF dense + stereo SGM → confidence weighting → SPNet
+% ===========================================================================
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[node distance=0.7cm and 1.2cm]
+
+% ---- Row 1: Three depth sources ----
+\node[blockred, minimum width=3cm] (lidar_d) {LiDAR Depth\\(sparse, $D_L$)};
+\node[blockorange, right=of lidar_d, minimum width=3cm] (itof_d)
+  {iToF Depth\\(dense, $D_F$)};
+\node[blockgreen, right=of itof_d, minimum width=3cm] (stereo_d)
+  {Stereo Depth\\(SGM, $D_S$)};
+
+% ---- Row 2: Confidence maps ----
+\node[block, below=of lidar_d, minimum width=3cm, fill=red!5]
+  (conf_l) {$C_L$: binary\\(1.0 at hits)};
+\node[block, below=of itof_d, minimum width=3cm, fill=orange!5]
+  (conf_f) {$C_F$: edge-based\\(1.0 $- \nabla D$/max)};
+\node[block, below=of stereo_d, minimum width=3cm, fill=green!5]
+  (conf_s) {$C_S$: texture\\(variance-based)};
+
+% ---- Row 3: Fusion node ----
+\node[block, below=2.0cm of conf_f, minimum width=5cm, minimum height=1.2cm,
+      fill=purple!12]
+  (fuse) {Confidence-Weighted Fusion\\
+          $D_{\text{fused}} = \frac{\sum_i C_i \cdot D_i}{\sum_i C_i}$};
+
+% ---- Row 4: LiDAR override ----
+\node[blockred, below=0.7cm of fuse, minimum width=5cm]
+  (override) {LiDAR Override\\(ground-truth pixels)};
+
+% ---- Row 5: SPNet completion ----
+\node[blockorange, below=0.7cm of override, minimum width=5cm]
+  (spnet) {SPNet TensorRT\\(hole completion)};
+
+% ---- Row 6: Final depth ----
+\node[blockgreen, below=0.7cm of spnet, minimum width=5cm]
+  (final) {Fused + Completed Depth\\$D_{\text{final}}$};
+
+% ---- Arrows: sources → confidence ----
+\draw[arrow] (lidar_d) -- (conf_l);
+\draw[arrow] (itof_d)  -- (conf_f);
+\draw[arrow] (stereo_d)-- (conf_s);
+
+% ---- Arrows: confidence → fusion ----
+\draw[arrow] (conf_l.south) -- (fuse.north -| conf_l.south);
+\draw[arrow] (conf_f.south) -- (fuse.north);
+\draw[arrow] (conf_s.south) -- (fuse.north -| conf_s.south);
+
+% ---- Main flow ----
+\draw[arrow] (fuse) -- (override);
+\draw[arrow] (override) -- (spnet);
+\draw[arrow] (spnet) -- (final);
+
+% ---- Annotations ----
+\node[font=\footnotesize, right=0.3cm of fuse, text=purple!70!black]
+  {weighted average};
+\node[font=\footnotesize, right=0.3cm of override, text=red!70!black]
+  {$D_L$ overwrites where available};
+
+\end{tikzpicture}
+\caption{Multi-modal depth fusion pipeline. Three depth sources---sparse
+LiDAR, dense iToF, and stereo SGM---are each assigned a confidence map.
+A weighted average produces the fused depth, after which LiDAR pixels
+overwrite the fused result as ground truth. The SPNet TensorRT engine
+completes remaining holes.}
+\label{fig:depth_fusion}
+\end{figure*}

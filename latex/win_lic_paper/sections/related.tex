@@ -1,0 +1,63 @@
+% ===========================================================================
+% Section: Related Work
+% ===========================================================================
+\section{Related Work}
+\label{sec:related}
+
+\subsection{3D Gaussian Splatting for SLAM}
+
+Since the introduction of 3D Gaussian Splatting~\cite{kerbl2023_3dgs},
+numerous works have integrated Gaussian representations into SLAM systems.
+SplaTAM~\cite{keetha2024_splatam} and MonoGS~\cite{matsuki2024_monogs}
+demonstrated monocular and RGB-D Gaussian SLAM, respectively.
+Photo-SLAM~\cite{huang2024_photoslam} combined ORB features with a
+Gaussian map for real-time operation.
+\gaussianlic~\cite{lang2026_gaussianlic2} advanced the field by fusing
+LiDAR, inertial, and camera data for robust pose estimation and
+photo-realistic mapping, achieving real-time performance on an NVIDIA
+RTX~3090/4090.
+
+Several follow-up works have explored different aspects of Gaussian SLAM:
+Scaffold-GS~\cite{lu2024_scaffoldgs} introduced anchor-based structures
+for efficient rendering, LIV-GaussMap~\cite{hong2024_livgaussmap}
+focused on LiDAR-inertial-visual fusion, and
+GSLIVM~\cite{xie2024_gslivm} addressed large-scale indoor-outdoor scenes.
+Recent surveys~\cite{yan2024_gsslam, chen2025_egsslam} provide
+comprehensive reviews of the rapidly growing field.
+
+A common limitation across these systems is their reliance on ROS for
+inter-module communication, restricting deployment to Linux and hindering
+integration with commercial sensor SDKs.
+
+\subsection{Multi-Modal Sensor Fusion for Depth Estimation}
+
+Multi-modal depth fusion has been extensively studied in the robotics and
+computer vision communities.
+LiDAR-camera fusion~\cite{zheng2025_wildgsslam} leverages the complementary
+characteristics of LiDAR (accurate but sparse) and cameras (dense but
+ambiguous in depth).
+iToF sensors provide dense depth at moderate range but suffer from
+multi-path interference and noise at depth discontinuities~\cite{rang2018_4dof}.
+Stereo matching via Semi-Global Matching (SGM)~\cite{hirschmuller2008_sgm}
+produces dense disparity maps but fails in textureless regions.
+
+Confidence-based fusion strategies have been proposed to combine these
+modalities: Ramezani \emph{et al.}~\cite{ramezani2022_wildcat} used a
+sliding-window approach for LiDAR-inertial-camera fusion, while
+Coco-LIC~\cite{lang2023_cocolic} employed continuous-time B-spline
+representation for tightly-coupled multi-modal odometry.
+Our work adopts a simpler confidence-weighted fusion strategy suitable
+for offline batch processing, where the SLAM front-end has already
+produced accurate poses.
+
+\subsection{Depth Completion}
+
+Depth completion---filling holes in sparse depth maps---has been
+addressed by learning-based methods.
+SPNet, used in \gaussianlic, takes RGB and sparse depth as input and
+produces a dense depth map via a TensorRT-accelerated neural network.
+Alternative approaches include NLSPN~\cite{park2020_nlspn} and
+GuideNet~\cite{tang2020_guidenet}, which use learned spatial propagation.
+In \winlic, we retain the SPNet-based completion for algorithm fidelity,
+but the modular architecture allows easy substitution of alternative
+completion networks.

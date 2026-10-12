@@ -1,0 +1,133 @@
+\subsection{Accuracy and Robustness Trade-offs}
+
+The three depth-source modalities occupy distinct positions in the
+accuracy--cost--robustness trade-off space:
+
+\begin{itemize}
+    \item \textbf{LiDAR + RGB + IMU}: Highest tracking accuracy and
+    geometric fidelity, especially outdoors and under aggressive motion.
+    LiDAR provides direct metric geometry that anchors the Gaussian map.
+    However, LiDAR hardware is expensive ($$\,$$1k--$$\,$$10k+), bulky, and
+    power-hungry.  Systems like Gaussian-LIC2 and RMGS-SLAM achieve
+    sub-decimeter ATE in outdoor scenes where visual-only methods fail.
+
+    \item \textbf{iToF + RGB + IMU}: Moderate accuracy, limited by iToF's
+    short range ($<$10\,m) and ambient light sensitivity.  The extreme
+    sparsity ($\leq$64 points) requires sophisticated depth completion.
+    ToF-Splatting demonstrates that multi-frame integration can bridge the
+    gap to RGB-D quality, but the approach remains indoor-focused.
+    Hardware cost is minimal ($$\,$$5--$$\,$$50), targeting smartphones
+    and AR/VR headsets.
+
+    \item \textbf{Monocular Depth + RGB + IMU}: Accuracy depends heavily on
+    the depth prior quality and IMU fusion strategy.  VIGS-SLAM achieves
+    competitive results by tightly coupling IMU with learned dense
+    correspondences.  HI-SLAM2 surpasses RGB-D methods on indoor benchmarks
+    through monocular geometry priors + scale alignment.  However, outdoor
+    large-scale scenes remain challenging due to depth ambiguity at range.
+    Hardware cost is essentially zero (camera + IMU already in every
+    smartphone).
+\end{itemize}
+
+\subsection{Depth Completion and Densification Strategies}
+
+A common thread across all three categories is the need to \emph{densify}
+the raw depth source before initializing Gaussians.  \Cref{tab:depth_comp}
+summarizes the strategies:
+
+\begin{table}[t]
+\centering
+\caption{Depth completion/densification strategies across modalities.}
+\label{tab:depth_comp}
+\scriptsize
+\begin{tabular}{lll}
+\toprule
+\textbf{Modality} & \textbf{Strategy} & \textbf{Representative} \\
+\midrule
+LiDAR & Zero-shot depth completion network & Gaussian-LIC2 \\
+LiDAR & Voxel-GPR interpolation & GS-LIVM \\
+LiDAR & Voxel-PCA geometric priors & RMGS-SLAM \\
+LiDAR & Depth propagation from dense maps & LV-GS SLAM \\
+\midrule
+iToF & Multi-frame integration (DoD) & ToF-Splatting \\
+iToF & Monocular depth prior fusion & Fang et al. \\
+\midrule
+Mono & Foundation model depth (Depth Pro) & CGS-SLAM \\
+Mono & OmniData depth + scale grid & HI-SLAM2 \\
+Mono & DROID-SLAM dense disparity & VIGS-SLAM \\
+Mono & Optical flow as geometry cue & GaussianFlow \\
+Mono & VGGT feed-forward pointmaps & VGGT-GS SLAM \\
+Mono & SfM + LFM fusion & VIM-GS \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Real-Time Performance}
+
+Real-time operation is a critical differentiator.  The key bottleneck is
+Gaussian optimization, which involves differentiable rasterization and
+gradient backpropagation at each keyframe.  Strategies to achieve real-time
+performance include:
+
+\begin{itemize}
+    \item \textbf{Sliding-window optimization}: GS-LIVO optimizes only
+    Gaussians within a temporal sliding window, reducing GPU memory and
+    computation.
+    \item \textbf{Custom CUDA kernels}: Gaussian-LIC, Gaussian-LIC2, LVI-GS,
+    and VIGS-SLAM implement custom CUDA kernels for rasterization and
+    optimization, avoiding Python overhead.
+    \item \textbf{Submap management}: RMGS-SLAM and LV-GS SLAM use
+    keyframe-based submaps with dynamic memory allocation.
+    \item \textbf{Parallel tracking and mapping}: Most systems separate
+    odometry and Gaussian mapping into parallel threads.
+    \item \textbf{Embedded deployment}: GS-LIVO (Jetson Orin NX) and
+    GS-LIVM (custom CUDA) demonstrate feasibility on resource-constrained
+    platforms.
+\end{itemize}
+
+\subsection{Open-Source Code Availability}
+
+Open-source code is critical for reproducibility and community adoption.
+\Cref{tab:code} lists the systems with confirmed code releases:
+
+\begin{table}[t]
+\centering
+\caption{Open-source code availability.}
+\label{tab:code}
+\scriptsize
+\begin{tabular}{lcc}
+\toprule
+\textbf{System} & \textbf{GitHub URL} & \textbf{Category} \\
+\midrule
+Gaussian-LIC & APRIL-ZJU/Gaussian-LIC & LiDAR \\
+GS-LIVM & xieyusen/GS-LIVM & LiDAR \\
+Gaussian-LIC2 & xingxingzuo/gaussian\_lic2 & LiDAR \\
+MonoGS & muskie82/MonoGS & Monocular \\
+HI-SLAM2 & hi-slam2.github.io & Monocular \\
+GaussianFlow & url-kaist/gaussianflow-slam & Monocular \\
+ToF-Splatting & andreaconti.github.io & iToF \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Loop Closure and Global Consistency}
+
+Loop closure is essential for large-scale SLAM but is often omitted in
+Gaussian SLAM systems to preserve runtime.  Only a few systems implement
+explicit loop closure:
+
+\begin{itemize}
+    \item \textbf{RMGS-SLAM}: Gaussian-based GICP registration on the
+    optimized map, followed by pose-graph optimization.
+    \item \textbf{VIGS-SLAM}: Optical-flow-based loop detection with
+    consistent Gaussian map updates after pose correction.
+    \item \textbf{HI-SLAM2}: Sim(3) pose-graph BA with instant Gaussian
+    deformation based on anchored keyframe updates.
+    \item \textbf{VGGT-GS SLAM}: Gaussian-native alignment for
+    loop-candidate verification before global Sim(3) pose-graph
+    optimization.
+\end{itemize}
+
+The challenge is that after pose correction, the Gaussian map must be
+updated to reflect the new keyframe poses---either by re-optimization
+(expensive) or by explicit Gaussian deformation (efficient, as in HI-SLAM2).

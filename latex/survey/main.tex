@@ -1,0 +1,115 @@
+% Multimodal Gaussian Splatting SLAM: A Survey of LiDAR, ToF, and Monocular-Depth-Enhanced Reconstruction
+% Compile: pdflatex main && bibtex main && pdflatex main && pdflatex main
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{cleveref}
+\usepackage{enumitem}
+\setlist[itemize]{leftmargin=*,nosep}
+\setlist[enumerate]{leftmargin=*,nosep}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{makecell}
+
+\hypersetup{colorlinks=true,linkcolor=blue!60!black,citecolor=green!50!black,urlcolor=blue!60!black}
+
+% Custom commands
+\newcommand{\SEthree}{SE(3)}
+\newcommand{\Simthree}{\mathrm{Sim}(3)}
+\newcommand{\Twb}{T_{W\leftarrow B}}
+
+\title{Multimodal Gaussian Splatting SLAM: \\
+       A Survey of LiDAR, Time-of-Flight, and \\
+       Monocular-Depth-Enhanced Real-Time Reconstruction}
+
+\author{Arthur Li Rui \\
+  \texttt{arthurlirui@example.com} \\
+  Gaussian-LIC Project
+}
+
+\date{October 12, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+3D Gaussian Splatting (3DGS) has rapidly emerged as the dominant scene
+representation for photo-realistic SLAM, supplanting NeRF-based volumetric
+approaches with its explicit, differentiable, and rasterization-efficient
+primitives.  However, the quality of Gaussian-based SLAM is fundamentally
+constrained by the \emph{depth source} used to initialize and supervise the
+Gaussian map.  This survey systematically reviews the state of the art along
+three complementary axes of multimodal depth provision: (1)~\textbf{LiDAR +
+RGB + IMU} fusion, where precise metric geometry from LiDAR anchors the
+Gaussian map while the camera and IMU provide appearance and motion priors;
+(2)~\textbf{iToF Depth + RGB + IMU} fusion, where sparse indirect
+Time-of-Flight depth is densified and fused with photometric cues for
+lightweight, low-power mapping; and (3)~\textbf{Monocular Depth + RGB + IMU}
+fusion, where learned depth priors or visual-inertial structure-from-motion
+replace active depth sensing entirely.  For each axis, we analyze the pipeline
+architecture (front-end odometry, depth completion, Gaussian initialization,
+and online optimization), discuss open-source code availability, and identify
+the key trade-offs among accuracy, robustness, real-time performance, and
+hardware cost.  We further provide a cross-category comparison and outline
+open challenges and future directions for multimodal Gaussian Splatting SLAM.
+\end{abstract}
+
+%======================================================================
+\section{Introduction}
+\label{sec:intro}
+\input{sections/introduction}
+
+%======================================================================
+\section{Background: 3D Gaussian Splatting for SLAM}
+\label{sec:background}
+\input{sections/background}
+
+%======================================================================
+\section{LiDAR + RGB + IMU Gaussian Splatting SLAM}
+\label{sec:lidar}
+\input{sections/lidar}
+
+%======================================================================
+\section{iToF Depth + RGB + IMU Gaussian Splatting SLAM}
+\label{sec:itof}
+\input{sections/itof}
+
+%======================================================================
+\section{Monocular Depth + RGB + IMU Gaussian Splatting SLAM}
+\label{sec:monodepth}
+\input{sections/monodepth}
+
+%======================================================================
+\section{Cross-Category Comparison and Discussion}
+\label{sec:comparison}
+\input{sections/comparison}
+
+%======================================================================
+\section{Open Challenges and Future Directions}
+\label{sec:future}
+\input{sections/future}
+
+%======================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+\input{sections/conclusion}
+
+\bibliographystyle{IEEEtran}
+\bibliography{survey_refs}
+
+\appendix
+\section{Paper Inventory}
+\label{sec:inventory}
+\input{sections/inventory}
+
+\end{document}

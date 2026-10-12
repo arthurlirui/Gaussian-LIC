@@ -1,0 +1,63 @@
+% ===========================================================================
+% Figure: Sensor architecture — pluggable SDK interface
+% Shows ISensorSource as an abstract interface with two concrete implementations.
+% ===========================================================================
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[node distance=1.2cm]
+
+% ---- Abstract interface (top) ----
+\node[block, minimum width=6cm, minimum height=1.5cm, fill=blue!15]
+  (iface) {\textbf{\texttt{ISensorSource}}\\[2pt]
+           \texttt{+ open()} \quad \texttt{+ hasNext()}\\
+           \texttt{+ nextFrame()} \quad \texttt{+ close()}};
+
+% ---- Concrete implementations (bottom) ----
+\node[blockgreen, below left=1.5cm and 0.5cm of iface, minimum width=4.5cm,
+      minimum height=2.2cm]
+  (reader) {\textbf{DatasetReader}\\[3pt]
+            \footnotesize Reads from disk:\\
+            \footnotesize • RGB images (JPG/PNG)\\
+            \footnotesize • Depth maps (PNG/EXR)\\
+            \footnotesize • LiDAR PLY files\\
+            \footnotesize • Poses (TUM/KITTI/EuRoC)\\
+            \footnotesize • IMU (CSV)};
+
+\node[blockorange, below right=1.5cm and 0.5cm of iface, minimum width=4.5cm,
+      minimum height=2.2cm]
+  (orbbec) {\textbf{OrbbecSource}\\[3pt]
+            \footnotesize Live camera stream:\\
+            \footnotesize • OrbbecSDK v2 (C API)\\
+            \footnotesize • Femto Mega / Gemini\\
+            \footnotesize • LiDAR + iToF + stereo\\
+            \footnotesize • IMU (on-board)\\
+            \footnotesize \emph{(compile-gated)}};
+
+% ---- Future extension ----
+\node[block, below=3.5cm of iface, minimum width=4.5cm, fill=gray!10, dashed]
+  (future) {\textbf{FutureSource} (extensible)\\[2pt]
+            \footnotesize Any SDK implementing\\
+            \footnotesize \texttt{ISensorSource}};
+
+% ---- Inheritance arrows ----
+\draw[dasharrow] (reader.north) -- (iface.south -| reader.north)
+  node[midway, right, font=\footnotesize] {\texttt{implements}};
+\draw[dasharrow] (orbbec.north) -- (iface.south -| orbbec.north)
+  node[midway, left, font=\footnotesize] {\texttt{implements}};
+\draw[dasharrow] (future.north) -- (iface.south)
+  node[midway, right, font=\footnotesize] {\texttt{implements}};
+
+% ---- Group ----
+\begin{scope}[on background layer]
+  \node[group=Sensor Source Layer, fit=(iface)(reader)(orbbec)(future),
+        inner sep=14pt, fill=blue!2] {};
+\end{scope}
+
+\end{tikzpicture}
+\caption{The \texttt{ISensorSource} abstract interface and its concrete
+implementations. The \texttt{DatasetReader} handles offline file-based data,
+while the \texttt{OrbbecSource} wraps the Orbbec SDK for live camera input.
+The interface is designed for extensibility: any future sensor SDK can be
+integrated by implementing four virtual methods.}
+\label{fig:sensor_architecture}
+\end{figure*}

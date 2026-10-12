@@ -1,0 +1,128 @@
+Indirect Time-of-Flight (iToF) sensors measure depth by correlating the
+phase shift of amplitude-modulated illumination, providing metric depth at
+lower cost and power than mechanical LiDAR.  Modern iToF sensors are
+ubiquitous in smartphones (e.g., Apple LiDAR with $\leq$576 points) and
+emerging consumer devices (as few as 64 points at 200\,mW).  This extreme
+sparsity---potentially $8\times8$ depth points per frame---poses a unique
+challenge for Gaussian Splatting SLAM, which traditionally requires dense
+depth for initialization and supervision.
+
+\subsection{ToF-Splatting}
+
+ToF-Splatting~\cite{conti2025_tofsplatting} (CVPR 2025) is the first 3DGS-based
+SLAM pipeline tailored for very sparse ToF input.  Its architecture consists
+of three modules:
+
+\begin{enumerate}
+    \item \textbf{Tracking Frontend}: A frame-to-model approach that
+    minimizes a combined photometric ($\mathcal{L}_{\text{rgb}}$) and
+    geometric ($\mathcal{L}_{\text{depth}}$) loss:
+    \begin{equation}
+        \mathcal{L}_{\text{track}} = \lambda_{\text{track}}
+        \mathcal{L}_{\text{rgb}} + (1-\lambda_{\text{track}})
+        \mathcal{L}_{\text{depth}}
+    \end{equation}
+    where $\mathcal{L}_{\text{depth}}$ uses the dense depth predicted by the
+    multi-frame integration module (not the raw sparse ToF depth).
+
+    \item \textbf{Multi-Frame Integration (MFI)}: Extends the Depth on Demand
+    (DoD) framework~\cite{conti2024_dod} to fuse three complementary cues:
+    (a)~extremely sparse ToF depth, (b)~monocular color cues via a Depth
+    Anything v2~\cite{yang2024depthanythingv2} encoder, and
+    (c)~multi-view geometry from a keyframe buffer.  An outlier rejection
+    step compares ToF measurements against a no-ToF depth prediction and
+    discards measurements with $\ell_1$ error above a quantile threshold,
+    producing filtered sparse depth $\tilde{H}_k$ before final DoD
+    prediction.
+
+    \item \textbf{Mapping Backend}: Initializes new Gaussians where rendered
+    opacity is low (uncertainty-driven).  The mapping loss combines
+    photometric, DSSIM, depth, normal, and isotropy regularization terms:
+    \begin{equation}
+        \mathcal{L}_{\text{map}} = \lambda_{\text{map}}[\lambda_{\text{visual}}
+        \mathcal{L}_{\text{rgb}} + (1-\lambda_{\text{visual}})
+        \mathcal{L}_{\text{dssim}}] + (1-\lambda_{\text{map}})
+        \mathcal{L}_{\text{depth}} + \lambda_{\text{normals}}
+        \mathcal{L}_{\text{normals}} + \lambda_{\text{iso}}
+        \mathcal{L}_{\text{iso}}
+    \end{equation}
+    The isotropy loss $\mathcal{L}_{\text{iso}}$ penalizes elongated
+    Gaussians, and a keyframe novelty factor $\nu_k$ based on rendered
+    opacity drives keyframe selection.
+\end{enumerate}
+
+\textbf{Key results}: On the ZJUL5 dataset (real sparse ToF) and Replica,
+ToF-Splatting achieves state-of-the-art tracking and mapping, outperforming
+prior sparse-ToF SLAM (ToF-SLAM~\cite{jiang2022quantizedtof}) and achieving
+comparable or better results than RGB-D methods even with $\leq$1\% of the
+depth points.  On TUM RGB-D, it matches full-density RGB-D Gaussian SLAM.
+
+\textbf{Code}: Project page at
+\url{https://andreaconti.github.io/projects/tof_splatting}.
+
+\subsection{iToF-RGB Depth Fusion (Non-SLAM)}
+
+While not SLAM systems per se, several works address the fundamental
+iToF+RGB fusion problem that underpins this category:
+
+\textbf{Fang et al.}~\cite{fang2025_iToFRGB} (ICPR 2024) propose a
+weakly-supervised framework fusing narrow-FoV iToF depth with wide-FoV RGB
+monocular depth.  The learning objective is inter-camera geometric
+consistency, supplemented by structure distillation from the passive
+sensing modality.  This is the smartphone-targeted counterpart to
+ToF-Splatting.
+
+\textbf{Du et al.}~\cite{du2025_iToFRGB} (arXiv 2025) present an iToF-RGB
+fusion framework addressing iToF's low spatial resolution, limited FoV, and
+structural distortion.  A precise geometric calibration module reprojects
+narrow-FoV iToF depth onto the wide-FoV RGB coordinate system, and a
+dual-encoder fusion network jointly extracts complementary features guided
+by monocular depth priors.
+
+\subsection{ToF-IP: Inertial + ToF for Motion Capture}
+
+ToF-IP~\cite{yao2025_tofip} (NeurIPS 2025) integrates ToF sensors with
+sparse IMUs for human motion capture---a different application domain but
+demonstrating the complementary nature of ToF (direct distance measurement)
+and inertial sensing (indirect acceleration integration).  A Transformer
+encoder with Node-Centric Data Integration and Dynamic Spatial Positional
+Encoding effectively fuses the two modalities.
+
+\subsection{Summary and Gap Analysis}
+
+The iToF + RGB + IMU Gaussian SLAM category is currently the least explored
+of the three, with ToF-Splatting being the sole dedicated 3DGS-SLAM system.
+The key gaps are:
+
+\begin{itemize}
+    \item \textbf{No IMU integration}: ToF-Splatting uses only ToF + RGB,
+    not IMU.  An iToF + RGB + IMU Gaussian SLAM system would combine the
+    metric scale from iToF, motion continuity from IMU, and appearance from
+    RGB---a natural and unexplored configuration for mobile/AR devices.
+    \item \textbf{Outdoor extension}: iToF sensors suffer from ambient light
+    interference outdoors.  Extending to outdoor scenes requires robust
+    multi-frame integration under varying SNR.
+    \item \textbf{Embedded deployment}: iToF sensors target mobile devices,
+    but current 3DGS optimization is GPU-intensive.  Lightweight Gaussian
+    representations (e.g., LoCoSplat~\cite{wang2026_locosplat}) may enable
+    on-device real-time mapping.
+\end{itemize}
+
+\begin{table}[t]
+\centering
+\caption{iToF + RGB + IMU Gaussian Splatting and related systems.}
+\label{tab:itof_summary}
+\scriptsize
+\begin{tabular}{lcccc}
+\toprule
+\textbf{System} & \textbf{Year} & \textbf{Venue} & \textbf{3DGS SLAM} & \textbf{IMU} \\
+\midrule
+ToF-Splatting~\cite{conti2025_tofsplatting} & 2025 & CVPR & \checkmark & -- \\
+ToF-SLAM~\cite{jiang2022quantizedtof} & 2022 & CVPR-W & -- (NeRF) & -- \\
+DoD~\cite{conti2024_dod} & 2024 & ECCV & -- (depth only) & -- \\
+iToF-RGB Fusion~\cite{fang2025_iToFRGB} & 2024 & ICPR & -- & -- \\
+iToF-RGB Fusion~\cite{du2025_iToFRGB} & 2025 & arXiv & -- & -- \\
+ToF-IP~\cite{yao2025_tofip} & 2025 & NeurIPS & -- (MoCap) & \checkmark \\
+\bottomrule
+\end{tabular}
+\end{table}

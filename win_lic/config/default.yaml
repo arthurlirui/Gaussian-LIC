@@ -1,0 +1,90 @@
+# ===========================================================================
+# WinLIC Configuration File
+# ===========================================================================
+# This YAML config drives the entire offline reconstruction pipeline.
+# It extends the original Gaussian-LIC2 config format with new sections for
+# dataset input and multi-modal depth fusion.
+#
+# Usage:
+#   winlic --config config/default.yaml --result ./result --lpips ./lpips
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# Dataset / Sensor Source
+# ---------------------------------------------------------------------------
+dataset:
+  type: "offline"              # "offline" for file-based, "orbbec" for live camera
+  base_path: "data/scene1"     # Root directory of the dataset
+  image_dir: "images"          # RGB images subdirectory
+  depth_dir: "depth"           # Depth maps subdirectory (optional)
+  cloud_dir: "pointclouds"     # LiDAR PLY files subdirectory
+  pose_file: "trajectory.txt"  # Camera poses (TUM/KITTI/EuRoC format)
+  imu_file: "imu.csv"          # IMU data (optional)
+  pose_format: "tum"           # tum | kitti | euroc
+
+  # Orbbec-specific (ignored for offline mode):
+  # serial_number: ""           # empty = first available device
+
+# ---------------------------------------------------------------------------
+# Camera Intrinsics
+# ---------------------------------------------------------------------------
+camera:
+  width: 640
+  height: 512
+  fx: 646.78472
+  fy: 646.65775
+  cx: 313.456795
+  cy: 261.399612
+
+# ---------------------------------------------------------------------------
+# Frame Selection & Depth Completion
+# ---------------------------------------------------------------------------
+select_every_k_frame: 5        # 1 = use all frames; 5 = every 5th is a keyframe
+depth_completion: true         # Enable SPNet TensorRT depth completion
+patch_size: 10                 # Patch size for depth-completion sampling
+max_depth: 20                  # Maximum valid depth (metres)
+
+# SPNet engine path (auto-derived from base_path if omitted):
+# engine_path: "/path/to/spnet_512_640.engine"
+
+# ---------------------------------------------------------------------------
+# Multi-Modal Depth Fusion
+# ---------------------------------------------------------------------------
+depth_fusion:
+  enable_itof: true            # Use iToF depth if available
+  enable_stereo: false         # Use stereo SGM depth if available
+  stereo_baseline: 0.12        # Stereo baseline in metres
+  confidence_threshold: 0.5    # Minimum confidence for fusion
+  # Confidence weights per source (higher = more trusted):
+  # lidar_confidence: 1.0      # LiDAR is treated as ground truth
+  # itof_confidence: 0.6
+  # stereo_confidence: 0.5
+
+# ---------------------------------------------------------------------------
+# Gaussian Model Parameters (preserved from Gaussian-LIC2)
+# ---------------------------------------------------------------------------
+sh_degree: 3
+white_background: false
+random_background: false
+convert_SHs_python: false
+compute_cov3D_python: false
+lambda_erank: 0
+scaling_scale: 1
+
+position_lr: 0.00016
+feature_lr: 0.0050
+opacity_lr: 0.05
+scaling_lr: 0.005
+rotation_lr: 0.001
+lambda_dssim: 0.2
+optimize_depth: true
+lambda_depth: 0.005
+iteration_decay: false
+
+apply_exposure: false
+exposure_lr: 0.001
+skybox_points_num: 0
+skybox_radius: 1000
+
+# Memory safety cap: 0 = unlimited (use on memory-constrained GPUs)
+max_gaussians: 0

@@ -1,0 +1,206 @@
+When no active depth sensor is available, Gaussian Splatting SLAM must
+derive geometric priors from learned models or visual-inertial
+structure-from-motion.  This category---monocular depth + RGB + IMU---is the
+most hardware-accessible (requiring only a camera and IMU, both ubiquitous
+in consumer devices) but the most algorithmically challenging, as monocular
+depth is scale-ambiguous, view-dependent, and noisy.
+
+We subdivide this category into three threads: (1)~visual-inertial
+Gaussian SLAM with tightly-coupled IMU fusion, (2)~monocular RGB-only
+Gaussian SLAM with learned depth priors, and (3)~feed-forward foundation-model-
+based Gaussian SLAM.
+
+\subsection{Visual-Inertial Gaussian Splatting SLAM}
+
+\subsubsection{VIGS-SLAM}
+
+VIGS-SLAM~\cite{zhu2026_vigssslam} (arXiv 2025, ETH Zurich) is the
+state-of-the-art visual-inertial 3DGS SLAM system.  It tightly couples
+visual and inertial energy terms within a unified optimization framework,
+jointly refining camera poses, depths, and IMU states (velocity, bias).
+Key contributions include:
+\begin{itemize}
+    \item \textbf{Custom CUDA kernels} for inertial bundle adjustment that
+    directly fuse visual and inertial Hessian contributions in a single
+    normal-equation solve per iteration---eliminating the linearization gap
+    of cascaded approaches like DBA-Fusion.
+    \item \textbf{Robust multi-stage IMU initialization} recovering metric
+    scale, gravity direction, and IMU parameters.
+    \item \textbf{Time-varying bias modeling} (not fixed bias as in prior
+    work).
+    \item \textbf{Efficient loop closure} with consistent Gaussian map
+    updates.
+\end{itemize}
+Evaluated on five datasets including a self-captured visual-inertial
+dataset, VIGS-SLAM consistently outperforms SOTA methods under motion blur,
+low texture, and exposure variations.  \textbf{Project page}:
+\url{https://visionlab.ethz.ch/vigs-slam}.
+
+\textbf{Elevator-VIGS}~\cite{zhou2026_elevatorvigs} extends VIGS-SLAM with
+a transport state that separates elevator motion from robot motion,
+enabling tracking through elevator rides---a scenario where the camera and
+IMU observe different motions.
+
+\subsubsection{MM3DGS SLAM}
+
+MM3DGS SLAM~\cite{sun2024_mm3dgs} (IROS 2024) is the first system to use
+3D Gaussians for map representation with unposed camera images and inertial
+measurements.  Its keyframe-based framework incorporates relative pose
+transformations from pre-integrated IMU measurements, depth estimates, and
+photometric rendering quality.  For monocular input, it treats learned
+monocular depth as sensor depth.  Achieves 3$\times$ tracking improvement
+over prior 3DGS SLAM SOTA.
+
+\subsubsection{CGS-SLAM}
+
+CGS-SLAM~\cite{deambrogi2026_cgssslam} (arXiv 2026) enables multi-agent
+3DGS SLAM using only RGB and inertial data.  Each agent performs local
+tracking with inertial data as a motion prior and reconstructs a scaled map
+using a \emph{metric} monocular depth estimator (Depth Pro).  Keyframe
+encodings are shared among agents for dynamic keyframing in overlap
+regions, and a central server aligns submaps using VGGT~\cite{wang2025_vggt}
+as a view alignment model.  This is the collaborative counterpart to
+VIGS-SLAM, targeting GNSS-denied tactical scenarios with consumer
+smartphones.
+
+\subsubsection{VIM-GS}
+
+VIM-GS~\cite{zhang2026_vimgs} (arXiv 2025) is a visual-inertial monocular
+Gaussian Splatting framework for large scenes.  It addresses the depth
+challenge by fusing accurate but sparse depth from visual-inertial SfM with
+dense but coarse depth from large foundation models (LFMs).  An
+object-segmented depth propagation algorithm bridges sparse and dense
+depth, and a dynamic depth refinement module handles crippled SfM depth of
+dynamic objects.  This is the large-scale outdoor counterpart to indoor
+VIGS-SLAM.
+
+\subsection{Monocular RGB-Only Gaussian SLAM with Learned Depth}
+
+\subsubsection{MonoGS (Gaussian Splatting SLAM)}
+
+MonoGS~\cite{matsuki2024monogs} (CVPR 2024) is the first application of 3D
+Gaussian Splatting in monocular SLAM.  It uses 3DGS as the sole scene
+representation and introduces geometric regularization to address
+ambiguities in incremental reconstruction from monocular input.  The system
+demonstrates near real-time operation and achieves SOTA results in novel
+view synthesis and trajectory estimation, including reconstruction of tiny
+and transparent objects.  \textbf{Code}:
+\url{https://github.com/muskie82/MonoGS}.
+
+\subsubsection{HI-SLAM2}
+
+HI-SLAM2~\cite{zhang2026_hislam2} (IEEE T-RO 2025) achieves fast and
+accurate monocular scene reconstruction using only RGB input.  Its key idea
+is combining easy-to-obtain monocular geometry priors (depth + normals from
+OmniData) with learning-based dense SLAM, using 3DGS as the map
+representation.  A grid-based scale alignment strategy addresses scale
+distortions in monocular depth priors.  Upon loop closure, efficient
+pose-graph BA with instant Gaussian deformation ensures global consistency.
+Surpasses even RGB-D methods on Replica, ScanNet, and ScanNet++.  \textbf{Code}:
+\url{https://hi-slam2.github.io/}.
+
+\subsubsection{Splat-SLAM}
+
+Splat-SLAM~\cite{sandstrom2025_splatslam} (CVPR 2025) is the first RGB-only
+SLAM system with globally optimized tracking, dynamically adapting the
+Gaussian map to keyframe pose and depth updates.  It incorporates
+Disparity, Scale and Pose Optimization (DSPO) for bundle adjustment,
+jointly optimizing pose, depth, and monocular depth scale.
+
+\subsubsection{GaussianFlow SLAM}
+
+GaussianFlow SLAM~\cite{seo2026_gaussianflow} (IEEE RA-L 2026) leverages
+optical flow as a geometry-aware cue to guide the optimization of both the
+3DGS and camera poses.  By aligning the projected motion of Gaussians
+(``GaussianFlow'') with dense optical flow, it continuously corrects 3DGS
+geometry even without direct depth measurements.  Normalized error-based
+densification and pruning modules refine inactive Gaussians.  \textbf{Code}:
+\url{https://github.com/url-kaist/gaussianflow-slam}.
+
+\subsubsection{MyGO-Splat}
+
+MyGO-Splat~\cite{zhu2026_mygosplat} (arXiv 2026) is a closed-loop Gaussian
+SLAM framework that analytically rasterizes Gaussian primitives into
+pixel-wise depth and surface normals, allowing the map to actively supervise
+camera pose optimization.  Achieves performance comparable to RGB-D methods
+while using only monocular input.
+
+\subsubsection{WildGS-SLAM}
+
+WildGS-SLAM~\cite{zheng2025_wildgssslam} (CVPR 2025) addresses monocular
+Gaussian SLAM in dynamic environments.  An uncertainty map, predicted by a
+shallow MLP given DINOv2 features, guides dynamic object removal during
+tracking (weighted DBA) and mapping (weighted rendering loss).  Monocular
+metric depth facilitates pose estimation.  A new Wild-SLAM dataset with
+diverse indoor/outdoor dynamic scenes is contributed.
+
+\subsubsection{GeoGS-SLAM}
+
+GeoGS-SLAM~\cite{zhou2026_geogs} (arXiv 2026) introduces geometry-only
+Gaussian Splatting (GeoGS) that directly reconstructs scene geometry, and
+builds a dense visual SLAM system upon it.  It outperforms SOTA methods in
+online mapping efficiency and geometric reconstruction quality.
+
+\subsubsection{MonoEM-GS}
+
+MonoEM-GS~\cite{kruzhkov2026_monoemgs} (arXiv 2026) integrates feed-forward
+geometric foundation model predictions into a global Gaussian Splatting
+representation via an Expectation-Maximization formulation that explicitly
+addresses view-dependent geometry inconsistencies.  ICP-based alignment
+provides monocular pose estimation.  Parameterizes Gaussians with
+multi-modal features for in-place open-set segmentation.
+
+\subsection{Feed-Forward Foundation-Model-Based Gaussian SLAM}
+
+\subsubsection{VGGT-GS SLAM}
+
+VGGT-GS SLAM~\cite{han2026_vggtgssslam} (arXiv 2026) is a monocular 3DGS
+SLAM system for uncalibrated videos.  Starting from feed-forward VGGT
+pose and depth priors, it performs submap differentiable bundle adjustment
+that jointly refines camera poses, a 3D Gaussian map, and
+submap-shared intrinsics and radial-tangential distortion through analytic
+calibration Jacobians.  Gaussian-native alignment (GNA) provides
+camera-anchored scale refinement between submaps and loop-closure
+verification.
+
+\subsection{Summary of Monocular-Depth-Based Systems}
+
+\Cref{tab:mono_summary} compares the key monocular-depth Gaussian SLAM
+systems.  The field has progressed rapidly from the initial MonoGS
+(RGB-only, near real-time) to VIGS-SLAM (tightly-coupled VI, real-time, loop
+closure) and foundation-model-based systems (VGGT-GS SLAM, uncalibrated).
+
+\begin{table}[t]
+\centering
+\caption{Monocular Depth + RGB + IMU Gaussian Splatting SLAM systems.}
+\label{tab:mono_summary}
+\scriptsize
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{System} & \textbf{Year} & \textbf{Venue} & \textbf{IMU} & \textbf{Depth Prior} & \textbf{Loop} & \textbf{Code} \\
+\midrule
+MonoGS~\cite{matsuki2024monogs} & 2024 & CVPR & -- & None & \checkmark & \checkmark \\
+MM3DGS~\cite{sun2024_mm3dgs} & 2024 & IROS & \checkmark & Mono depth & -- & -- \\
+HI-SLAM2~\cite{zhang2026_hislam2} & 2025 & T-RO & -- & OmniData & \checkmark & \checkmark \\
+Splat-SLAM~\cite{sandstrom2025_splatslam} & 2025 & CVPR & -- & Mono depth & \checkmark & -- \\
+WildGS-SLAM~\cite{zheng2025_wildgssslam} & 2025 & CVPR & -- & Metric depth & -- & -- \\
+VIM-GS~\cite{zhang2026_vimgs} & 2025 & arXiv & \checkmark & LFM + SfM & -- & -- \\
+VIGS-SLAM~\cite{zhu2026_vigssslam} & 2025 & arXiv & \checkmark & DROID-SLAM & \checkmark & -- \\
+GaussianFlow~\cite{seo2026_gaussianflow} & 2026 & RA-L & -- & Optical flow & -- & \checkmark \\
+GeoGS-SLAM~\cite{zhou2026_geogs} & 2026 & arXiv & -- & Learned & -- & -- \\
+MyGO-Splat~\cite{zhu2026_mygosplat} & 2026 & arXiv & -- & Analytic & -- & -- \\
+MonoEM-GS~\cite{kruzhkov2026_monoemgs} & 2026 & arXiv & -- & Foundation & -- & -- \\
+VGGT-GS SLAM~\cite{han2026_vggtgssslam} & 2026 & arXiv & -- & VGGT & \checkmark & -- \\
+CGS-SLAM~\cite{deambrogi2026_cgssslam} & 2026 & arXiv & \checkmark & Depth Pro & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key insight}: The fundamental challenge in monocular-depth Gaussian
+SLAM is \emph{scale ambiguity}.  Three approaches address this:
+(a)~IMU pre-integration for metric scale (VIGS-SLAM, MM3DGS, CGS-SLAM),
+(b)~grid-based scale alignment of monocular depth priors (HI-SLAM2), and
+(c)~metric monocular depth estimation models (Depth Pro in CGS-SLAM,
+Metric3D in MAGS-SLAM).  The IMU-based approach is most robust but requires
+hardware; the metric depth model approach is hardware-free but relies on
+generalization of the depth network.

@@ -1,0 +1,180 @@
+% ===========================================================================
+% Section: Multi-Modal Sensor Fusion
+% ===========================================================================
+\section{Multi-Modal Sensor Fusion}
+\label{sec:sensor_fusion}
+
+This section describes the two key components of the sensor fusion layer:
+the pluggable \texttt{ISensorSource} interface and the multi-modal depth
+fusion module.
+
+\subsection{Pluggable Sensor Source Interface}
+\label{subsec:sensor_interface}
+
+The \texttt{ISensorSource} abstract interface (Figure~\ref{fig:sensor_architecture})
+is the cornerstone of the framework's extensibility.
+
+\input{figures/sensor_architecture}
+
+It defines four virtual methods:
+
+\begin{itemize}
+    \item \texttt{open(config)}: Initialise the source from a YAML
+    configuration node. For offline readers, this opens files and scans
+    directories; for live cameras, this connects to the device and starts
+    streaming.
+
+    \item \texttt{hasNext()}: Poll whether more frames are available.
+    For offline readers, this checks the frame index against the total
+    count; for live cameras, this returns \texttt{true} until the stream
+    is stopped.
+
+    \item \texttt{nextFrame()}: Retrieve the next \texttt{AlignedFrame}.
+    For offline readers, this loads the next set of files from disk;
+    for live cameras, this blocks until the next frame set arrives.
+
+    \item \texttt{close()}: Release resources.
+\end{itemize}
+
+\subsubsection{DatasetReader}
+
+The \texttt{DatasetReader} is the primary sensor source for offline
+processing. It reads from a structured directory layout:
+
+\begin{verbatim}
+base_path/
+  images/         RGB frames (000000.jpg, ...)
+  depth/          Depth maps (000000.png [16-bit mm] or .exr)
+  pointclouds/    LiDAR PLY files (000000.ply, ...)
+  trajectory.txt  Camera poses (TUM/KITTI/EuRoC format)
+  imu.csv         IMU data (optional)
+\end{verbatim}
+
+Three pose formats are supported:
+\begin{itemize}
+    \item \textbf{TUM}: \texttt{timestamp tx ty tz qx qy qz qw}
+    \item \textbf{KITTI}: 3$\times$4 row-major rigid transform matrix
+    ($R | \mathbf{t}$), no timestamp
+    \item \textbf{EuRoC}: CSV with nanosecond timestamps
+    (\texttt{timestamp\_ns, px, py, pz, qw, qx, qy, qz})
+\end{itemize}
+
+Depth maps are loaded as 32-bit float images in metric units. PNG files
+store depth in millimetres (16-bit unsigned) and are automatically
+converted; EXR files store metric depth directly.
+
+Point clouds are read via a minimal PLY parser that supports both ASCII
+and binary little-endian formats, handling \texttt{float32} XYZ coordinates
+and \texttt{uchar} RGB colour.
+
+\subsubsection{OrbbecSource}
+
+The \texttt{OrbbecSource} wraps the OrbbecSDK v2 C API for live data
+acquisition from Orbbec 3D cameras (Femto Mega, Gemini 2). It enables
+three streams---colour (RGB), depth (iToF), and IR/LiDAR---and returns
+\texttt{AlignedFrame} objects with the same structure as the offline
+reader.
+
+This implementation is \emph{compile-gated}: when the
+\texttt{USE\_ORBBEC\_SDK} preprocessor macro is not defined, a stub
+implementation is compiled that prints a helpful error message and
+returns \texttt{false} from \texttt{open()}. This ensures the framework
+compiles cleanly without the SDK, and users can enable live camera
+support by installing the SDK and passing
+\texttt{-DUSE\_ORBBEC\_SDK=ON} to CMake.
+
+\subsection{Multi-Modal Depth Fusion}
+\label{subsec:depth_fusion}
+
+The depth fusion module (Figure~\ref{fig:depth_fusion}) combines three
+depth sources into a single high-quality depth map.
+
+\input{figures/depth_fusion}
+
+Each source has
+complementary characteristics:
+
+\begin{table}[h]
+\centering
+\caption{Depth source characteristics.}
+\label{tab:depth_sources}
+\begin{tabular}{lccc}
+\toprule
+Source & Density & Accuracy & Limitation \\
+\midrule
+LiDAR  & Sparse ($\sim$5\% pixels) & High ($\pm$2\,cm) & Limited spatial coverage \\
+iToF   & Dense (100\%) & Medium ($\pm$5\,cm) & Noise at discontinuities \\
+Stereo & Dense (100\%) & Medium ($\pm$10\,cm) & Fails in textureless areas \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{LiDAR Depth Projection}
+
+LiDAR points in the world frame are projected into the camera image to
+produce a sparse depth map. Given a point $\mathbf{p}_w$ and camera pose
+$(R_{wc}, \mathbf{t}_{wc})$:
+
+\begin{align}
+    \mathbf{p}_c &= R_{cw} \, \mathbf{p}_w + \mathbf{t}_{cw} \\
+    u &= f_x \, p_{c,x} / p_{c,z} + c_x \\
+    v &= f_y \, p_{c,y} / p_{c,z} + c_y
+\end{align}
+
+A Z-buffer ensures that the nearest depth is retained when multiple
+points project to the same pixel.
+
+\subsubsection{Stereo Depth via SGM}
+
+When stereo image pairs are available, depth is computed via OpenCV's
+\texttt{StereoSGBM} (Semi-Global Block Matching). The disparity map $d(u,v)$
+is converted to metric depth:
+
+\begin{equation}
+    Z(u,v) = \frac{b \cdot f_x}{d(u,v)}
+\end{equation}
+
+where $b$ is the stereo baseline and $f_x$ is the horizontal focal length.
+
+\subsubsection{Confidence-Weighted Fusion}
+
+Each depth source is assigned a per-pixel confidence weight $C_i(u,v)$:
+
+\begin{itemize}
+    \item \textbf{LiDAR} ($C_L$): Binary---1.0 at pixels with LiDAR hits,
+    0 elsewhere. LiDAR depth is treated as ground truth.
+
+    \item \textbf{iToF} ($C_F$): Edge-based confidence, reduced at depth
+    discontinuities:
+    $C_F = 1 - \|\nabla D_F\| / \max\|\nabla D_F\|$.
+
+    \item \textbf{Stereo} ($C_S$): Texture-based confidence, proportional
+    to local depth variance (a proxy for scene texture).
+\end{itemize}
+
+The fused depth is computed as a weighted average:
+\begin{equation}
+    D_{\text{fused}}(u,v) = \frac{\sum_{i \in \{L, F, S\}} C_i(u,v) \cdot D_i(u,v)}
+                                  {\sum_{i \in \{L, F, S\}} C_i(u,v)}
+\end{equation}
+
+After fusion, LiDAR pixels overwrite the fused depth as ground truth:
+$D_{\text{fused}}(u,v) \leftarrow D_L(u,v)$ wherever $D_L(u,v) > 0$.
+
+\subsection{Timestamp-Based Data Alignment}
+
+Figure~\ref{fig:data_alignment} illustrates the timestamp-based alignment
+strategy.
+
+\input{figures/data_alignment}
+
+The LiDAR stream (10--20\,Hz) defines the reference timestamps,
+and other modalities are matched within a tolerance
+$\epsilon = 10$\,ms. This mirrors the alignment logic in the original
+\gaussianlic{} system, where ROS message timestamps were used for
+queue-based synchronization.
+
+In the offline \texttt{DatasetReader}, alignment is implicit because all
+modalities share the same frame numbering. The \texttt{DataAligner}
+class provides an explicit alignment utility for live streaming scenarios
+where modalities arrive at different rates.

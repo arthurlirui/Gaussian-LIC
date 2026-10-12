@@ -1,0 +1,64 @@
+\Cref{tab:full_inventory} lists all papers surveyed in this work, organized
+by category.  PDFs for papers with arXiv preprints are saved in
+\texttt{latex/papers/} following the naming convention
+\texttt{FirstauthorLastName<Year>\_<ShortName>.pdf}.
+
+\begin{table}[h]
+\centering
+\caption{Complete paper inventory by category.}
+\label{tab:full_inventory}
+\scriptsize
+\begin{tabular}{p{4cm}p{2cm}p{2cm}p{5cm}}
+\toprule
+\textbf{Paper} & \textbf{Year} & \textbf{Venue} & \textbf{Key Contribution} \\
+\midrule
+\multicolumn{4}{l}{\textbf{Category 1: LiDAR + RGB + IMU}} \\
+\midrule
+Gaussian-LIC~\cite{lang2025_gaussianlic} & 2025 & ICRA & First real-time LIV GS-SLAM \\
+Gaussian-LIC2~\cite{lang2026_gaussianlic2} & 2026 & IJRR & Depth completion + bidirectional coupling \\
+GS-LIVM~\cite{xie2024_gslivm} & 2024 & ICCV-W & Voxel-GPR densification \\
+GS-LIVO~\cite{hong2025_gslivo} & 2025 & T-RO & Embedded (Jetson) deployment \\
+LVI-GS~\cite{zhao2025_lvigs} & 2025 & T-IM & Pyramid training + depth loss \\
+RMGS-SLAM~\cite{li2026_rmgs} & 2026 & arXiv & Cascaded init + loop closure \\
+RT-LiDAR-GS~\cite{tak2026_realtimelidar} & 2026 & arXiv & G-ICP + spherical rasterization \\
+LV-GS SLAM~\cite{he2026lvgsslam} & 2026 & AppSci & Depth propagation + submap mgmt \\
+LIT-GS~\cite{shi2026_litgs} & 2026 & IROS & LiDAR-inertial-thermal \\
+\midrule
+\multicolumn{4}{l}{\textbf{Category 2: iToF + RGB + IMU}} \\
+\midrule
+ToF-Splatting~\cite{conti2025_tofsplatting} & 2025 & CVPR & First sparse-ToF 3DGS-SLAM \\
+DoD~\cite{conti2024_dod} & 2024 & ECCV & Multi-frame depth integration \\
+iToF-RGB Fusion~\cite{fang2025_iToFRGB} & 2024 & ICPR & Weakly-supervised iToF+RGB \\
+iToF-RGB Fusion~\cite{du2025_iToFRGB} & 2025 & arXiv & Monocular-aided iToF+RGB \\
+ToF-IP~\cite{yao2025_tofip} & 2025 & NeurIPS & ToF+IMU for MoCap \\
+\midrule
+\multicolumn{4}{l}{\textbf{Category 3: Monocular Depth + RGB + IMU}} \\
+\midrule
+MonoGS~\cite{matsuki2024monogs} & 2024 & CVPR & First monocular GS-SLAM \\
+MM3DGS~\cite{sun2024_mm3dgs} & 2024 & IROS & Multi-modal VI GS-SLAM \\
+HI-SLAM2~\cite{zhang2026_hislam2} & 2025 & T-RO & Geometry-aware mono GS-SLAM \\
+Splat-SLAM~\cite{sandstrom2025_splatslam} & 2025 & CVPR & Globally optimized RGB-only \\
+WildGS-SLAM~\cite{zheng2025_wildgssslam} & 2025 & CVPR & Dynamic-scene mono GS-SLAM \\
+VIM-GS~\cite{zhang2026_vimgs} & 2025 & arXiv & VI mono GS for large scenes \\
+VIGS-SLAM~\cite{zhu2026_vigssslam} & 2025 & arXiv & Tightly-coupled VI GS-SLAM \\
+GaussianFlow~\cite{seo2026_gaussianflow} & 2026 & RA-L & Optical-flow-guided mono GS-SLAM \\
+GeoGS-SLAM~\cite{zhou2026_geogs} & 2026 & arXiv & Geometry-only GS dense SLAM \\
+MyGO-Splat~\cite{zhu2026_mygosplat} & 2026 & arXiv & Closed-loop geometric feedback \\
+MonoEM-GS~\cite{kruzhkov2026_monoemgs} & 2026 & arXiv & EM-based mono GS-SLAM \\
+VGGT-GS SLAM~\cite{han2026_vggtgssslam} & 2026 & arXiv & Uncalibrated VGGT-prior GS-SLAM \\
+CGS-SLAM~\cite{deambrogi2026_cgssslam} & 2026 & arXiv & Collaborative VI GS-SLAM \\
+Elevator-VIGS~\cite{zhou2026_elevatorvigs} & 2026 & arXiv & Elevator-robust VI GS-SLAM \\
+\midrule
+\multicolumn{4}{l}{\textbf{Foundations}} \\
+\midrule
+3DGS~\cite{kerbl2023_3dgs} & 2023 & ACM TOG & 3D Gaussian Splatting \\
+FAST-LIO2~\cite{xu2022fastlio2} & 2022 & T-RO & LiDAR-inertial odometry \\
+FAST-LIVO2~\cite{zheng2024_fastlivo2} & 2024 & T-RO & LIVO odometry \\
+R3LIVE~\cite{lin2024_r3live} & 2024 & ICRA & RGB-colored LIVO \\
+VGGT~\cite{wang2025_vggt} & 2025 & CVPR & Feed-forward 3D vision FM \\
+Depth Anything v2~\cite{yang2024depthanythingv2} & 2024 & arXiv & Monocular depth FM \\
+ORB-SLAM3~\cite{campos2021orbslam3} & 2021 & T-RO & VI SLAM \\
+VINS-Mono~\cite{qin2018vinsmono} & 2018 & T-RO & Visual-inertial SLAM \\
+\bottomrule
+\end{tabular}
+\end{table}

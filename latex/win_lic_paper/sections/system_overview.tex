@@ -1,0 +1,93 @@
+% ===========================================================================
+% Section: System Overview
+% ===========================================================================
+\section{System Overview}
+\label{sec:system_overview}
+
+\winlic{} is designed as a modular, offline-first reconstruction framework
+that processes pre-recorded multi-modal data to produce a photo-realistic
+3D Gaussian map. The system architecture follows three design principles:
+
+\begin{itemize}
+    \item \textbf{ROS-free:} All communication is via direct function calls
+    and shared memory structures, not ROS topics or message serialization.
+    This enables Windows deployment and eliminates the overhead of
+    message-passing middleware.
+
+    \item \textbf{Pluggable:} Sensor data sources are abstracted behind the
+    \texttt{ISensorSource} interface, allowing offline file readers and
+    live camera SDKs to be swapped without modifying the reconstruction
+    pipeline.
+
+    \item \textbf{Algorithm-preserving:} The Gaussian Splatting mapping
+    algorithm (initialization, extension, optimization, densification) is
+    preserved verbatim from \gaussianlic, ensuring that reconstruction
+    quality is identical to the original system.
+\end{itemize}
+
+\subsection{Pipeline Architecture}
+
+Figure~\ref{fig:pipeline} illustrates the full processing pipeline.
+
+\input{figures/pipeline}
+The system comprises six stages:
+
+\begin{enumerate}
+    \item \textbf{Sensor Input.} Multi-modal data enters through an
+    \texttt{ISensorSource} implementation---either a
+    \texttt{DatasetReader} for offline files or an \texttt{OrbbecSource}
+    for live camera streams.
+
+    \item \textbf{Data Alignment.} The \texttt{DataAligner} synchronizes
+    frames across modalities by timestamp, producing a single
+    \texttt{AlignedFrame} struct containing the RGB image, LiDAR point
+    cloud, depth maps from each source, IMU data, and camera pose.
+
+    \item \textbf{Depth Fusion.} The \texttt{DepthFusion} module combines
+    sparse LiDAR depth, dense iToF depth, and stereo SGM depth into a
+    single confidence-weighted depth map (Section~\ref{sec:sensor_fusion}).
+
+    \item \textbf{Depth Completion.} The fused depth map is completed by
+    the SPNet TensorRT engine, which fills holes using RGB guidance.
+
+    \item \textbf{Gaussian Reconstruction.} The completed depth map and
+    fused point cloud are fed into the \texttt{GaussianModel}, which
+    initializes, extends, and optimizes the 3D Gaussian map
+    (Section~\ref{sec:gaussian_reconstruction}).
+
+    \item \textbf{Output.} The final Gaussian map is exported as a PLY
+    file, along with rendered images, depth visualizations, and quality
+    metrics (PSNR, SSIM, LPIPS).
+\end{enumerate}
+
+\subsection{Data Structures}
+
+The original \gaussianlic{} used ROS message types (\texttt{sensor\_msgs::Image},
+\texttt{sensor\_msgs::PointCloud2}, \texttt{geometry\_msgs::PoseStamped})
+as the inter-module data carriers. In \winlic, these are replaced by
+ROS-free structs:
+
+\begin{itemize}
+    \item \texttt{PointXYZRGB}: A 3D point with 8-bit colour
+    ($x, y, z, r, g, b$).
+    \item \texttt{CameraPose}: Timestamped pose as an Eigen quaternion
+    and translation vector.
+    \item \texttt{ImuMeasurement}: Timestamped accelerometer and gyroscope
+    readings.
+    \item \texttt{AlignedFrame}: A self-contained frame containing the
+    RGB image (\texttt{cv::Mat}), multiple depth maps, point cloud,
+    pose, and metadata.
+\end{itemize}
+
+These structs use only OpenCV (\texttt{cv::Mat}) and Eigen
+(\texttt{Eigen::Quaterniond}, \texttt{Eigen::Vector3d}) types, which are
+fully portable across Windows and Linux.
+
+\subsection{Build System}
+
+The original system used \texttt{catkin} (ROS build system) with
+\texttt{find\_package(catkin REQUIRED COMPONENTS roscpp rospy ...)}.
+\winlic{} replaces this with a pure CMake build that links against
+OpenCV, LibTorch (PyTorch C++ API), TensorRT, yaml-cpp, and CUDA.
+The build is configured via CMake cache variables and supports both
+MSVC (Windows) and GCC (Linux) out of the box.

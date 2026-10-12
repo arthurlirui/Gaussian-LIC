@@ -1,0 +1,100 @@
+\begin{thebibliography}{10}
+
+\bibitem{chen2025_egsslam}
+Zifan Chen et~al.
+\newblock A survey on {Egocentric Gaussian Splatting SLAM}.
+\newblock {\em arXiv preprint}, 2025.
+
+\bibitem{hirschmuller2008_sgm}
+Heiko Hirschm{\"u}ller.
+\newblock Stereo processing by semi-global matching and mutual information.
+\newblock In {\em IEEE Transactions on Pattern Analysis and Machine
+  Intelligence (TPAMI)}, 2008.
+
+\bibitem{hong2024_livgaussmap}
+Sheng Hong, Hongyu Zhang, , et~al.
+\newblock {LIV-GaussMap}: Lidar-inertial-visual fusion for real-time 3d
+  gaussian splatting mapping.
+\newblock {\em IEEE Robotics and Automation Letters (RA-L)}, 2024.
+
+\bibitem{huang2024_photoslam}
+Huajian Huang, Jing Liao, , Hui Cheng, et~al.
+\newblock {Photo-SLAM}: Real-time visual mapping and localization with dense
+  monocular slam.
+\newblock In {\em IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, 2024.
+
+\bibitem{keetha2024_splatam}
+Nikhil Keetha, Krishna Karhade, Krishna~Murthy Jatavallabhula, et~al.
+\newblock {SplaTAM}: Splat, track & map 3d gaussians for dense rgb-d slam.
+\newblock In {\em IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, 2024.
+
+\bibitem{kerbl2023_3dgs}
+Bernhard Kerbl, Georgios Kopanas, Thomas Leimk{\"u}hler, and George Drettakis.
+\newblock 3d gaussian splatting for real-time radiance field rendering.
+\newblock In {\em ACM SIGGRAPH}, 2023.
+
+\bibitem{lang2026_gaussianlic2}
+Xiaolei Lang, Wenjun Zhou, Xingxing Zuo, et~al.
+\newblock Gaussian-lic2: Lidar-inertial-camera gaussian splatting slam.
+\newblock {\em International Journal of Robotics Research (IJRR)}, 2026.
+
+\bibitem{lang2023_cocolic}
+Xiaolei Lang, Xingxing Zuo, Yuxin Sun, et~al.
+\newblock {Coco-LIC}: Continuous-time tightly-coupled lidar-inertial-camera
+  odometry using non-uniform b-spline.
+\newblock In {\em IEEE International Conference on Robotics and Automation
+  (ICRA)}, 2023.
+
+\bibitem{lu2024_scaffoldgs}
+Tao Lu, Mulin Yu, , Linfei Xu, et~al.
+\newblock {Scaffold-GS}: Learning structured gaussian primitives for
+  high-quality large-scale scene rendering.
+\newblock {\em IEEE/CVF Conference on Computer Vision and Pattern Recognition
+  (CVPR)}, 2024.
+
+\bibitem{matsuki2024_monogs}
+Hidenobu Matsuki, Riku Lovie, and Andrew~J. Davison.
+\newblock {Gaussian Splatting SLAM}.
+\newblock In {\em IEEE/CVF Conference on Computer Vision and Pattern
+  Recognition (CVPR)}, 2024.
+
+\bibitem{park2020_nlspn}
+Jinsun Park et~al.
+\newblock Non-local spatial propagation network for depth completion.
+\newblock In {\em European Conference on Computer Vision (ECCV)}, 2020.
+
+\bibitem{ramezani2022_wildcat}
+Milad Ramezani et~al.
+\newblock {Wildcat}: Online continuous-time {3D} lidar-inertial odometry.
+\newblock {\em IEEE Transactions on Robotics (T-RO)}, 2022.
+
+\bibitem{rang2018_4dof}
+others Rang.
+\newblock 4{D}of direct visual-inertial odometry.
+\newblock {\em IEEE Robotics and Automation Letters}, 2018.
+
+\bibitem{tang2020_guidenet}
+Junjie Tang et~al.
+\newblock Depth completion with affinity-convolution.
+\newblock In {\em European Conference on Computer Vision (ECCV)}, 2020.
+
+\bibitem{xie2024_gslivm}
+Yifan Xie et~al.
+\newblock {GSLivM}: Real-time lidar-inertial-visual mapping for seamless
+  indoor-outdoor 3d reconstruction.
+\newblock {\em arXiv preprint arXiv:2409.01417}, 2024.
+
+\bibitem{yan2024_gsslam}
+Chengli Yan et~al.
+\newblock A survey on {3D Gaussian Splatting} for {SLAM}.
+\newblock {\em arXiv preprint arXiv:2411.18172}, 2024.
+
+\bibitem{zheng2025_wildgsslam}
+others Zheng.
+\newblock {WildGaussianSplatting}: Driving scene reconstruction with gaussian
+  splatting.
+\newblock {\em arXiv preprint}, 2025.
+
+\end{thebibliography}

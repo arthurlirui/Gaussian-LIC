@@ -1,0 +1,62 @@
+% ===========================================================================
+% Section: Conclusion
+% ===========================================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+We have presented \winlic, a Windows-compatible offline multi-modal
+Gaussian Splatting framework that eliminates the ROS dependency of prior
+Gaussian SLAM systems. The framework makes three key contributions:
+
+\begin{enumerate}
+    \item A \textbf{pluggable sensor source interface} (\texttt{ISensorSource})
+    that decouples the reconstruction pipeline from data acquisition,
+    supporting both offline file-based datasets and live Orbbec camera
+    streams through a uniform four-method interface. The design is
+    extensible to future sensor SDKs without pipeline modification.
+
+    \item A \textbf{multi-modal depth fusion} module that combines sparse
+    LiDAR depth, dense iToF depth, and stereo SGM depth via
+    confidence-weighted averaging, producing higher-quality depth maps
+    than any single modality. The fused depth is further refined by the
+    SPNet TensorRT completion engine.
+
+    \item A \textbf{ROS-free, cross-platform build} that runs on both
+    Windows (MSVC) and Linux (GCC) with pure CMake, preserving the core
+    Gaussian Splatting algorithm of \gaussianlic{} without quality
+    degradation.
+\end{enumerate}
+
+\subsection{Limitations and Future Work}
+
+The current framework has several limitations that we plan to address:
+
+\begin{itemize}
+    \item \textbf{Pose dependency:} The system relies on pre-computed
+    poses from an external SLAM front-end (e.g., FAST-LIVO2). Integrating
+    a lightweight LIO frontend would enable fully self-contained
+    processing, though at the cost of additional platform dependencies
+    (PCL, IKFOM).
+
+    \item \textbf{Orbbec SDK integration:} The current implementation
+    provides a stub for the Orbbec SDK. Full integration with live
+    streaming and on-device point-cloud generation requires testing
+    with physical hardware.
+
+    \item \textbf{GUI:} The current CLI interface is sufficient for
+    batch processing but lacks interactive visualization. A Qt or
+    Dear~ImGui-based GUI would improve usability for parameter tuning
+    and real-time preview.
+
+    \item \textbf{Large-scale scenes:} The in-memory Gaussian
+    representation does not support out-of-core processing. For
+    city-scale scenes, a submap-based tiling strategy (similar to
+    Co-LIC2) would be needed.
+\end{itemize}
+
+\subsection{Reproducibility}
+
+The complete source code, build instructions, and configuration files
+are provided in the \texttt{win\_lic/} directory of the project repository.
+The original ROS-based code in \texttt{src/} is preserved untouched,
+allowing direct comparison between the two implementations.

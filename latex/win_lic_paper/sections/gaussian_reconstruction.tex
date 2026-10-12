@@ -1,0 +1,115 @@
+% ===========================================================================
+% Section: Gaussian Reconstruction
+% ===========================================================================
+\section{Gaussian Splatting Reconstruction}
+\label{sec:gaussian_reconstruction}
+
+The reconstruction pipeline preserves the core algorithm of
+\gaussianlic~\cite{lang2026_gaussianlic2} while replacing the ROS-based
+data ingestion with the offline sensor source layer. This section
+describes the four stages: initialization, frame addition, map extension,
+and map optimization.
+
+\subsection{Gaussian Initialization}
+\label{subsec:init}
+
+The Gaussian map is initialized from the first keyframe's fused point
+cloud (Figure~\ref{fig:gaussian_init}).
+
+\input{figures/gaussian_init}
+
+For each 3D point
+$\mathbf{p}_i$ with colour $\mathbf{c}_i$ and camera-frame depth $d_i$,
+a Gaussian primitive is created with the following parameters:
+
+\begin{itemize}
+    \item \textbf{Position} $\mathbf{x}_i = \mathbf{p}_i$ (world frame).
+    \item \textbf{Colour (SH)}: The RGB colour is converted to zeroth-order
+    spherical harmonics:
+    $\mathbf{f}_i^{\text{dc}} = (\mathbf{c}_i - 0.5) / C_0$,
+    where $C_0 = 0.28209$.
+    \item \textbf{Scale}: $s_i = \log(\alpha \cdot d_i / f)$, where
+    $\alpha$ is a scaling factor and $f$ is the average focal length.
+    The log-parameterization ensures positivity after exponentiation.
+    \item \textbf{Rotation}: Identity quaternion $[1, 0, 0, 0]$.
+    \item \textbf{Opacity}: $\sigma^{-1}(0.1)$, the inverse sigmoid of 0.1.
+\end{itemize}
+
+For outdoor scenes, optional skybox points are added: $N_{\text{sky}}$
+points uniformly distributed on a sphere of radius $10 \cdot R_{\text{sky}}$,
+with a light-blue colour and higher initial opacity (0.7).
+
+\subsection{Frame Addition and Depth Completion}
+
+Each incoming aligned frame is added to the dataset. The RGB image is
+converted from BGR (0--255) to RGB float (0--1). The fused depth map is
+optionally completed by the SPNet TensorRT engine, which takes the RGB
+image and sparse depth as input and produces a dense depth map.
+
+After depth completion, the system selects patches where the completed
+depth disagrees with the known LiDAR depth by less than 0.1\,m (mean
+difference). In non-edge, positive-depth regions, additional 3D points
+are back-projected from the completed depth at patch-level granularity,
+enriching the point cloud with denser colour observations.
+
+Keyframes are selected every $k$-th frame (default $k=5$). Keyframes are
+added to the training set; non-keyframes to the test set for novel-view
+evaluation.
+
+\subsection{Map Extension}
+
+When a new keyframe arrives and the map is already initialized, the
+\texttt{extend} function adds new Gaussian primitives from the current
+frame's point cloud. The process:
+
+\begin{enumerate}
+    \item Render the current viewpoint to obtain an alpha map
+    (existing coverage).
+    \item Project the new LiDAR points into the image plane and perform
+    z-buffering to keep the nearest point per pixel.
+    \item Filter out points that are: (a) outside the image bounds,
+    (b) at non-positive depth, or (c) in already-opaque regions
+    ($\alpha > 0.99$).
+    \item Create Gaussian primitives for the surviving points with SH
+    colour, log-scale from depth, identity rotation, and low initial
+    opacity.
+    \item Append to the existing Gaussian parameters via
+    \texttt{densificationPostfix}, which also extends the optimizer state
+    (Adam moments) for the new parameters.
+\end{enumerate}
+
+A memory safety cap (\texttt{max\_gaussians}) limits the total Gaussian
+count on memory-constrained GPUs. When the budget is exceeded, new points
+are randomly subsampled to fit the remaining budget.
+
+\subsection{Map Optimization}
+
+After each keyframe, the map is optimized by rendering a random subset of
+training viewpoints and minimizing a photometric loss:
+
+\begin{equation}
+    \mathcal{L} = (1 - \lambda_{\text{dssim}}) \, \mathcal{L}_1
+                + \lambda_{\text{dssim}} \, (1 - \text{SSIM})
+                + \lambda_{\text{depth}} \, \mathcal{L}_{\text{depth}}
+\end{equation}
+
+where $\mathcal{L}_1$ is the L1 error between rendered and ground-truth
+images, SSIM is computed via a fused CUDA kernel for efficiency, and
+$\mathcal{L}_{\text{depth}}$ is the L1 error on depth where both rendered
+and ground-truth depth are valid.
+
+The optimizer is a custom \texttt{SparseGaussianAdam} that updates only
+the Gaussians visible in the current rendered viewpoint, reducing
+computational cost. The visibility mask is obtained from the rasterizer's
+forward pass.
+
+\subsection{Evaluation and Export}
+
+After all frames are processed, the system evaluates visual quality on
+both training and novel (test) viewpoints, computing PSNR, SSIM, and
+LPIPS (using a pre-computed AlexNet-based LPIPS model loaded via TorchScript).
+
+The final Gaussian map is exported as a binary PLY file with per-vertex
+properties: position ($x, y, z$), SH DC coefficients, SH rest coefficients,
+opacity, scale, and rotation. This format is compatible with standard
+3DGS viewers such as the SIBR\_gaussianViewer and web-based renderers.

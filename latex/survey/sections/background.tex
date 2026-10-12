@@ -1,0 +1,83 @@
+\subsection{3D Gaussian Splatting Primer}
+
+3D Gaussian Splatting~\cite{kerbl2023_3dgs} represents a 3D scene as a set
+of $N$ Gaussian primitives, each parameterized by:
+\begin{itemize}
+    \item Position $\boldsymbol{\mu}_i \in \mathbb{R}^3$ (center)
+    \item Covariance $\boldsymbol{\Sigma}_i = \boldsymbol{R}_i
+    \boldsymbol{S}_i \boldsymbol{S}_i^T \boldsymbol{R}_i^T$ (decomposed into
+    rotation $\boldsymbol{R}_i$ and scale $\boldsymbol{S}_i$ for positive
+    semi-definiteness)
+    \item Opacity $\alpha_i \in [0,1]$
+    \item Color via spherical harmonics (SH) coefficients up to degree~3
+\end{itemize}
+Rendering is performed via differentiable tile-based rasterization: each
+pixel's color is an alpha-composited blend of projected Gaussians,
+\begin{equation}
+    \boldsymbol{C}(\boldsymbol{p}) = \sum_{i \in \mathcal{N}}
+    \boldsymbol{c}_i \, \alpha_i \prod_{j=1}^{i-1}(1-\alpha_j),
+\end{equation}
+where $\alpha_i$ is the product of the 2D-projected Gaussian opacity and
+the per-pixel opacity.  Depth rendering is similarly obtained by
+alpha-compositing the Gaussian centers along each ray.
+
+\subsection{From NeRF-SLAM to Gaussian-SLAM}
+
+Early radiance-field SLAM systems used NeRF-based implicit
+representations~\cite{sucar2021_imap,zhu2022_niceslam,wang2023_coslam,
+rosinol2023_nerfslam,sandstrom2023_pointslam}.  While achieving high-quality
+rendering, these methods were limited by slow volumetric rendering and
+MLP-capacity bottlenecks.  The transition to 3DGS brought three key
+advantages: (1)~real-time rasterization ($>$100~FPS), (2)~explicit
+primitives enabling direct geometric operations (ICP, nearest-neighbor
+queries), and (3)~incremental map expansion without retraining.
+
+\subsection{The Depth-Source Challenge}
+
+In a typical 3DGS-SLAM pipeline, the depth source serves three roles:
+\begin{enumerate}
+    \item \textbf{Initialization}: Each Gaussian's center $\boldsymbol{\mu}$
+    is initialized by back-projecting depth pixels into 3D world coordinates.
+    Sparse or inaccurate depth leads to under-reconstruction.
+    \item \textbf{Supervision}: Depth rendering loss
+    $\mathcal{L}_{\text{depth}} = \|\hat{D} - D\|_1$ constrains the Gaussian
+    geometry.  Without reliable depth, Gaussians may converge to incorrect
+    positions that overfit training views.
+    \item \textbf{Tracking}: In map-centric SLAM (e.g.,
+    MonoGS~\cite{matsuki2024monogs}), rendered depth is compared against
+    sensor depth to estimate camera pose.  Depth quality directly impacts
+    tracking accuracy.
+\end{enumerate}
+
+This depth-source dependency is the central axis along which we organize
+this survey.  Table~\ref{tab:depth_sources} summarizes the three modalities.
+
+\begin{table}[t]
+\centering
+\caption{Comparison of depth source modalities for Gaussian Splatting SLAM.}
+\label{tab:depth_sources}
+\small
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Modality} & \textbf{Metric Scale} & \textbf{Range} & \textbf{Cost} & \textbf{Sparsity} \\
+\midrule
+LiDAR + RGB + IMU & Yes & Long ($>$100\,m) & High & Sparse \\
+iToF + RGB + IMU & Yes & Short ($<$10\,m) & Low & Very Sparse \\
+Mono Depth + RGB + IMU & Via IMU & Unlimited & Minimal & Dense (learned) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Evaluation Metrics}
+
+Gaussian SLAM systems are typically evaluated on:
+\begin{itemize}
+    \item \textbf{Tracking}: Absolute Trajectory Error (ATE) in cm or m.
+    \item \textbf{Rendering}: PSNR (dB), SSIM, LPIPS on held-out views.
+    \item \textbf{Geometry}: Depth L1 error, mesh accuracy/completeness
+    (cm), Chamfer distance.
+    \item \textbf{Efficiency}: FPS, GPU memory (GB), CPU utilization.
+\end{itemize}
+Common datasets include Replica (indoor), TUM RGB-D, ScanNet, ETH3D, KITTI
+(outdoor driving), and the MARS-LVIG dataset for LiDAR-visual-inertial
+sequences.

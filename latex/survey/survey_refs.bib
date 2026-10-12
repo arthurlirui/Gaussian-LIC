@@ -1,0 +1,468 @@
+%========================================================================
+% Survey References: Multimodal Gaussian Splatting SLAM
+% Compiled October 12, 2026
+%========================================================================
+
+%---- 3D Gaussian Splatting Foundations ----
+
+@article{kerbl2023_3dgs,
+  title={3D Gaussian Splatting for Real-Time Radiance Field Rendering},
+  author={Kerbl, Bernhard and Kopanas, Georgios and Leimk{\"u}hler, Thomas and Drettakis, George},
+  journal={ACM Transactions on Graphics},
+  volume={42},
+  number={4},
+  pages={1--14},
+  year={2023}
+}
+
+@article{lu2024_scaffoldgs,
+  title={Scaffold-GS: Learning Structured Gaussian Primitives for High-Quality {3DGS}},
+  author={Lu, Tao and Yu, Mulin and Xu, Dan and Xiangli, Yuanbo and Wang, Limin},
+  journal={ACM Transactions on Graphics},
+  volume={43},
+  number={4},
+  year={2024}
+}
+
+@article{yu2024_mipsplatting,
+  title={Mip-Splatting: Alias-Free {3DGS}},
+  author={Yu, Zehao and Chen, Anpei and Huang, Binbin and Sattler, Torsten and Geiger, Andreas},
+  journal={ACM Transactions on Graphics},
+  volume={43},
+  number={4},
+  year={2024}
+}
+
+%---- Classical SLAM Foundations ----
+
+@article{xu2022fastlio2,
+  title={{FAST-LIO2}: Fast Direct {LiDAR}-Inertial Odometry},
+  author={Xu, Wei and Cai, Yixi and He, Dongjia and Lin, Jiarong and Zhang, Fu},
+  journal={IEEE Transactions on Robotics},
+  volume={38},
+  number={4},
+  pages={2053--2073},
+  year={2022}
+}
+
+@article{zheng2024_fastlivo2,
+  title={{FAST-LIVO2}: Fast, Direct {LiDAR}-Inertial-Visual Odometry},
+  author={Zheng, Chunran and Wu, Zhuo and Xu, Wei and Liu, Minglei and Zhu, Qi and Guo, Qijie and Zhang, Fu},
+  journal={IEEE Transactions on Robotics},
+  volume={41},
+  pages={326--346},
+  year={2024}
+}
+
+@inproceedings{lin2024_r3live,
+  title={{R3LIVE}: A Robust, Real-Time, {RGB}-Colored, {LiDAR}-Inertial-Visual Tightly-Coupled State Estimation and Mapping Package},
+  author={Lin, Jiarong and Zhang, Fu},
+  booktitle={IEEE International Conference on Robotics and Automation (ICRA)},
+  pages={10672--10678},
+  year={2022}
+}
+
+@article{campos2021orbslam3,
+  title={{ORB-SLAM3}: An Accurate Open-Source Library for Visual, Visual-Inertial, and Multi-Map {SLAM}},
+  author={Campos, Carlos and Elvira, Richard and Rodr{\'\i}guez, Juan J. G{\'o}mez and Montiel, Jos{\'e} M. M. and Tard{\'o}s, Juan D.},
+  journal={IEEE Transactions on Robotics},
+  volume={37},
+  number={6},
+  pages={1874--1890},
+  year={2021}
+}
+
+@article{qin2018vinsmono,
+  title={{VINS-Mono}: A Robust and Versatile Monocular Visual-Inertial State Estimator},
+  author={Qin, Tong and Li, Peiliang and Shen, Shaojie},
+  journal={IEEE Transactions on Robotics},
+  volume={34},
+  number={4},
+  pages={1004--1020},
+  year={2018}
+}
+
+@article{mildenhall2020nerf,
+  title={{NeRF}: Representing Scenes as Neural Radiance Fields for View Synthesis},
+  author={Mildenhall, Ben and Srinivasan, Pratul P. and Tancik, Matthew and Barron, Jonathan T. and Ramamoorthi, Ravi and Ng, Ren},
+  journal={Communications of the ACM},
+  volume={65},
+  number={1},
+  pages={99--106},
+  year={2020}
+}
+
+%---- NeRF-SLAM Foundations ----
+
+@inproceedings{sucar2021_imap,
+  title={{iMAP}: Implicit Mapping and Positioning in Real-Time},
+  author={Sucar, Edgar and Wada, Kentaro and Bowman, Andrew and others},
+  booktitle={IEEE/CVF International Conference on Computer Vision (ICCV)},
+  year={2021}
+}
+
+@inproceedings{zhu2022_niceslam,
+  title={{NICE-SLAM}: Neural Implicit Scalable Encoding for {SLAM}},
+  author={Zhu, Zihan and Peng, Songyou and Larsson, Viktor and others},
+  booktitle={IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year={2022}
+}
+
+@inproceedings{wang2023_coslam,
+  title={{Co-SLAM}: Joint Coordinate and Sparse Parametric Encodings for Neural Real-Time {SLAM}},
+  author={Wang, Hengyi and Wang, Jia and Chen, Li and others},
+  booktitle={CVPR},
+  year={2023}
+}
+
+@article{rosinol2023_nerfslam,
+  title={{NeRF-SLAM}: Real-Time Dense Monocular {SLAM} with {NeRF}s},
+  author={Rosinol, Antoni and Codella, John and Carlone, Luca and others},
+  journal={arXiv preprint arXiv:2310.05522},
+  year={2023}
+}
+
+@inproceedings{sandstrom2023_pointslam,
+  title={{Point-SLAM}: Dense Neural Point Clouds for {SLAM}},
+  author={Sandstr{\"o}m, Erik and Li, Yifan and Van Gool, Luc and Oswald, Martin R.},
+  booktitle={ICCV},
+  year={2023}
+}
+
+%---- RGB-D / Visual Gaussian SLAM Foundations ----
+
+@inproceedings{yan2024gsslam,
+  title={{GS-SLAM}: Dense Visual {SLAM} with {3DGS}},
+  author={Yan, Chi and Qu, Delin and Xu, Dan and Zhao, Bin and Xie, Zhizheng and Wang, Liwei and Li, Xuelong},
+  booktitle={CVPR},
+  year={2024}
+}
+
+@inproceedings{keetha2024_splatam,
+  title={{SplaTAM}: Splat, Track \& Map {3D} Gaussians for Dense {RGB-D SLAM}},
+  author={Keetha, Nikhil and Karhade, Jay and Jatavallabhula, Krishna Murthy and others},
+  booktitle={CVPR},
+  year={2024}
+}
+
+@inproceedings{matsuki2024monogs,
+  title={Gaussian Splatting {SLAM}},
+  author={Matsuki, Hidenobu and Murai, Riku and Kelly, Paul H. J. and Davison, Andrew J.},
+  booktitle={CVPR},
+  year={2024}
+}
+
+@inproceedings{huang2024_photoslam,
+  title={{Photo-SLAM}: Real-Time Simultaneous Localization and Photorealistic Mapping for Monocular, Stereo, and {RGB-D} Cameras},
+  author={Huang, Huajian and Li, Longwei and Cheng, Hui and Yeung, Sai-Kit},
+  booktitle={CVPR},
+  year={2024}
+}
+
+@inproceedings{ha2024_gsicpslam,
+  title={{RGBD GS-ICP SLAM}},
+  author={Ha, Seungjun and Yeon, Jiung and Yu, Hyeonwoo},
+  booktitle={European Conference on Computer Vision (ECCV)},
+  pages={180--197},
+  year={2025}
+}
+
+@article{zhu2024_loopsplat,
+  title={{LoopSplat}: {3DGS Splatting} with Global Consistency},
+  author={Zhu, Zhehao and Yang, Kai and Zhang, Wen and and Pollefeys, Marc},
+  journal={arXiv preprint},
+  year={2024}
+}
+
+@inproceedings{sandstrom2025_splatslam,
+  title={{Splat-SLAM}: Globally Optimized {RGB}-Only {SLAM} with {3D} Gaussians},
+  author={Sandstr{\"o}m, Erik and Zhang, Ganlin and others},
+  booktitle={CVPR},
+  year={2025}
+}
+
+%---- Category 1: LiDAR + RGB + IMU ----
+
+@inproceedings{lang2025_gaussianlic,
+  title={{Gaussian-LIC}: Real-Time Photo-Realistic {SLAM} with {Gaussian Splatting} and {LiDAR-Inertial-Camera} Fusion},
+  author={Lang, Xiaolei and Li, Laijian and Wu, Chenming and Zhao, Chen and Liu, Lina and Liu, Yong and Lv, Jiajun and Zuo, Xingxing},
+  booktitle={IEEE International Conference on Robotics and Automation (ICRA)},
+  pages={8500--8507},
+  year={2025}
+}
+
+@article{lang2026_gaussianlic2,
+  title={{Gaussian-LIC2}: {LiDAR-Inertial-Camera Gaussian Splatting SLAM}},
+  author={Lang, Xiaolei and Lv, Jiajun and Tang, Kai and Li, Laijian and Huang, Jianxin and Liu, Lina and Liu, Yong and Zuo, Xingxing},
+  journal={International Journal of Robotics Research (IJRR)},
+  year={2026},
+  note={arXiv:2507.04004}
+}
+
+@article{xie2024_gslivm,
+  title={{GS-LIVM}: Real-Time Photo-Realistic {LiDAR-Inertial-Visual} Mapping with {Gaussian Splatting}},
+  author={Xie, Yusen and Huang, Zhenmin and Wu, Jin and Ma, Jun},
+  journal={arXiv preprint arXiv:2410.17084},
+  year={2024}
+}
+
+@article{hong2025_gslivo,
+  title={{GS-LIVO}: Real-Time {LiDAR}, Inertial, and Visual Multisensor Fused Odometry with {Gaussian} Mapping},
+  author={Hong, Sheng and Zheng, Chunran and Shen, Yishu and Li, Changze and Zhang, Fu and Qin, Tong},
+  journal={IEEE Transactions on Robotics},
+  volume={41},
+  pages={4253--4268},
+  year={2025}
+}
+
+@article{zhao2025_lvigs,
+  title={{LVI-GS}: Tightly Coupled {LiDAR-Visual-Inertial SLAM} Using {3-D Gaussian Splatting}},
+  author={Zhao, Huibin and Guan, Weipeng and Lu, Peng},
+  journal={IEEE Transactions on Instrumentation and Measurement},
+  volume={74},
+  year={2025},
+  note={arXiv:2411.02703}
+}
+
+@article{li2026_rmgs,
+  title={{RMGS-SLAM}: Real-time Multi-sensor {Gaussian Splatting SLAM}},
+  author={Li, Dongen and Liu, Yi and Liu, Junqi and Sun, Zewen and Huang, Zefan and Sun, Shuo and Liu, Jiahui and Yuan, Chengran and Guo, Hongliang and Tay, Francis E.H. and Ang, Marcelo H.},
+  journal={arXiv preprint arXiv:2604.12942},
+  year={2026}
+}
+
+@article{tak2026_realtimelidar,
+  title={Real-Time {LiDAR} {Gaussian Splatting SLAM}},
+  author={Tak, Seungjun and Jeon, Yongwon and and others and Yu, Hyeonwoo},
+  journal={arXiv preprint arXiv:2607.04127},
+  year={2026}
+}
+
+@article{he2026lvgsslam,
+  title={{LV-GS SLAM}: A Decoupled {LiDAR-Visual 3DGS SLAM} in a Large-Scale Environment},
+  author={He, Haotong and Sheikder, Chandan and Yin, Zhiwei and Liu, Pengyang and Guo, Meijun and Zhang, Weimin},
+  journal={Applied Sciences (Switzerland)},
+  volume={16},
+  number={16},
+  pages={8028},
+  year={2026}
+}
+
+@inproceedings{shi2026_litgs,
+  title={{LIT-GS}: {LiDAR-Inertial-Thermal Gaussian Splatting} for Illumination-Robust Mapping},
+  author={Shi, Shikuan and Zheng, Chunran and Xu, Jiaming and Ye, Tianyong and Yu, Tao and Cui, Yukang},
+  booktitle={IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  year={2026},
+  note={arXiv:2606.20424}
+}
+
+@inproceedings{hong2024_livgaussmap,
+  title={{LIV-GaussMap}: LiDAR-Inertial-Visual Fusion for Real-time {3DGS} Mapping},
+  author={Hong, Sheng and Zhang, Fu},
+  booktitle={arXiv},
+  year={2024}
+}
+
+%---- Category 2: iToF + RGB + IMU ----
+
+@inproceedings{conti2025_tofsplatting,
+  title={{ToF-Splatting}: Dense {SLAM} using Sparse Time-of-Flight Depth and Multi-Frame Integration},
+  author={Conti, Andrea and Poggi, Matteo and Cambareri, Valerio and Oswald, Martin R. and Mattoccia, Stefano},
+  booktitle={CVPR},
+  year={2025},
+  note={arXiv:2504.16545}
+}
+
+@inproceedings{conti2024_dod,
+  title={Depth on Demand: Streaming Dense Depth from a Low Frame Rate Active Sensor},
+  author={Conti, Andrea and Poggi, Matteo and Cambareri, Valerio and Mattoccia, Stefano},
+  booktitle={European Conference on Computer Vision (ECCV)},
+  year={2024},
+  note={arXiv:2409.08277}
+}
+
+@inproceedings{fang2025_iToFRGB,
+  title={Best of Both Sides: Integration of Absolute and Relative Depth Sensing Modalities Based on {iToF} and {RGB} Cameras},
+  author={Fang, I. Sheng and Chiu, Wei Chen and Chen, Yong Sheng},
+  booktitle={International Conference on Pattern Recognition (ICPR)},
+  pages={463--479},
+  year={2024}
+}
+
+@article{du2025_iToFRGB,
+  title={Towards High-Precision Depth Sensing via Monocular-Aided {iToF} and {RGB} Integration},
+  author={Du, Yansong and Deng, Yutong and Zhou, Yuting and Jiao, Feiyu and Song, Jian and Guan, Xun},
+  journal={arXiv preprint arXiv:2508.16579},
+  year={2025}
+}
+
+@inproceedings{yao2025_tofip,
+  title={{ToF-IP}: Time-of-Flight Enhanced Sparse Inertial Poser for Real-time Human Motion Capture},
+  author={Yao, Yuan and Jiang, Shifan and Hou, Yangqing and Zuo, Chengxu and Chen, Xinrui and Guo, Shihui and Qin, Yipeng},
+  booktitle={NeurIPS},
+  year={2025}
+}
+
+@article{jiang2022quantizedtof,
+  title={A Low Memory Footprint Quantized Neural Network for Depth Completion of Very Sparse Time-of-Flight Depth Maps},
+  author={Jiang, Xiaowen and Cambareri, Valerio and Agresti, Gianluca and others},
+  journal={CVPR Workshops},
+  year={2022},
+  note={arXiv:2205.12918}
+}
+
+%---- Category 3: Monocular Depth + RGB + IMU ----
+
+@article{zhu2026_vigssslam,
+  title={{VIGS-SLAM}: Visual Inertial {Gaussian Splatting SLAM}},
+  author={Zhu, Zihan and Zhang, Wei and Haala, Norbert and Pollefeys, Marc and Barath, Daniel},
+  journal={arXiv preprint arXiv:2512.02293},
+  year={2025}
+}
+
+@article{zhou2026_elevatorvigs,
+  title={{Elevator-VIGS}: Separating Elevator Motion from Robot Motion in Visual-Inertial {Gaussian Splatting SLAM}},
+  author={Zhou, Rui and Zhu, Zihan and Zhang, Wei and Luo, Zizhou and Haala, Norbert and Pollefeys, Marc},
+  journal={arXiv preprint arXiv:2609.23491},
+  year={2026}
+}
+
+@inproceedings{sun2024_mm3dgs,
+  title={{MM3DGS SLAM}: Multi-modal {3D Gaussian Splatting} for {SLAM} Using Vision, Depth, and Inertial Measurements},
+  author={Sun, Lisong C. and Bhatt, Neel P. and Liu, Jonathan C. and Fan, Zhiwen and Wang, Zhangyang and Humphreys, Todd E. and Topcu, Ufuk},
+  booktitle={IROS},
+  year={2024},
+  note={arXiv:2404.00923}
+}
+
+@article{zhang2026_hislam2,
+  title={{HI-SLAM2}: Geometry-Aware {Gaussian Splatting SLAM} for Fast Monocular Scene Reconstruction},
+  author={Zhang, Wei and Cheng, Qing and Skuddis, David and Zeller, Niclas and Cremers, Daniel and Haala, Norbert},
+  journal={IEEE Transactions on Robotics},
+  year={2025},
+  note={arXiv:2411.17982}
+}
+
+@article{seo2026_gaussianflow,
+  title={{GaussianFlow SLAM}: Monocular {Gaussian Splatting SLAM} Guided by {GaussianFlow}},
+  author={Seo, Dong-Uk and Jeon, Jinwoo and Lee, Eungchang Mason and Myung, Hyun},
+  journal={IEEE Robotics and Automation Letters},
+  year={2026},
+  note={arXiv:2604.15612}
+}
+
+@article{zhou2026_geogs,
+  title={{GeoGS-SLAM}: Geometry-Only {Gaussian Splatting} for Dense Monocular {SLAM}},
+  author={Zhou, Lipu and Kang, Yaoyun and and others and Wang, Kehan},
+  journal={arXiv preprint arXiv:2607.07452},
+  year={2026}
+}
+
+@inproceedings{zheng2025_wildgssslam,
+  title={{WildGS-SLAM}: Monocular {Gaussian Splatting SLAM} in Dynamic Environments},
+  author={Zheng, Jianhao and Zhu, Zihan and Bieri, Valentin and Pollefeys, Marc and Peng, Songyou and Armeni, Iro},
+  booktitle={CVPR},
+  year={2025}
+}
+
+@article{han2026_vggtgssslam,
+  title={{VGGT-GS SLAM}: Uncalibrated Monocular {Gaussian Splatting SLAM} with Feed-Forward Priors},
+  author={Han, Yuhang and Wang, Hao and Cao, Jiaxi and Liu, Xingyu},
+  journal={arXiv preprint arXiv:2609.19628},
+  year={2026}
+}
+
+@article{zhang2026_vimgs,
+  title={{VIM-GS}: Visual-Inertial Monocular {Gaussian Splatting} via Object-level Guidance in Large Scenes},
+  author={Zhang, Shengkai and Liu, Yuhe and Wu, Guanjun and He, Jianhua and Wang, Xinggang and Chen, Mozi and Liu, Kezhong},
+  journal={arXiv preprint arXiv:2509.06685},
+  year={2025}
+}
+
+@article{deambrogi2026_cgssslam,
+  title={{CGS-SLAM}: Collaborative {Gaussian Splatting} based {SLAM} for Multi-Agent Reconstruction},
+  author={de Ambrogi, Jean-Daniel and Chetouani, Aladine and Nguyen, Vincent and Chateigner, Aur{\'e}lien},
+  journal={arXiv preprint arXiv:2608.26868},
+  year={2026}
+}
+
+@article{zhu2026_mygosplat,
+  title={{MyGO-Splat}: Multi-Objective Closed-Loop Geometric Feedback for {RGB}-Only {Gaussian SLAM}},
+  author={Zhu, Fan and Chen, Ziyu and and others and Civera, Javier},
+  journal={arXiv preprint arXiv:2606.29738},
+  year={2026}
+}
+
+@article{kruzhkov2026_monoemgs,
+  title={{MonoEM-GS}: Monocular Expectation-Maximization {Gaussian Splatting SLAM}},
+  author={Kruzhkov, Evgenii and Behnke, Sven},
+  journal={arXiv preprint arXiv:2604.10593},
+  year={2026}
+}
+
+%---- Foundation Models for Depth and 3D ----
+
+@inproceedings{wang2025_vggt,
+  title={{VGGT}: Visual Geometry Grounded Transformer},
+  author={Wang, Jianyuan and others},
+  booktitle={CVPR},
+  year={2025}
+}
+
+@article{yang2024depthanythingv2,
+  title={Depth Anything {V2}},
+  author={Yang, Lihe and Kang, Bingyi and Huang, Zilong and Xu, Xiaogang and Feng, Jie and Zhao, Hengshuang},
+  journal={arXiv preprint arXiv:2406.09414},
+  year={2024}
+}
+
+%---- Additional Referenced Works ----
+
+@article{wei2026_streamrig,
+  title={{StreamRig}: Streaming Multi-Camera Odometry on a Frozen Multi-View {3D} Foundation Model},
+  author={Wei, Xinyi and others},
+  journal={arXiv preprint arXiv:2609.40244},
+  year={2026}
+}
+
+@article{kang2026_bayesiangssslam,
+  title={{BayesianGS-SLAM}: Uncertainty-Aware {3DGS SLAM}},
+  author={Kang, anonymous},
+  journal={arXiv preprint arXiv:2609.24140},
+  year={2026}
+}
+
+@article{wang2026_budgetedgs,
+  title={{Budgeted-GS}: Post-Hoc Factoring-{LOD} for {3DGS}},
+  author={Wang, anonymous},
+  journal={arXiv preprint arXiv:2610.03162},
+  year={2026}
+}
+
+@article{wang2026_locosplat,
+  title={{LoCoSplat}: Real-Time Feed-Forward {3DGS} with Minimal {3D} Reasoning},
+  author={Wang, anonymous},
+  journal={arXiv preprint arXiv:2610.04351},
+  year={2026}
+}
+
+@article{liu2025_gislam,
+  title={{GI-SLAM}: Gaussian Inertial {SLAM}},
+  author={Liu, and others},
+  journal={arXiv preprint},
+  year={2025}
+}
+
+@article{tan2026_dualcovgs,
+  title={Dual Covariance {Gaussian Splatting SLAM}: Decoupling Rendering and Registration for Robust Real-Time Tracking},
+  author={Tan, Edward Beng Wai and Lam, Siew-Kei},
+  journal={arXiv preprint arXiv:2609.25746},
+  year={2026}
+}
+
+@article{park2025_livegs,
+  title={{LiV-GS}: {LiDAR}-Vision Integration for {3DGS SLAM} in Outdoor Environments},
+  author={Park, and others},
+  journal={IEEE Robotics and Automation Letters},
+  year={2025}
+}

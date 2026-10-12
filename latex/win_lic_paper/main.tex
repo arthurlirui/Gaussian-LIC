@@ -1,0 +1,117 @@
+% ===========================================================================
+% WinLIC: A Windows-Compatible Offline Multi-Modal Gaussian Splatting
+%          Framework with Pluggable Sensor Integration
+%
+% Compile: pdflatex main && bibtex main && pdflatex main && pdflatex main
+% ===========================================================================
+\documentclass[11pt, a4paper]{article}
+
+%% ---- Math & graphics ----
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{geometry}
+\geometry{margin=2.5cm}
+
+%% ---- TikZ ----
+\usepackage{tikz}
+\usetikzlibrary{positioning, arrows.meta, calc, fit, shapes.geometric,
+                backgrounds, decorations.pathreplacing, patterns, shadows}
+
+%% ---- Algorithms ----
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+%% ---- Listings ----
+\usepackage{listings}
+\usepackage{xcolor}
+
+%% ---- Hyperlinks ----
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue!70!black, citecolor=green!50!black, urlcolor=blue!80!black}
+
+%% ---- xspace (must load before commands that use \xspace) ----
+\usepackage{xspace}
+
+%% ---- Custom commands ----
+\newcommand{\SEthree}{\mathrm{SE}(3)}
+\newcommand{\SOthree}{\mathrm{SO}(3)}
+\newcommand{\GaussianMap}{\mathcal{G}}
+\newcommand{\PointCloud}{\mathcal{P}}
+\newcommand{\DepthMap}{\mathbf{D}}
+\newcommand{\Image}{\mathbf{I}}
+\newcommand{\Tcw}{T_{C\leftarrow W}}
+\newcommand{\Twc}{T_{W\leftarrow C}}
+\newcommand{\Rcw}{R_{C\leftarrow W}}
+\newcommand{\tcw}{\mathbf{t}_{C\leftarrow W}}
+\newcommand{\winlic}{\textsc{WinLIC}\xspace}
+\newcommand{\gaussianlic}{\textsc{Gaussian-LIC2}\xspace}
+
+%% ---- TikZ styles ----
+\tikzset{
+  block/.style={rectangle, draw, rounded corners, minimum height=0.9cm,
+                minimum width=2.2cm, align=center, font=\small,
+                fill=blue!8, drop shadow={shadow xshift=1pt, shadow yshift=-1pt}},
+  blockgreen/.style={rectangle, draw, rounded corners, minimum height=0.9cm,
+                     minimum width=2.2cm, align=center, font=\small,
+                     fill=green!10, drop shadow={shadow xshift=1pt, shadow yshift=-1pt}},
+  blockorange/.style={rectangle, draw, rounded corners, minimum height=0.9cm,
+                      minimum width=2.2cm, align=center, font=\small,
+                      fill=orange!12, drop shadow={shadow xshift=1pt, shadow yshift=-1pt}},
+  blockred/.style={rectangle, draw, rounded corners, minimum height=0.9cm,
+                   minimum width=2.2cm, align=center, font=\small,
+                   fill=red!8, drop shadow={shadow xshift=1pt, shadow yshift=-1pt}},
+  sensor/.style={cylinder, shape border rotate=90, draw, minimum height=0.8cm,
+                 minimum width=1.5cm, align=center, font=\footnotesize,
+                 fill=yellow!15},
+  arrow/.style={-{Stealth[length=2.5mm]}, thick},
+  dasharrow/.style={-{Stealth[length=2.5mm]}, thick, dashed},
+  group/.style={rectangle, draw, dashed, rounded corners, inner sep=8pt,
+                label={[font=\footnotesize\bfseries]above:#1}},
+}
+
+\title{\winlic: A Windows-Compatible Offline Multi-Modal \\
+       Gaussian Splatting Framework with Pluggable Sensor Integration}
+
+\author{Arthur Li Rui}
+\date{October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We present \winlic, a standalone, operating-system-agnostic offline reconstruction
+framework that fuses multi-modal sensory data---LiDAR point clouds, indirect
+time-of-flight (iToF) depth streams, stereo vision, and inertial measurements---to
+produce high-quality initialization point clouds and colour observations for
+3D Gaussian Splatting (3DGS) scene reconstruction.
+Unlike prior real-time Gaussian SLAM systems that are tightly coupled to the
+Robot Operating System (ROS) and restricted to Linux, \winlic eliminates all
+ROS dependencies, introducing a pluggable sensor source abstraction layer that
+accommodates both offline file-based datasets and live camera streams (e.g.,
+Orbbec Femto Mega) through a uniform \texttt{ISensorSource} interface.
+The framework preserves the core Gaussian Splatting mapping algorithm of
+\gaussianlic while decoupling it from the real-time front-end, enabling
+batch-mode processing on commodity Windows workstations.
+We describe the system architecture, multi-modal depth fusion strategy,
+and the design of the extensible sensor integration layer, accompanied by
+detailed pipeline diagrams.
+\end{abstract}
+
+\tableofcontents
+\newpage
+
+% ---- Sections ----
+\input{sections/introduction}
+\input{sections/related}
+\input{sections/system_overview}
+\input{sections/sensor_fusion}
+\input{sections/gaussian_reconstruction}
+\input{sections/experiments}
+\input{sections/conclusion}
+
+\bibliographystyle{plain}
+\bibliography{refs}
+
+\end{document}

@@ -1,0 +1,61 @@
+% ===========================================================================
+% Figure: Gaussian initialization from fused point cloud
+% Fused point cloud → SH colour → scale estimation → 3DGS parameters
+% ===========================================================================
+\begin{figure*}[t]
+\centering
+\begin{tikzpicture}[node distance=0.8cm and 1.0cm]
+
+% ---- Input: Fused point cloud ----
+\node[blockgreen, minimum width=3.5cm, minimum height=1.2cm]
+  (cloud) {Fused Point Cloud\\$\PointCloud = \{(\mathbf{p}_i, \mathbf{c}_i, d_i)\}$};
+
+% ---- Branch 1: SH colour ----
+\node[block, below left=1.2cm and 0.3cm of cloud, minimum width=3.2cm, fill=blue!10]
+  (sh) {Spherical Harmonics\\$\mathbf{f}_i^{\text{dc}} = \mathrm{RGB2SH}(\mathbf{c}_i)$};
+
+% ---- Branch 2: Scale estimation ----
+\node[block, below right=1.2cm and 0.3cm of cloud, minimum width=3.2cm, fill=orange!10]
+  (scale) {Scale Estimation\\$s_i = \log\!\left(\alpha \cdot d_i / f\right)$};
+
+% ---- Branch 3: Rotation & opacity ----
+\node[block, below=3.0cm of cloud, minimum width=3.2cm, fill=purple!10]
+  (rot) {Rotation \& Opacity\\$\mathbf{q}_i = [1,0,0,0]$, $o_i = \sigma^{-1}(0.1)$};
+
+% ---- Merge: 3DGS parameters ----
+\node[blockgreen, below=2.0cm of rot, minimum width=5cm, minimum height=1.2cm]
+  (params) {3D Gaussian Parameters\\
+            $\{\mathbf{x}_i, \mathbf{f}_i, s_i, \mathbf{q}_i, o_i\}_{i=1}^{N}$};
+
+% ---- Output: Gaussian map ----
+\node[block, below=of params, minimum width=5cm, fill=gray!10]
+  (map) {Gaussian Map $\GaussianMap$};
+
+% ---- Arrows ----
+\draw[arrow] (cloud) -- (sh);
+\draw[arrow] (cloud) -- (scale);
+\draw[arrow] (cloud) -- (rot);
+\draw[arrow] (sh)    -- (params.north -| sh.south);
+\draw[arrow] (scale) -- (params.north -| scale.south);
+\draw[arrow] (rot)   -- (params);
+\draw[arrow] (params) -- (map);
+
+% ---- Skybox (optional, side branch) ----
+\node[blockred, right=2.0cm of cloud, minimum width=2.8cm, minimum height=1.0cm]
+  (sky) {Skybox Points\\(optional)};
+\draw[dasharrow] (sky) -- (params.east)
+  node[midway, above, font=\footnotesize] {concat};
+
+% ---- Annotation ----
+\node[font=\footnotesize, left=0.3cm of params, align=right]
+  {$\mathbf{x}$: position\\$\mathbf{f}$: SH colour\\$s$: log-scale\\$\mathbf{q}$: quaternion\\$o$: logit-opacity};
+
+\end{tikzpicture}
+\caption{Gaussian initialization from the fused point cloud. Each 3D point
+$\mathbf{p}_i$ with colour $\mathbf{c}_i$ and camera-frame depth $d_i$ is
+converted to a Gaussian primitive with position, SH colour coefficients,
+log-scale (derived from depth and focal length), identity rotation, and
+initial opacity. Optional skybox points are appended for open-environment
+scenes.}
+\label{fig:gaussian_init}
+\end{figure*}

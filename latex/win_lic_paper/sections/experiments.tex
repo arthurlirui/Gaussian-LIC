@@ -1,0 +1,116 @@
+% ===========================================================================
+% Section: Experiments (placeholder for future results)
+% ===========================================================================
+\section{Experimental Setup}
+\label{sec:experiments}
+
+\subsection{Implementation Details}
+
+\winlic{} is implemented in C++17 with CUDA 11.7 and built using CMake 3.18+.
+The framework depends on LibTorch 2.0 (PyTorch C++ API), OpenCV 4.7 (with
+CUDA and opencv\_contrib), TensorRT 8.6 (for SPNet depth completion),
+yaml-cpp 0.6, and Eigen 3.4. The build supports both MSVC 2022 (Windows)
+and GCC 9+ (Linux) with no platform-specific preprocessor directives
+beyond CUDA architecture selection.
+
+The SPNet depth completion engine is pre-compiled as a TensorRT plan file
+(\texttt{.engine}) for two resolutions: 480$\times$640 and 512$\times$640.
+The LPIPS model is exported as a TorchScript module (\texttt{lpips\_alex.pt}).
+
+\subsection{Datasets}
+
+The framework is designed to process data from the following sources:
+
+\begin{itemize}
+    \item \textbf{FAST-LIVO2 datasets}: Pre-recorded LiDAR-visual-inertial
+    sequences with poses from the FAST-LIVO2 odometry front-end. The
+    trajectory is exported in TUM format for offline processing.
+
+    \item \textbf{MCD (Multi-Camera Dataset)}: Outdoor urban sequences
+    with LiDAR, camera, and IMU data.
+
+    \item \textbf{R3LIVE datasets}: RGB-LiDAR fusion sequences for
+    indoor and outdoor scenes.
+
+    \item \textbf{Custom Orbbec captures}: Live data from Orbbec Femto
+    Mega cameras (LiDAR + iToF + stereo + IMU), recorded via the
+    \texttt{OrbbecSource} and exported for offline processing.
+\end{itemize}
+
+\subsection{Metrics}
+
+Reconstruction quality is evaluated using standard metrics:
+
+\begin{itemize}
+    \item \textbf{PSNR} (Peak Signal-to-Noise Ratio): measures pixel-level
+    fidelity of rendered images.
+    \item \textbf{SSIM} (Structural Similarity Index): measures perceptual
+    quality via luminance, contrast, and structure.
+    \item \textbf{LPIPS} (Learned Perceptual Image Patch Similarity):
+    measures perceptual distance using deep features from AlexNet.
+\end{itemize}
+
+Metrics are computed on both training viewpoints (keyframes used during
+optimization) and novel viewpoints (intermediate frames not used for
+training), providing a measure of generalization.
+
+\subsection{Baseline Comparison}
+
+The primary baseline is the original \gaussianlic{} system running on
+Linux with ROS. Since \winlic{} preserves the Gaussian Splatting algorithm
+verbatim, we expect identical reconstruction quality (PSNR, SSIM, LPIPS)
+when processing the same data. Differences may arise from:
+
+\begin{itemize}
+    \item Floating-point determinism between MSVC and GCC.
+    \item Depth completion quality when using fused depth (LiDAR + iToF + stereo)
+    versus LiDAR-only depth.
+    \item Frame alignment differences between ROS timestamp-based and
+    file-index-based synchronization.
+\end{itemize}
+
+\subsection{Runtime Analysis}
+
+The offline processing mode eliminates the real-time constraint, allowing
+the system to process each frame at full speed without buffer overflow
+concerns. Expected runtime on an NVIDIA RTX~4090:
+\begin{itemize}
+    \item Depth fusion: $\sim$5\,ms/frame
+    \item SPNet completion: $\sim$10\,ms/frame
+    \item Gaussian extension: $\sim$50\,ms/keyframe
+    \item Gaussian optimization: $\sim$500\,ms/keyframe (100 iterations)
+\end{itemize}
+
+\subsection{Ablation Studies}
+
+Planned ablation studies include:
+\begin{itemize}
+    \item Effect of depth fusion: LiDAR-only vs.\ LiDAR+iToF vs.\ LiDAR+iToF+stereo.
+    \item Effect of keyframe interval: $k \in \{1, 3, 5, 10\}$.
+    \item Effect of Gaussian memory cap on quality vs.\ memory usage.
+    \item Effect of SH degree on rendering quality.
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\caption{Default hyperparameters (preserved from \gaussianlic).}
+\label{tab:hyperparams}
+\begin{tabular}{lc}
+\toprule
+Parameter & Value \\
+\midrule
+Image resolution & $640 \times 512$ \\
+SH degree & 3 \\
+Keyframe interval $k$ & 5 \\
+Position learning rate & $1.6 \times 10^{-4}$ \\
+Feature learning rate & $5.0 \times 10^{-3}$ \\
+Opacity learning rate & $5.0 \times 10^{-2}$ \\
+Scaling learning rate & $5.0 \times 10^{-3}$ \\
+Rotation learning rate & $1.0 \times 10^{-3}$ \\
+$\lambda_{\text{dssim}}$ & 0.2 \\
+$\lambda_{\text{depth}}$ & 0.005 \\
+Optimization iterations & 100/keyframe \\
+Max depth & 20\,m \\
+\bottomrule
+\end{tabular}
+\end{table}

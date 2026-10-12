@@ -1,0 +1,68 @@
+% ===========================================================================
+% Section: Introduction
+% ===========================================================================
+\section{Introduction}
+\label{sec:introduction}
+
+3D Gaussian Splatting (3DGS)~\cite{kerbl2023_3dgs} has emerged as a powerful
+primitive for photo-realistic scene representation, achieving real-time
+rendering quality that surpasses NeRF-based methods while maintaining
+explicit, editable geometry. The integration of 3DGS with simultaneous
+localization and mapping (SLAM) pipelines---particularly those fusing
+LiDAR, inertial, and camera data---has produced systems such as
+\gaussianlic~\cite{lang2026_gaussianlic2} that achieve real-time,
+photo-realistic mapping on a single moving platform.
+
+However, existing Gaussian SLAM systems share a critical limitation: they are
+\emph{tightly coupled to the Robot Operating System} (ROS) and therefore
+restricted to Linux environments. The ROS dependency manifests at multiple
+levels: message-passing via \texttt{roscpp}, image transport via
+\texttt{cv\_bridge}, point cloud conversion via \texttt{pcl\_conversions},
+pose messages via \texttt{geometry\_msgs}, and coordinate transforms via
+\texttt{tf}. This coupling prevents deployment on Windows workstations,
+limits interoperability with commercial sensor SDKs (e.g., Orbbec,
+Intel RealSense), and complicates integration into industrial pipelines
+that operate outside the ROS ecosystem.
+
+Furthermore, the real-time design of these systems assumes a continuous
+online data stream, making them suboptimal for \emph{offline} batch
+processing of pre-recorded datasets---a common workflow in surveying,
+inspection, and content production.
+
+We address these limitations with \winlic, a framework that makes the
+following contributions:
+
+\begin{enumerate}
+    \item \textbf{ROS-free architecture.} We refactor the Gaussian-LIC2
+    mapping pipeline to eliminate all ROS dependencies, producing a
+    standalone C++ application that builds with pure CMake and runs on
+    both Windows (MSVC) and Linux (GCC).
+
+    \item \textbf{Pluggable sensor interface.} We design an abstract
+    \texttt{ISensorSource} interface that decouples the reconstruction
+    pipeline from the data source. Offline file-based readers and live
+    camera SDKs (Orbbec, future sensors) are integrated through a uniform
+    four-method interface.
+
+    \item \textbf{Multi-modal depth fusion.} We introduce a
+    confidence-weighted depth fusion module that combines sparse LiDAR
+    depth, dense iToF depth, and stereo SGM depth into a single
+    high-quality depth map, which is then completed by a TensorRT-based
+    neural network (SPNet).
+
+    \item \textbf{Preserved algorithm fidelity.} The core Gaussian
+    Splatting algorithm---initialization, map extension, optimization,
+    and densification---is preserved verbatim from \gaussianlic, ensuring
+    reconstruction quality is not compromised by the refactoring.
+\end{enumerate}
+
+The remainder of this paper is organized as follows.
+Section~\ref{sec:related} reviews related work in Gaussian SLAM and
+multi-modal fusion.
+Section~\ref{sec:system_overview} presents the system architecture.
+Section~\ref{sec:sensor_fusion} details the pluggable sensor interface
+and multi-modal depth fusion strategy.
+Section~\ref{sec:gaussian_reconstruction} describes the Gaussian
+Splatting reconstruction pipeline.
+Section~\ref{sec:experiments} discusses the experimental setup, and
+Section~\ref{sec:conclusion} concludes.

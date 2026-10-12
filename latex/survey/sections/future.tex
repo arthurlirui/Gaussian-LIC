@@ -1,0 +1,67 @@
+\subsection{Unified Depth Fusion Frameworks}
+
+Current systems are specialized for a single depth modality.  A unified
+framework that can adaptively fuse whatever depth sources are
+available---LiDAR, iToF, monocular depth, or combinations thereof---would
+maximize flexibility across hardware platforms.  The depth completion
+network of Gaussian-LIC2, which fuses RGB appearance with sparse LiDAR,
+hints at this direction but remains LiDAR-specific.
+
+\subsection{Learned Front-Ends for Gaussian SLAM}
+
+Most Gaussian SLAM systems use classical odometry front-ends (IESKF,
+DROID-SLAM, ORB-SLAM3).  Recent work on streaming multi-camera odometry
+with frozen 3D foundation models (StreamRig~\cite{wei2026_streamrig}) and
+learned visual-inertial dense BA (VIGS-SLAM's custom CUDA kernels)
+suggests that learned front-ends can provide more robust correspondences
+for Gaussian initialization, especially under challenging conditions.
+
+\subsection{Memory-Bounded Gaussian Mapping}
+
+Large-scale outdoor mapping with 3DGS generates millions of Gaussians,
+exceeding GPU memory.  Current solutions include sliding-window
+optimization (GS-LIVO), submap management (RMGS-SLAM, LV-GS SLAM), and
+budgeted LOD (Budgeted-GS~\cite{wang2026_budgetedgs}).  A principled
+memory-bounded Gaussian allocation strategy---driven by uncertainty
+(BayesianGS-SLAM~\cite{kang2026_bayesiangssslam}) or semantic
+importance---remains an open problem.
+
+\subsection{Dynamic Scene Handling}
+
+Most Gaussian SLAM systems assume static scenes.  WildGS-SLAM addresses
+dynamic distractors via uncertainty estimation, and DynActiveGS decomposes
+uncertainty into structural vs.\ motion-induced fields.  However, a
+complete dynamic-scene Gaussian SLAM with online moving-object tracking,
+map segmentation, and consistent static-scene reconstruction is still
+lacking.
+
+\subsection{Edge and Mobile Deployment}
+
+The ultimate goal of multimodal Gaussian SLAM is deployment on
+resource-constrained platforms: drones, AR headsets, smartphones.  GS-LIVO's
+Jetson deployment is a milestone, but real-time 3DGS on mobile-class GPUs
+requires fundamentally lighter representations.  The local-primitive
+observation of LoCoSplat~\cite{wang2026_locosplat} (0.14M-param MLP replacing
+heavy 3D networks) and the budgeted LOD of Budgeted-GS point toward
+practical on-device Gaussian SLAM.
+
+\subsection{Evaluation Standardization}
+
+The field lacks standardized benchmarks for multimodal Gaussian SLAM.
+LiDAR-based systems evaluate on MARS-LVIG and KITTI; monocular systems on
+Replica, TUM, and ScanNet; iToF systems on ZJUL5.  A unified benchmark with
+synchronized multi-sensor data (LiDAR, iToF, RGB, IMU, ground truth) across
+indoor/outdoor/dynamic scenes would enable fair cross-category comparison.
+Gaussian-LIC2's dataset and RMGS-SLAM's looped outdoor benchmark are steps
+in this direction.
+
+\subsection{Bidirectional Map--Odometry Coupling}
+
+Gaussian-LIC2 pioneered feeding photometric constraints from the Gaussian
+map back into the odometry, demonstrating improved tracking under LiDAR
+degeneration.  This bidirectional coupling---where the map is not merely a
+passive visualization but an active constraint source---is a promising but
+underexplored direction.  Extending it to visual-inertial systems (where the
+Gaussian map could provide depth supervision for the tracking front-end) and
+to iToF systems (where the Gaussian map could guide ToF depth completion)
+could yield significant robustness gains.

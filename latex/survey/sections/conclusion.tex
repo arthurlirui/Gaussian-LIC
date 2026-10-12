@@ -1,0 +1,33 @@
+This survey has reviewed the state of the art in multimodal Gaussian
+Splatting SLAM along three depth-source axes: LiDAR+RGB+IMU,
+iToF+RGB+IMU, and monocular depth+RGB+IMU.  The key findings are:
+
+\begin{enumerate}
+    \item \textbf{LiDAR-based systems} (Gaussian-LIC2, RMGS-SLAM, GS-LIVO,
+    etc.) achieve the highest accuracy and outdoor robustness through
+    direct metric geometry, but at high hardware cost.  The field is
+    converging on depth completion networks to address LiDAR sparsity and
+    bidirectional map--odometry coupling for improved tracking.
+
+    \item \textbf{iToF-based systems} (ToF-Splatting) are in their infancy
+    but demonstrate that even $8\times8$ sparse ToF depth, fused with
+    multi-view geometry and monocular cues, can achieve competitive SLAM
+    performance---a critical enabler for mobile and AR/VR deployment.
+    The integration of IMU into iToF Gaussian SLAM remains an open
+    opportunity.
+
+    \item \textbf{Monocular-depth-based systems} (VIGS-SLAM, HI-SLAM2,
+    VGGT-GS SLAM, etc.) are the most accessible and rapidly evolving,
+    leveraging foundation model depth priors and tight visual-inertial
+    coupling to approach RGB-D quality without active depth sensors.
+    Scale ambiguity remains the core challenge, addressed by IMU fusion,
+    metric depth models, or grid-based scale alignment.
+\end{enumerate}
+
+The unifying trend across all three categories is the shift from
+\emph{passive mapping} (Gaussians as visualization) to \emph{active
+mapping} (Gaussians as geometric constraints for tracking, depth
+completion, and loop closure).  As 3DGS representations become lighter
+and foundation model priors become more accurate, we expect multimodal
+Gaussian Splatting SLAM to transition from research prototype to
+practical deployment on consumer devices.

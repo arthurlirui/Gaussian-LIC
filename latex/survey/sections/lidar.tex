@@ -1,0 +1,146 @@
+LiDAR-Inertial-Visual (LIV) fusion has been extensively validated in
+classical SLAM~\cite{xu2022fastlio2,zheng2024_fastlivo2,lin2024_r3live},
+providing robust metric-scale odometry through tightly-coupled iterated
+extended Kalman filters (IESKF) or continuous-time factor-graph optimization.
+Integrating 3DGS into this framework creates systems that combine precise
+pose estimation with photo-realistic dense mapping.  We categorize the
+literature into \emph{tightly-coupled} and \emph{decoupled} approaches
+based on whether the Gaussian map feeds back into the odometry.
+
+\subsection{Gaussian-LIC and Gaussian-LIC2}
+
+\textbf{Gaussian-LIC}~\cite{lang2025_gaussianlic} (ICRA 2025) is the first
+real-time photo-realistic SLAM system combining 3DGS with
+LiDAR-Inertial-Camera fusion.  It uses a continuous-time trajectory
+optimization framework for robust pose estimation, initializes Gaussians
+from both LiDAR points and triangulated visual SfM points, and models sky
+and varying camera exposure for outdoor rendering.  The system is
+implemented entirely in C++/CUDA with carefully designed acceleration
+strategies.  \textbf{Code}: \url{https://github.com/APRIL-ZJU/Gaussian-LIC}.
+
+\textbf{Gaussian-LIC2}~\cite{lang2026_gaussianlic2} (IJRR 2026) extends this
+to a journal version addressing three key issues: (1)~under-reconstruction
+in LiDAR-blind areas, solved via a lightweight zero-shot depth completion
+network that fuses RGB appearance cues with sparse LiDAR measurements;
+(2)~geometric accuracy, enhanced by using sparse but precise LiDAR depths to
+supervise Gaussian optimization with CUDA-accelerated strategies;
+(3)~bidirectional coupling between odometry and mapping, where photometric
+constraints from the incrementally built Gaussian map are fed back into
+continuous-time factor graph optimization to improve tracking under LiDAR
+degeneration.  A dedicated dataset with ground-truth poses, depths, and
+extrapolated trajectories is released for evaluating out-of-sequence novel
+view synthesis.  \textbf{Code}: \url{https://xingxingzuo.github.io/gaussian_lic2}.
+
+\subsection{GS-LIVM}
+
+GS-LIVM~\cite{xie2024_gslivm} (ICCV 2025 Workshop) targets real-time
+photo-realistic LiDAR-Inertial-Visual mapping for large-scale outdoor
+scenes.  Its key innovation is the use of Gaussian Process Regression (GPR)
+at the voxel level (Voxel-GPR) to densify sparse and unevenly distributed
+LiDAR observations into uniform point grids.  The estimated covariance from
+GPR initializes the scale and rotation of 3D Gaussians, accelerating
+convergence.  Custom CUDA kernels enable real-time performance.  Evaluated
+on outdoor datasets including the Botanic Garden sequence ($\sim$200\,m
+trajectory).  \textbf{Code}: \url{https://github.com/xieyusen/GS-LIVM}.
+
+\subsection{GS-LIVO}
+
+GS-LIVO~\cite{hong2025_gslivo} (IEEE T-RO 2025) proposes a global Gaussian
+map with hash-indexed voxels organized in a recursive octree, adapting to
+different environment scales.  It uses an IESKF for tightly-coupled
+multi-sensor fusion and maintains a sliding window of Gaussians to reduce
+GPU memory.  Notably, it is the first Gaussian-based SLAM deployable on
+embedded systems (NVIDIA Jetson Orin NX), demonstrating real-time performance
+on resource-constrained platforms---a critical milestone for robotic
+deployment.
+
+\subsection{LVI-GS}
+
+LVI-GS~\cite{zhao2025_lvigs} (IEEE T-IM 2025) introduces a
+tightly-coupled LiDAR-Visual-Inertial mapping framework.  Gaussians are
+initialized from colorized LiDAR points and optimized via differentiable
+rendering.  A pyramid-based training approach learns multi-level features,
+and a depth loss derived from LiDAR measurements improves geometric
+perception.  Thread management and custom CUDA acceleration enable real-time
+operation.  \textbf{Project page}: \url{https://kwanwaipang.github.io/LVI-GS/}.
+
+\subsection{RMGS-SLAM}
+
+RMGS-SLAM~\cite{li2026_rmgs} (arXiv 2026) is a tightly-coupled LIV 3DGS-SLAM
+with explicit loop closure.  Its cascaded Gaussian initialization combines
+feed-forward predictions with voxel-PCA geometric priors, improving
+initialization quality and convergence speed.  Loop closure is performed
+directly on the optimized Gaussian map via Gaussian-based GICP registration,
+followed by pose-graph optimization.  A new benchmark with
+hardware-synchronized solid-state LiDAR, camera, and IMU plus ground truth
+is released.  The system achieves a strong balance among real-time
+efficiency, localization accuracy, and rendering quality.
+
+\subsection{Real-Time LiDAR Gaussian Splatting SLAM}
+
+Tak et al.~\cite{tak2026_realtimelidar} (arXiv 2026) couple fast G-ICP
+registration with spherical rasterization-based dense mapping.  A
+covariance-derived geometry score measures local complexity and drives
+pruning in planar regions and selective densification in structurally rich
+areas, enabling real-time large-scale mapping.
+
+\subsection{LV-GS SLAM}
+
+LV-GS SLAM~\cite{he2026lvgsslam} (Applied Sciences 2026) integrates LiDAR
+and visual data for large-scale incremental reconstruction with real-time
+tracking.  A LiDAR odometry front-end processes 30\,Hz LiDAR at 15--19\,Hz
+tracking.  A novel depth propagation approach initializes 3D Gaussians from
+dense depth maps, achieving 9$\times$ faster PSNR convergence versus direct
+LiDAR initialization.  Keyframe-based submap management dynamically adjusts
+memory allocation to prevent GPU overflow.  Validated on KITTI and a
+quadruped robot platform.
+
+\subsection{LIT-GS: LiDAR-Inertial-Thermal}
+
+LIT-GS~\cite{shi2026_litgs} (IROS 2026) extends the LIV paradigm to thermal
+imaging, replacing the RGB camera with a long-wave thermal sensor for
+illumination-robust mapping.  It injects LiDAR-derived plane geometry as an
+explicit constraint in both pose/structure refinement (via weighted
+point-to-plane BA) and Gaussian optimization (via a LiDAR-plane-regularized
+splatting objective).  This addresses the weak texture and low contrast of
+thermal images, which would otherwise corrupt photometric supervision.
+
+\subsection{Summary of LiDAR-Based Systems}
+
+\Cref{tab:lidar_summary} compares the key characteristics of LiDAR+RGB+IMU
+Gaussian SLAM systems.  The evolution shows clear trends: (1)~from
+offline to real-time operation, (2)~from LiDAR-only initialization to
+hybrid LiDAR+depth-completion initialization, (3)~from decoupled
+odometry-mapping to bidirectional coupling where the Gaussian map improves
+tracking, and (4)~from desktop GPUs to embedded deployment.
+
+\begin{table}[t]
+\centering
+\caption{LiDAR + RGB + IMU Gaussian Splatting SLAM systems.}
+\label{tab:lidar_summary}
+\scriptsize
+\begin{tabular}{lccccc}
+\toprule
+\textbf{System} & \textbf{Year} & \textbf{Venue} & \textbf{Real-time} & \textbf{Loop Closure} & \textbf{Code} \\
+\midrule
+Gaussian-LIC~\cite{lang2025_gaussianlic} & 2025 & ICRA & \checkmark & -- & \checkmark \\
+GS-LIVM~\cite{xie2024_gslivm} & 2024 & arXiv & \checkmark & -- & \checkmark \\
+GS-LIVO~\cite{hong2025_gslivo} & 2025 & T-RO & \checkmark & -- & -- \\
+LVI-GS~\cite{zhao2025_lvigs} & 2025 & T-IM & \checkmark & -- & -- \\
+Gaussian-LIC2~\cite{lang2026_gaussianlic2} & 2026 & IJRR & \checkmark & -- & \checkmark \\
+RMGS-SLAM~\cite{li2026_rmgs} & 2026 & arXiv & \checkmark & \checkmark & -- \\
+RT-LiDAR-GS~\cite{tak2026_realtimelidar} & 2026 & arXiv & \checkmark & -- & -- \\
+LV-GS SLAM~\cite{he2026lvgsslam} & 2026 & AppSci & \checkmark & -- & -- \\
+LIT-GS~\cite{shi2026_litgs} & 2026 & IROS & \checkmark & -- & -- \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Key insight}: The dominant challenge in LiDAR-based Gaussian SLAM is
+\emph{LiDAR sparsity and FoV mismatch with the camera}.  Gaussian-LIC2's
+depth completion network and RMGS-SLAM's cascaded initialization are the two
+most effective solutions, while GS-LIVM's Voxel-GPR densification provides a
+lightweight alternative.  The bidirectional coupling of Gaussian-LIC2
+(map$\rightarrow$odometry photometric feedback) is a unique contribution
+that demonstrates the Gaussian map is not merely a passive visualization
+tool but an active constraint source for tracking.
