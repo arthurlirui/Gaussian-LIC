@@ -46,9 +46,9 @@ public:
         {
             engine_path = node["engine_path"].as<std::string>();
         }
-        else if (node["base_path"])
+        else if (node["dataset"] && node["dataset"]["base_path"])
         {
-            std::string base = node["base_path"].as<std::string>();
+            std::string base = node["dataset"]["base_path"].as<std::string>();
             if (height == 512 && width == 640)
                 engine_path = base + "/ckpt/spnet_512_640.engine";
             else if (height == 480 && width == 640)

@@ -16,6 +16,7 @@
 #include "orbbec_source.h"
 
 #include <iostream>
+#include <opencv2/imgproc.hpp>
 
 namespace winlic {
 

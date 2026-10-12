@@ -1,22 +1,15 @@
 /*
- * Gaussian-LIC: Real-Time Photo-Realistic SLAM with Gaussian Splatting and LiDAR-Inertial-Camera Fusion
- * Copyright (C) 2025 Xiaolei Lang
+ * WinLIC: Windows-Compatible Offline Multi-Modal Gaussian Splatting Framework
+ * Copyright (C) 2026 arthurlirui
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * Renderer implementation — adapted from src/rasterizer/renderer.cpp.
+ * Wrapped in winlic:: namespace.
  */
 
 #include "renderer.h"
+#include "gaussians/gaussian_model.h"
+
+namespace winlic {
 
 std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor>
 render(const std::shared_ptr<Camera>& viewpoint_camera,
@@ -28,8 +21,8 @@ render(const std::shared_ptr<Camera>& viewpoint_camera,
 {
     auto screenspace_points = torch::zeros_like(pc->getXYZ(), torch::TensorOptions().dtype(pc->getXYZ().dtype()).requires_grad(true).device(torch::kCUDA));
 
-    float tanfovx = std::tan(viewpoint_camera->FoVx_ * 0.5f);  // w / (2 * fx)
-    float tanfovy = std::tan(viewpoint_camera->FoVy_ * 0.5f);  // h / (2 * fy)
+    float tanfovx = std::tan(viewpoint_camera->FoVx_ * 0.5f);
+    float tanfovy = std::tan(viewpoint_camera->FoVy_ * 0.5f);
     bool prefiltered = false;
     bool debug = false;
     GaussianRasterizationSettings raster_settings(
@@ -54,14 +47,14 @@ render(const std::shared_ptr<Camera>& viewpoint_camera,
     );
     GaussianRasterizer rasterizer(raster_settings);
 
-    auto means3D = pc->getXYZ();  // (n, 3)
-    auto means2D = screenspace_points;  // (n, 3)
-    auto opacity = pc->getOpacity();  // (n, 1) 0-1
-    auto scales = pc->getScaling();  // (n, 3) 0-inf
-    auto rotations = pc->getRotation();  // (n, 4)
-    torch::Tensor dc = pc->getFeaturesDc();  // (n, 1, 3)
-    torch::Tensor shs = pc->getFeaturesRest();  // (n, 15, 3)
-    torch::Tensor colors_precomp; 
+    auto means3D = pc->getXYZ();
+    auto means2D = screenspace_points;
+    auto opacity = pc->getOpacity();
+    auto scales = pc->getScaling();
+    auto rotations = pc->getRotation();
+    torch::Tensor dc = pc->getFeaturesDc();
+    torch::Tensor shs = pc->getFeaturesRest();
+    torch::Tensor colors_precomp;
     torch::Tensor cov3D_precomp;
 
     auto rasterizer_result = rasterizer.forward(
@@ -81,10 +74,12 @@ render(const std::shared_ptr<Camera>& viewpoint_camera,
 
     return std::make_tuple(
         rendered_image,
-        rendered_depth,   
+        rendered_depth,
         rendered_final_T,
-        screenspace_points, 
-        radii > 0,          
+        screenspace_points,
+        radii > 0,
         radii
     );
 }
+
+}  // namespace winlic

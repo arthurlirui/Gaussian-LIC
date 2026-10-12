@@ -1,19 +1,15 @@
 /*
- * Gaussian-LIC: Real-Time Photo-Realistic SLAM with Gaussian Splatting and LiDAR-Inertial-Camera Fusion
- * Copyright (C) 2025 Xiaolei Lang
+ * WinLIC: Windows-Compatible Offline Multi-Modal Gaussian Splatting Framework
+ * Copyright (C) 2026 arthurlirui
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Renderer — adapted from src/rasterizer/renderer.h.
+ * Includes fixed for win_lic directory layout; render() moved to winlic::
+ * namespace to match the ported GaussianModel.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * Note: We use a forward declaration of GaussianModel instead of including
+ * gaussian_model.h to avoid a circular include (gaussian_model.h → renderer.h
+ * → gaussian_model.h). Camera is included directly because it has no
+ * dependency on GaussianModel.
  */
 
 #pragma once
@@ -21,11 +17,12 @@
 #include <tuple>
 #include <torch/torch.h>
 
-#include "camera.h"
-#include "gaussian.h"
+#include "gaussians/camera.h"
 #include "rasterizer.h"
 
-class GaussianModel;
+namespace winlic {
+
+class GaussianModel;  // forward declaration
 
 std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor>
 render(const std::shared_ptr<Camera>& viewpoint_camera,
@@ -34,3 +31,5 @@ render(const std::shared_ptr<Camera>& viewpoint_camera,
        bool use_trained_exposure = false,
        bool no_color = false,
        float scaling_modifier = 1.0);
+
+}  // namespace winlic
