@@ -15,8 +15,8 @@ TRT_BIN=""
 for candidate in \
   /usr/src/tensorrt/bin/trtexec \
   /usr/local/TensorRT/bin/trtexec \
-  "$TENSORRT_ROOT/bin/trtexec"; do
-  if [ -x "$candidate" ]; then
+  "${TENSORRT_ROOT:+$TENSORRT_ROOT/bin/trtexec}"; do
+  if [ -n "$candidate" ] && [ -x "$candidate" ]; then
     TRT_BIN="$candidate"
     break
   fi

@@ -12,7 +12,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -g -Wno-sign-compare -Wno-unused -Wno-com
 # the correct CUDA arch (sm_87 for Orin).  x86_64 keeps the original behaviour.
 # ---------------------------------------------------------------------------
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
-  set(JETSON ON BOOL "Building on Jetson / aarch64")
+  set(JETSON ON)
   message(STATUS "[Gaussian-LIC] aarch64 detected — enabling Jetson build profile")
   # NEON is enabled by default on aarch64; no extra flag needed.
   set(GAUSSIAN_LIC_CUDA_ARCH "87" CACHE STRING "CUDA compute capability for Jetson (sm_87 = Orin)")
@@ -71,10 +71,20 @@ find_package(Torch REQUIRED)
 if(JETSON)
   # JetPack: TensorRT installed via apt — libs in /usr/lib/aarch64-linux-gnu,
   # headers in /usr/include/aarch64-linux-gnu.  If using a tar extract, set
-  # TENSORRT_ROOT to that directory instead.
+  # TENSORRT_ROOT to that directory instead (headers are flat under include/).
   set(TENSORRT_ROOT "/usr" CACHE PATH "TensorRT root")
-  set(TENSORRT_INCLUDE_DIR "${TENSORRT_ROOT}/include/aarch64-linux-gnu")
-  set(TENSORRT_LIB_DIR "${TENSORRT_ROOT}/lib/aarch64-linux-gnu")
+  if(EXISTS "${TENSORRT_ROOT}/include/aarch64-linux-gnu/NvInfer.h")
+    set(TENSORRT_INCLUDE_DIR "${TENSORRT_ROOT}/include/aarch64-linux-gnu")
+  else()
+    set(TENSORRT_INCLUDE_DIR "${TENSORRT_ROOT}/include")
+  endif()
+  if(EXISTS "${TENSORRT_ROOT}/lib/aarch64-linux-gnu/libnvinfer.so")
+    set(TENSORRT_LIB_DIR "${TENSORRT_ROOT}/lib/aarch64-linux-gnu")
+  elseif(EXISTS "${TENSORRT_ROOT}/targets/aarch64-linux-gnu/lib/libnvinfer.so")
+    set(TENSORRT_LIB_DIR "${TENSORRT_ROOT}/targets/aarch64-linux-gnu/lib")
+  else()
+    set(TENSORRT_LIB_DIR "${TENSORRT_ROOT}/lib")
+  endif()
 else()
   set(TENSORRT_ROOT "$ENV{HOME}/Software/TensorRT-8.6.1.6" CACHE PATH "TensorRT root")
   set(TENSORRT_INCLUDE_DIR "${TENSORRT_ROOT}/include")

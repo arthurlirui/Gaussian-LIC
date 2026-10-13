@@ -23,7 +23,7 @@
 
   Customise sensor type and config via args:
     roslaunch gaussian_lic jetson_system.launch \
-        lidar_config:=config/MID360_config.json \
+        lidar_launch:=$(find livox_ros_driver2)/launch_ROS1/msg_Avia.launch \
         cocolic_config:=config/ct_odometry_fastlivo2.yaml \
         gaussian_config:=config/fastlivo2_jetson.yaml
   ===========================================================================
@@ -31,7 +31,6 @@
 <launch>
 
   <!-- === Sensor / LiDAR configuration ==================================== -->
-  <arg name="lidar_config"    default="$(find livox_ros_driver2)/config/MID360_config.json" />
   <arg name="lidar_launch"    default="$(find livox_ros_driver2)/launch_ROS1/msg_MID360.launch" />
 
   <!-- === Coco-LIC odometry configuration ================================= -->
@@ -45,10 +44,12 @@
 
   <!-- ====================================================================== -->
   <!-- 1. Livox LiDAR driver                                                   -->
+  <!--     The config file path is set via the xfer_format / publish_freq     -->
+  <!--     params inside livox_ros_driver2's own launch file.  If you need a  -->
+  <!--     different config, edit the launch file directly or set the          -->
+  <!--     user_config_path ROS param before launching.                        -->
   <!-- ====================================================================== -->
-  <include file="$(arg lidar_launch)">
-    <arg name="config_file" value="$(arg lidar_config)" />
-  </include>
+  <include file="$(arg lidar_launch)" />
 
   <!-- ====================================================================== -->
   <!-- 2. Coco-LIC odometry (publishes /points_for_gs, /pose_for_gs, etc.)    -->

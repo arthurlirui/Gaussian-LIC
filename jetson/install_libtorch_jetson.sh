@@ -46,19 +46,21 @@ unzip -q -o "$PYTORCH_WHL_NAME" -d "$WORK_DIR/unpacked"
 # --- Layout for find_package(Torch) ---------------------------------------
 # CMake's find_package(Torch) needs share/cmake/Torch/TorchConfig.cmake.
 # The wheel ships cmake config files under torch/share/cmake/.
-cp -r "$WORK_DIR/unpacked/torch" "$INSTALL_DIR/"
+# Use cp -a to preserve symlinks inside torch/lib/.
+cp -a "$WORK_DIR/unpacked/torch" "$INSTALL_DIR/"
 
 # The wheel stores .so files under torch/lib/.  find_package(Torch) and the
-# linker need them in lib/.  Create a symlink.
+# linker need them accessible.  Copy (dereference symlinks) into lib/ so the
+# build system finds real files rather than symlink chains that may break.
 mkdir -p "$INSTALL_DIR/lib"
-for f in "$INSTALL_DIR/torch/lib/"*.so*; do
-  ln -sf "$f" "$INSTALL_DIR/lib/$(basename "$f")"
-done
+cp -aL "$INSTALL_DIR/torch/lib/"*.so* "$INSTALL_DIR/lib/" 2>/dev/null || true
+# Also copy non-.so libs (static archives, if any)
+cp -aL "$INSTALL_DIR/torch/lib/"*.a* "$INSTALL_DIR/lib/" 2>/dev/null || true
 
 # Copy cmake config to the standard location.
 mkdir -p "$INSTALL_DIR/share/cmake"
 if [ -d "$INSTALL_DIR/torch/share/cmake" ]; then
-  cp -r "$INSTALL_DIR/torch/share/cmake/"* "$INSTALL_DIR/share/cmake/"
+  cp -a "$INSTALL_DIR/torch/share/cmake/"* "$INSTALL_DIR/share/cmake/"
 fi
 
 # Some wheels put TorchConfig.cmake under torch/.  Create a symlink as fallback.
