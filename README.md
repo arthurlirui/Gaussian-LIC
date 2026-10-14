@@ -149,6 +149,18 @@ Quick start on the sequence CBD_Building_01 in the FAST-LIVO2 dataset.
 
 + The mapping and rendering results will be saved in  `~/catkin_gaussian/src/Gaussian-LIC/result`.
 
+## Documentation
+
+Comprehensive technical documentation is available in [`docs/`](docs/):
+
+- **[Architecture Overview](docs/architecture.md)** — system design, data flow, and design rationale
+- **[Module Reference](docs/)** — file-by-file documentation for every source module
+- **[Versioning Policy](docs/VERSIONING.md)** — semantic versioning rules and release workflow
+- **[Changelog](docs/CHANGELOG.md)** — versioned history of notable changes
+- **[Contributing Guide](docs/CONTRIBUTING.md)** — how to contribute, including the documentation-update protocol
+
+Current version: **v1.0.0** (see [VERSION](VERSION))
+
 ## Checklist
 
 - [ ] Support fast post-optimization

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>GaussianLIC</string>
+    <key>CFBundleDisplayName</key>
+    <string>GaussianLIC</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.arthurlirui.gaussianlic</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+    <key>UILaunchScreen</key>
+    <dict/>
+    <!-- Camera: required for ARKit RGB + LiDAR capture -->
+    <key>NSCameraUsageDescription</key>
+    <string>GaussianLIC uses the camera and LiDAR scanner to capture RGB images and depth maps for 3D Gaussian Splatting scene reconstruction.</string>
+    <!-- Motion: required for CMMotionManager IMU data -->
+    <key>NSMotionUsageDescription</key>
+    <string>GaussianLIC reads accelerometer and gyroscope data to complement LiDAR-Inertial-Camera SLAM.</string>
+    <!-- Photo library: for saving/exporting captured datasets -->
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>GaussianLIC saves rendered Gaussian Splatting images to your photo library.</string>
+    <!-- Local network: for off-device training bridge -->
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>GaussianLIC communicates with a training server on your local network to offload Gaussian Splatting optimization.</string>
+    <!-- Required for ARKit world tracking -->
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>arm64</string>
+        <string>arkit</string>
+    </array>
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+    <key>UIApplicationSupportsIndirectInputEvents</key>
+    <true/>
+    <key>UIRequiresFullScreen</key>
+    <false/>
+    <key>UISupportsDocumentBrowser</key>
+    <true/>
+    <key>LSSupportsOpeningDocumentsInPlace</key>
+    <true/>
+    <key>UIFileSharingEnabled</key>
+    <true/>
+    <!-- Document types for PLY and .splat files -->
+    <key>CFBundleDocumentTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeName</key>
+            <string>Gaussian Splat PLY</string>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>com.ply.gaussian-splat</string>
+            </array>
+        </dict>
+        <dict>
+            <key>CFBundleTypeName</key>
+            <string>Gaussian Splat Binary</string>
+            <key>CFBundleTypeRole</key>
+            <string>Viewer</string>
+            <key>LSItemContentTypes</key>
+            <array>
+                <string>com.splat.gaussian-splat</string>
+            </array>
+        </dict>
+    </array>
+</dict>
+</plist>
