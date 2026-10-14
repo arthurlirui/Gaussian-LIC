@@ -68,7 +68,7 @@ enum DepthVisualization {
     /// Convert a confidence map to a grayscale UIImage.
     static func visualizeConfidence(_ confidenceMap: CVPixelBuffer) -> UIImage? {
         CVPixelBufferLockBaseAddress(confidenceMap, .readOnly)
-        defer { CVPixelBufferUnlockBaseAddress(confidenceMap, .readOnly)
+        defer { CVPixelBufferUnlockBaseAddress(confidenceMap, .readOnly) }
 
         let width = CVPixelBufferGetWidth(confidenceMap)
         let height = CVPixelBufferGetHeight(confidenceMap)

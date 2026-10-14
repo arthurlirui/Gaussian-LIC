@@ -1,9 +1,15 @@
 //
 //  GaussianLICApp.swift
-//  GaussianLIC — iOS Gaussian Splatting Capture & Rendering
+//  GaussianLIC — iOS Gaussian Splatting Capture, Training & Rendering
 //
 //  Created by arthurlirui, 2026.
 //  Ported from the win_lic (Windows-compatible) branch of Gaussian-LIC2.
+//
+//  Architecture:
+//    - Capture tab: ARKit RGB/LiDAR/Depth/IMU sensor capture → disk dataset
+//    - Render tab: RealityKit GaussianSplatComponent for PLY scene viewing
+//    - Train tab: On-device msplat Metal training or offline dataset export
+//    - Device tab: Hardware capability detection (iPhone 14 Pro – 18 Pro)
 //
 
 import SwiftUI
@@ -38,9 +44,6 @@ final class AppState: ObservableObject {
 
     /// Paths to captured datasets awaiting training.
     @Published var capturedDatasets: [URL] = []
-
-    /// Training sessions history.
-    @Published var trainingHistory: [TrainingRecord] = []
 
     func refreshCapturedDatasets() {
         capturedDatasets = FileStorage.shared.listCapturedDatasets()

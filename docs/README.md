@@ -26,6 +26,7 @@ This directory contains the complete technical documentation for the **Gaussian-
 | `config/` | [modules/config.md](modules/config.md) | Per-dataset YAML configuration files |
 | `launch/` | [modules/launch.md](modules/launch.md) | ROS launch files |
 | `jetson/` | [modules/jetson.md](modules/jetson.md) | Jetson Orin Nano porting guide and scripts |
+| `ios/` | [modules/ios.md](modules/ios.md) | iOS app: ARKit capture + RealityKit GS rendering + msplat on-device training |
 | `scripts/` | [modules/scripts.md](modules/scripts.md) | Utility scripts |
 | `third_party/` | [modules/third_party.md](modules/third_party.md) | Third-party submodules |
 | `latex/` | [modules/latex.md](modules/latex.md) | Research papers, survey, and design documents |
@@ -42,8 +43,9 @@ Gaussian-LIC/
 ├── config/              # Per-dataset YAML configs (FAST-LIVO, M2DGR, MCD, R3LIVE)
 ├── launch/              # ROS launch files
 ├── jetson/              # Jetson Orin Nano setup guide and scripts
+├── ios/                 # iOS app (Swift/RealityKit, iPhone Pro capture+train+render)
 ├── scripts/             # Utility scripts (arxiv bibliography fetcher)
-├── third_party/         # Git submodules (MetalSplatter)
+├── third_party/         # Git submodules (msplat)
 ├── latex/               # Research papers, survey, design docs
 ├── pdf/                 # Reference paper PDFs and analysis notes
 ├── docs/                # ← You are here

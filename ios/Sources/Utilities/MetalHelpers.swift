@@ -2,8 +2,11 @@
 //  MetalHelpers.swift
 //  GaussianLIC
 //
-//  Utility functions for Metal buffer/texture management, used by the
-//  rendering pipeline and (in Phase 5) the on-device training compute shaders.
+//  Utility functions for Metal device access and simd matrix operations.
+//  Render-target texture helpers have been removed — RealityKit manages
+//  its own render targets when using GaussianSplatComponent.
+//
+//  The simd extensions are used by sensor capture and training modules.
 //
 
 import Foundation
@@ -23,7 +26,7 @@ enum MetalHelpers {
     static func makeTexture(from pixelBuffer: CVPixelBuffer,
                             pixelFormat: MTLPixelFormat,
                             device: MTLDevice) -> MTLTexture? {
-        let textureCache: CVMetalTextureCache?
+        var textureCache: CVMetalTextureCache?
         CVMetalTextureCacheCreate(kCFAllocatorDefault, nil, device, nil, &textureCache)
 
         guard let cache = textureCache else { return nil }
@@ -49,13 +52,10 @@ enum MetalHelpers {
     }
 
     /// Create a Metal texture from an ARFrame's capturedImage (YUV 420f).
-    /// Returns two textures (luma + chroma) or a single converted RGB texture.
+    /// Returns a BGRA texture via CIImage conversion.
     static func makeRGBTexture(from capturedImage: CVPixelBuffer,
                                device: MTLDevice,
                                commandQueue: MTLCommandQueue) -> MTLTexture? {
-        // For YUV 420f, we get two planes: Y (plane 0) and CbCr (plane 1).
-        // For rendering, we typically use a color conversion shader.
-        // For simplicity, we create a BGRA texture from the CIImage conversion.
         let ciContext = CIContext(mtlDevice: device)
         let ciImage = CIImage(cvPixelBuffer: capturedImage)
 
@@ -63,7 +63,7 @@ enum MetalHelpers {
         let height = CVPixelBufferGetHeight(capturedImage)
 
         let descriptor = MTLTextureDescriptor.texture2DDescriptor(
-            pixelFormat: .bgra8Unorm,
+            pixelFormat: .bgra8Unorm_srgb,
             width: width,
             height: height,
             usage: [.shaderRead, .shaderWrite]
@@ -88,29 +88,9 @@ enum MetalHelpers {
         (size + alignment - 1) & ~(alignment - 1)
     }
 
-    /// Create a depth render target texture.
-    static func makeDepthTexture(width: Int, height: Int, device: MTLDevice) -> MTLTexture? {
-        let descriptor = MTLTextureDescriptor.texture2DDescriptor(
-            pixelFormat: .depth32Float,
-            width: width,
-            height: height,
-            usage: [.renderTarget, .shaderRead]
-        )
-        descriptor.storageMode = .private
-        return device.makeTexture(descriptor: descriptor)
-    }
-
-    /// Create a colour render target texture.
-    static func makeColorTexture(width: Int, height: Int, device: MTLDevice,
-                                  pixelFormat: MTLPixelFormat = .bgra8Unorm) -> MTLTexture? {
-        let descriptor = MTLTextureDescriptor.texture2DDescriptor(
-            pixelFormat: pixelFormat,
-            width: width,
-            height: height,
-            usage: [.renderTarget, .shaderRead, .shaderWrite]
-        )
-        descriptor.storageMode = .private
-        return device.makeTexture(descriptor: descriptor)
+    /// Available GPU working-set headroom in bytes (for memory-safe training budgets).
+    static func availableWorkingSetSize(device: MTLDevice) -> UInt64 {
+        device.recommendedMaxWorkingSetSize
     }
 }
 

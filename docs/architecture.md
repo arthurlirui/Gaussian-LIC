@@ -220,6 +220,16 @@ The project supports deployment on Jetson Orin Nano 8GB (shared CPU+GPU memory).
 
 See [modules/jetson.md](modules/jetson.md) for the full porting guide.
 
+### iOS (iPhone Pro) Platform
+
+The project also includes a native iOS app (`ios/`) that ports the capture and rendering pipeline to iPhone 14 Pro–18 Pro using Swift and Apple frameworks:
+
+- **Sensor layer**: ARKit `ARWorldTrackingConfiguration` with `.sceneDepth` provides RGB, LiDAR depth (Float32, 256×192), confidence, VIO pose, and camera intrinsics. CoreMotion provides 100 Hz IMU data. Data is recorded to disk in `win_lic` DatasetReader-compatible format.
+- **Rendering layer**: Apple's native `GaussianSplatComponent` (RealityKit, iOS 27+) replaces the previous MetalSplatter dependency. PLY files are parsed into `GaussianSplatResource.BufferResource` and rendered as RealityKit Entities with free-view orbit and AR-live camera modes.
+- **Training layer**: On-device training uses the msplat Metal engine (Apache 2.0) for GPU-based 3DGS optimization (~500 iterations / ~4 minutes on iPhone 15 Pro). An offline export path generates `win_lic` YAML configs and nerfstudio `transforms.json` for training on Mac/CUDA servers.
+
+See [modules/ios.md](modules/ios.md) for details.
+
 ---
 
 ## 9. Build System
@@ -256,7 +266,8 @@ Both use platform-conditional logic (x86 vs. aarch64) for CUDA architecture, com
 | Eigen3 | (system) | Linear algebra |
 | PCL | (src/ only) | Point cloud I/O |
 | OrbbecSDK v2 | (win_lic/, optional) | Live Orbbec camera |
-| MetalSplatter | (submodule) | Metal-based 3DGS viewer (macOS/iOS) |
+| msplat | (submodule, Apache 2.0) | Metal-based 3DGS training engine (iOS on-device training) |
+| RealityKit | (Apple framework, iOS 27+) | Native GaussianSplatComponent rendering on iPhone |
 
 ---
 
