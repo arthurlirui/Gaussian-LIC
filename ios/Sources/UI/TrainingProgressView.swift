@@ -4,7 +4,7 @@
 //
 //  SwiftUI view for the Train tab.
 //  Provides two training paths:
-//    1. On-device training via the msplat Metal engine
+//    1. On-device training via MLX Swift (Apple's Metal-backed ML framework)
 //    2. Offline export to win_lic format for training on a Mac/CUDA server
 //
 

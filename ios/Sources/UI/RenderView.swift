@@ -3,12 +3,11 @@
 //  GaussianLIC
 //
 //  SwiftUI view for the Render tab.
-//  Provides a PLY file picker and a RealityKit splat renderer with
-//  free-view and AR-live camera modes.
+//  Provides a PLY/SPZ/.splat file picker and a MetalSplatter splat renderer
+//  with free-view and AR-live camera modes.
 //
 
 import SwiftUI
-import RealityKit
 
 struct RenderView: View {
 

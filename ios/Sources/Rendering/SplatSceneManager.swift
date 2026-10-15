@@ -2,13 +2,14 @@
 //  SplatSceneManager.swift
 //  GaussianLIC
 //
-//  Manages loading and lifecycle of Gaussian Splat scenes (PLY files)
-//  using Apple's native RealityKit GaussianSplatComponent (iOS 27+).
+//  Manages loading and lifecycle of Gaussian Splat scenes (PLY/SPZ/.splat files)
+//  using MetalSplatter's SplatRenderer for Metal-based GPU rendering (iOS 18+).
 //
-//  Replaces the previous MetalSplatter-based implementation with the
-//  built-in RealityKit API: PLY → GaussianSplatBuffers →
-//  GaussianSplatResource.BufferResource → GaussianSplatResource →
-//  GaussianSplatComponent → Entity.
+//  Loading: AutodetectSceneReader → [SplatPoint] → SplatChunk → SplatRenderer.addChunk
+//  Rendering: SplatRenderer.render(viewports:...) called per-frame by SplatRealityView
+//
+//  Replaces the previous RealityKit GaussianSplatComponent implementation
+//  (which required unreleased iOS 27 APIs).
 //
 //  Corresponds to win_lic/gaussians/gaussian_model.h's scene management
 //  responsibilities (initialize, load from PLY, save to PLY), but only
@@ -17,7 +18,9 @@
 //
 
 import Foundation
-import RealityKit
+import Metal
+import MetalSplatter
+import SplatIO
 import simd
 import Combine
 
@@ -27,13 +30,13 @@ struct LoadedScene: Identifiable {
     let url: URL
     let name: String
     let splatCount: Int
-    var entity: Entity?
+    var chunkID: ChunkID?
     var transform: simd_float4x4 = matrix_identity_float4x4  // scene-to-world
     var visible: Bool = true
 }
 
-/// Manages one or more loaded splat scenes using RealityKit's
-/// GaussianSplatComponent for native GPU rendering.
+/// Manages one or more loaded splat scenes using MetalSplatter's
+/// SplatRenderer for native Metal GPU rendering.
 @MainActor
 final class SplatSceneManager: ObservableObject {
 
@@ -43,7 +46,7 @@ final class SplatSceneManager: ObservableObject {
     @Published private(set) var currentSceneIndex: Int? = nil
     @Published private(set) var isLoading: Bool = false
     @Published private(set) var loadProgress: Double = 0
-    @Published var maxGaussians: Int = 200_000
+    @Published var maxGaussians: Int = 500_000
     @Published var renderError: String? = nil
 
     // MARK: - State
@@ -51,13 +54,23 @@ final class SplatSceneManager: ObservableObject {
     /// Whether any scene has been loaded.
     var isInitialized: Bool { !loadedScenes.isEmpty }
 
+    /// The shared SplatRenderer instance — one renderer for all loaded chunks.
+    private var splatRenderer: SplatRenderer?
+
+    /// Latest ARKit camera transform (set by ARKitSensorSource in AR Live mode).
+    var currentARCameraTransform: simd_float4x4 = matrix_identity_float4x4
+
+    // MARK: - Renderer Access
+
+    /// Get the shared SplatRenderer for the current scene (for SplatRealityView).
+    func currentRenderer() -> SplatRenderer? {
+        guard loadedScenes.contains(where: { $0.chunkID != nil }) else { return nil }
+        return splatRenderer
+    }
+
     // MARK: - Scene Loading
 
-    /// Load a PLY file and create a RealityKit Entity with GaussianSplatComponent.
-    ///
-    /// The loaded entity is stored in the LoadedScene but NOT automatically added
-    /// to a RealityView — the caller (SplatRealityView) is responsible for adding
-    /// the entity to its content.
+    /// Load a PLY/SPZ/.splat file and add it to the shared SplatRenderer.
     func loadScene(from url: URL) async {
         isLoading = true
         loadProgress = 0
@@ -68,43 +81,73 @@ final class SplatSceneManager: ObservableObject {
         }
 
         do {
+            // Lazily create the SplatRenderer on first load.
+            if splatRenderer == nil {
+                guard let device = MetalHelpers.device else {
+                    renderError = "Metal device not available"
+                    return
+                }
+                splatRenderer = try SplatRenderer(
+                    device: device,
+                    colorFormat: .bgra8Unorm_srgb,
+                    depthFormat: .depth32Float,
+                    sampleCount: 1,
+                    maxViewCount: 1,
+                    maxSimultaneousRenders: 3
+                )
+            }
+
             loadProgress = 0.2
 
-            // Parse the PLY file into deinterleaved GPU buffers.
-            let buffers = try PLYLoader.load(url, maxSplatCount: maxGaussians)
+            // Auto-detect file format (PLY, SPZ, .splat) and read all splats.
+            let reader = try AutodetectSceneReader(url)
+            let points = try await reader.readAll()
 
-            loadProgress = 0.5
+            guard !points.isEmpty else {
+                renderError = "No splats found in file"
+                return
+            }
 
-            // Build the GaussianSplatResource from the buffers.
-            let component = try buildSplatComponent(from: buffers)
+            loadProgress = 0.6
 
-            loadProgress = 0.8
+            // Cap splat count to the configured maximum.
+            let trimmedPoints = points.count > maxGaussians
+                ? Array(points.shuffled().prefix(maxGaussians))
+                : points
 
-            // Create a RealityKit Entity and attach the splat component.
-            let entity = Entity()
-            entity.name = url.lastPathComponent
-            entity.components.set(component)
+            // Build a SplatChunk and add it to the renderer.
+            guard let device = MetalHelpers.device else {
+                renderError = "Metal device not available"
+                return
+            }
+            let chunk = try SplatChunk(device: device, from: trimmedPoints)
+            let chunkID = await splatRenderer!.addChunk(chunk)
 
             loadProgress = 1.0
 
             let scene = LoadedScene(
                 url: url,
                 name: url.lastPathComponent,
-                splatCount: Int(buffers.splatCount),
-                entity: entity
+                splatCount: trimmedPoints.count,
+                chunkID: chunkID
             )
 
             loadedScenes.append(scene)
             currentSceneIndex = loadedScenes.count - 1
 
         } catch {
-            renderError = "Failed to load PLY: \(error.localizedDescription)"
+            renderError = "Failed to load splat file: \(error.localizedDescription)"
         }
     }
 
-    /// Remove a scene and release its entity.
+    /// Remove a scene and release its chunk from the renderer.
     func removeScene(at index: Int) {
         guard index < loadedScenes.count else { return }
+
+        if let chunkID = loadedScenes[index].chunkID, let renderer = splatRenderer {
+            Task { await renderer.removeChunk(chunkID) }
+        }
+
         loadedScenes.remove(at: index)
 
         if currentSceneIndex == index {
@@ -116,6 +159,9 @@ final class SplatSceneManager: ObservableObject {
 
     /// Remove all loaded scenes.
     func removeAllScenes() {
+        if let renderer = splatRenderer {
+            Task { await renderer.removeAllChunks() }
+        }
         loadedScenes.removeAll()
         currentSceneIndex = nil
     }
@@ -124,22 +170,29 @@ final class SplatSceneManager: ObservableObject {
     func setTransform(_ transform: simd_float4x4, forSceneAt index: Int) {
         guard index < loadedScenes.count else { return }
         loadedScenes[index].transform = transform
-        loadedScenes[index].entity?.transform = Transform(matrix: transform)
     }
 
     /// Toggle visibility of a scene.
     func toggleVisibility(forSceneAt index: Int) {
         guard index < loadedScenes.count else { return }
-        loadedScenes[index].visible.toggle()
-        loadedScenes[index].entity?.isEnabled = loadedScenes[index].visible
+        let newValue = !loadedScenes[index].visible
+        loadedScenes[index].visible = newValue
+
+        if let chunkID = loadedScenes[index].chunkID, let renderer = splatRenderer {
+            Task { await renderer.setChunkEnabled(chunkID, enabled: newValue) }
+        }
     }
 
-    /// Get the entity for the current scene (for adding to a RealityView).
-    func currentEntity() -> Entity? {
-        guard let index = currentSceneIndex, index < loadedScenes.count else {
-            return nil
-        }
-        return loadedScenes[index].entity
+    /// Get the splat count for the current scene.
+    var currentSplatCount: Int {
+        guard let index = currentSceneIndex, index < loadedScenes.count else { return 0 }
+        return loadedScenes[index].splatCount
+    }
+
+    /// Get the name for the current scene.
+    var currentSceneName: String {
+        guard let index = currentSceneIndex, index < loadedScenes.count else { return "" }
+        return loadedScenes[index].name
     }
 
     // MARK: - List Models
@@ -149,53 +202,10 @@ final class SplatSceneManager: ObservableObject {
         FileStorage.shared.listModels()
     }
 
-    // MARK: - Private: Build GaussianSplatComponent
+    // MARK: - AR Camera Update
 
-    /// Assemble a GaussianSplatComponent from deinterleaved buffers.
-    /// Follows the pattern from Apple's "Rendering Gaussian splats with RealityKit" sample.
-    private func buildSplatComponent(from buffers: GaussianSplatBuffers) throws -> GaussianSplatComponent {
-        guard let pos = buffers.positionBuffer,
-              let scale = buffers.scaleBuffer,
-              let rotation = buffers.rotationBuffer,
-              let opacity = buffers.opacityBuffer,
-              let shBuf = buffers.shBuffer else {
-            throw PLYLoaderError.noVertexElement
-        }
-
-        let degree = GaussianSplatResource.SphericalHarmonicDegree(rawValue: buffers.degreeSH) ?? .zero
-
-        // Create buffer descriptors matching the strides used in PLYLoader.
-        let positionDesc = GaussianSplatResource.BufferDescriptor(
-            buffer: pos, format: .float3, stride: 3 * 4)
-        let scaleDesc = GaussianSplatResource.BufferDescriptor(
-            buffer: scale, format: .float3, stride: 3 * 4)
-        let rotationDesc = GaussianSplatResource.BufferDescriptor(
-            buffer: rotation, format: .float4, stride: 4 * 4)
-        let opacityDesc = GaussianSplatResource.BufferDescriptor(
-            buffer: opacity, format: .float, stride: 1 * 4)
-
-        // SH descriptor: the SH buffer contains f_dc (3) + f_rest (N) floats per splat,
-        // stored contiguously. The descriptor stride covers all SH coefficients.
-        let shCoeffsPerSplat = buffers.degreeSH == 0 ? 3 : (3 + (buffers.degreeSH * buffers.degreeSH + 2 * buffers.degreeSH))
-        let shDesc = GaussianSplatResource.BufferDescriptor(
-            buffer: shBuf, format: .float, stride: shCoeffsPerSplat * 4)
-
-        let bufferResource = try GaussianSplatResource.BufferResource(
-            count: Int(buffers.splatCount),
-            position: positionDesc,
-            scale: scaleDesc,
-            rotation: rotationDesc,
-            opacity: opacityDesc,
-            sphericalHarmonics: (shDesc, degree)
-        )
-
-        let splatResource = GaussianSplatResource(bufferResource)
-
-        // Standard 3DGS PLY uses log-space scale and logit opacity.
-        // RealityKit applies exp() and sigmoid() respectively with these defaults.
-        splatResource.scaleActivation = .exponential
-        splatResource.opacityActivation = .sigmoid
-
-        return GaussianSplatComponent(splatResource)
+    /// Called by ARKitSensorSource to update the camera transform for AR Live rendering.
+    func updateARCameraTransform(_ transform: simd_float4x4) {
+        currentARCameraTransform = transform
     }
 }

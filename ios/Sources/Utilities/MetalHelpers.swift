@@ -3,8 +3,7 @@
 //  GaussianLIC
 //
 //  Utility functions for Metal device access and simd matrix operations.
-//  Render-target texture helpers have been removed — RealityKit manages
-//  its own render targets when using GaussianSplatComponent.
+//  Used by sensor capture (ARKit → Metal textures) and training (MLX → Metal).
 //
 //  The simd extensions are used by sensor capture and training modules.
 //

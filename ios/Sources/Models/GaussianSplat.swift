@@ -8,9 +8,9 @@
 //
 //  Used for:
 //    - Constructing splats from LiDAR point clouds (on-device initialization)
-//    - Converting between win_lic PLY format and MetalSplatter's
-//      EncodedSplatPoint format
-//    - Phase 5 on-device training (parameter storage)
+//    - Converting between win_lic PLY format and MetalSplatter's SplatPoint
+//      format (for rendering) and MLX arrays (for training)
+//    - On-device training parameter storage (via MLX conversion in OnDeviceTrainer)
 //
 
 import Foundation

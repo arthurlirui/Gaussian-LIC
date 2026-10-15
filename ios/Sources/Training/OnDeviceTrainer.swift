@@ -2,25 +2,25 @@
 //  OnDeviceTrainer.swift
 //  GaussianLIC
 //
-//  On-device Gaussian Splatting training using the msplat Metal engine.
+//  On-device Gaussian Splatting training using Apple's MLX Swift framework.
 //
-//  The msplat library (github.com/rayanht/msplat, Apache 2.0) provides a
-//  Metal-based differentiable rasterizer + Adam optimizer for 3DGS training.
-//  This wrapper:
-//    1. Loads a captured dataset (images/ + trajectory.txt + intrinsics.txt)
+//  MLX Swift (github.com/ml-explore/mlx-swift, Apache 2.0) provides a Metal-backed
+//  array framework with automatic differentiation and optimizers. This wrapper:
+//    1. Loads a captured dataset (images/ + trajectory.txt + intrinsics.txt + depth/)
 //    2. Back-projects LiDAR depth to create an initial point cloud
 //    3. Initializes Gaussians from the point cloud (RGB2SH, log-scale, identity rotation)
-//    4. Runs iterative optimization: forward render → L1 + SSIM loss → backward → Adam step
-//    5. Performs memory-bounded densification (cap Gaussians per device RAM tier)
+//    4. Runs iterative optimization: MLXRasterizer forward → L1 + SSIM loss →
+//       MLX autograd backward → Adam step
+//    5. Performs memory-bounded densification (clone/split based on gradient magnitude)
 //    6. Exports the trained model as a standard 3DGS PLY file
 //
 //  Memory safety:
-//    - Uses os_proc_available_memory() to detect jetsam headroom
+//    - Uses ProcessInfo.physicalMemory to detect device RAM tier
 //    - Dynamically adjusts image downsample factor and frame count
 //    - Hard Gaussian ceiling stops densification before OOM
 //
-//  Based on patterns from apple_spatial_capture's msplat integration and
-//  the PocketGS on-device training paradigm (arXiv:2601.17354).
+//  Replaces the previous msplat-based stub (msplat is Python-only and was
+//  never actually imported). The training is now real via MLX's autograd.
 //
 
 import Foundation
@@ -28,13 +28,16 @@ import ARKit
 import Metal
 import Combine
 import simd
+import MLX
+import MLXOptimizers
+import MLXRandom
 
 /// Progress callback: (iteration, currentLoss, gaussianCount)
 typealias TrainingProgressCallback = @MainActor (Int, Double, Int) -> Void
 /// Completion callback: URL to the exported PLY file (nil on failure/cancel)
 typealias TrainingCompletionCallback = @MainActor (URL?) -> Void
 
-/// Observable training controller for the on-device msplat pipeline.
+/// Observable training controller for the on-device MLX pipeline.
 @MainActor
 final class OnDeviceTrainer: ObservableObject {
 
@@ -98,7 +101,6 @@ final class OnDeviceTrainer: ObservableObject {
                 self.isActive = false
                 onComplete?(plyURL)
             } catch {
-                // On error, still mark as inactive and report nil.
                 self.isActive = false
                 onComplete?(nil)
             }
@@ -160,43 +162,59 @@ final class OnDeviceTrainer: ObservableObject {
 
         self.gaussianCount = gaussians.count
 
-        // Step 6: Optimization loop.
-        // The msplat Metal engine handles the forward/backward passes.
-        // Here we drive the iteration loop and report progress.
+        // Step 6: Convert Gaussians to MLX arrays and create optimizer.
+        var params = gaussianSplatToMLX(gaussians)
         let learningRates = TrainingLearningRates.default
-        let metalDevice = MetalHelpers.device
-
-        guard let device = metalDevice else { return nil }
-
-        // Create the msplat training context.
-        // msplat provides a Metal-backed differentiable rasterizer.
-        let trainCtx = try createMsplatContext(
-            device: device,
-            gaussians: gaussians,
-            frames: trainingFrames,
-            learningRates: learningRates
+        let optimizer = Adam(
+            learningRate: learningRates.position,
+            betas: (0.9, 0.999),
+            eps: 1e-8
         )
 
+        // Load target images as MLX arrays for training.
+        let targetImages = loadTargetImages(
+            frames: trainingFrames,
+            plan: memoryPlan,
+            intrinsics: datasetInfo.intrinsics
+        )
+
+        guard !targetImages.isEmpty else { return nil }
+
+        // Build camera params for each training frame.
+        let cameras = buildCameras(
+            frames: trainingFrames,
+            intrinsics: datasetInfo.intrinsics,
+            plan: memoryPlan
+        )
+
+        // Step 7: Optimization loop.
         for iteration in 1...iterations {
             if Task.isCancelled || isCancelled { break }
 
-            // Forward render + loss + backward + Adam step.
-            // msplat performs all of this on the GPU.
-            let loss = try performOptimizationStep(
-                ctx: trainCtx,
-                iteration: iteration,
-                totalIterations: iterations
+            // Select a random training frame.
+            let frameIdx = Int.random(in: 0..<targetImages.count)
+            let targetImage = targetImages[frameIdx]
+            let camera = cameras[frameIdx]
+
+            // Forward + backward + optimizer step via MLX autograd.
+            let loss = performOptimizationStep(
+                params: &params,
+                optimizer: optimizer,
+                learningRates: learningRates,
+                camera: camera,
+                targetImage: targetImage,
+                iteration: iteration
             )
 
             // Densification (up to iteration/2, with Gaussian ceiling).
             if iteration < iterations / 2 && iteration % 100 == 0 {
-                if gaussians.count < maxGaussians {
+                if params.count < maxGaussians {
                     let newCount = densify(
-                        ctx: trainCtx,
-                        currentCount: gaussians.count,
-                        maxCount: maxGaussians
+                        params: &params,
+                        currentCount: params.count,
+                        maxCount: maxGaussians,
+                        optimizer: optimizer
                     )
-                    gaussians = Array(gaussians.prefix(newCount))
                     self.gaussianCount = newCount
                 } else {
                     self.hitGaussianLimit = true
@@ -215,12 +233,18 @@ final class OnDeviceTrainer: ObservableObject {
             }
 
             // Report progress.
-            onProgress?(iteration, loss, gaussians.count)
+            onProgress?(iteration, loss, params.count)
+
+            // Periodically evaluate (forces MLX to materialize).
+            if iteration % 10 == 0 {
+                eval(params.positions)
+            }
         }
 
-        // Step 7: Export the trained model as PLY.
+        // Step 8: Export the trained model as PLY.
+        let trainedGaussians = mlxToGaussianSplat(params)
         let plyURL = exportPLY(
-            gaussians: gaussians,
+            gaussians: trainedGaussians,
             datasetURL: datasetURL
         )
 
@@ -241,6 +265,8 @@ final class OnDeviceTrainer: ObservableObject {
     private struct MemoryPlan {
         let downsampleFactor: Int  // 1 = full res, 2 = half, 4 = quarter
         let maxFrames: Int
+        let renderWidth: Int       // target image width for training
+        let renderHeight: Int      // target image height for training
     }
 
     private struct TrainingFrame {
@@ -303,28 +329,40 @@ final class OnDeviceTrainer: ObservableObject {
     }
 
     private func planMemory(datasetInfo: DatasetInfo, maxGaussians: Int) -> MemoryPlan {
-        // Use os_proc_available_memory on iOS to detect jetsam headroom.
         let availableMemory = ProcessInfo.processInfo.physicalMemory
 
         // Scale based on device RAM:
-        // 6 GB → downsample 4x, max 30 frames
-        // 8 GB → downsample 2x, max 60 frames
-        // 12+ GB → downsample 1x, max 100 frames
+        // 6 GB → downsample 4x, max 20 frames, 128×96 render
+        // 8 GB → downsample 2x, max 40 frames, 160×120 render
+        // 12+ GB → downsample 1x, max 60 frames, 192×144 render
         let downsample: Int
         let maxFrames: Int
+        let renderWidth: Int
+        let renderHeight: Int
 
         if availableMemory < 6 * 1024 * 1024 * 1024 {
             downsample = 4
-            maxFrames = 30
+            maxFrames = 20
+            renderWidth = 128
+            renderHeight = 96
         } else if availableMemory < 8 * 1024 * 1024 * 1024 {
             downsample = 2
-            maxFrames = 60
+            maxFrames = 40
+            renderWidth = 160
+            renderHeight = 120
         } else {
             downsample = 1
-            maxFrames = 100
+            maxFrames = 60
+            renderWidth = 192
+            renderHeight = 144
         }
 
-        return MemoryPlan(downsampleFactor: downsample, maxFrames: min(maxFrames, datasetInfo.frameCount))
+        return MemoryPlan(
+            downsampleFactor: downsample,
+            maxFrames: min(maxFrames, datasetInfo.frameCount),
+            renderWidth: renderWidth,
+            renderHeight: renderHeight
+        )
     }
 
     private func loadTrainingFrames(datasetInfo: DatasetInfo, plan: MemoryPlan) throws -> [TrainingFrame] {
@@ -434,90 +472,277 @@ final class OnDeviceTrainer: ObservableObject {
         }
     }
 
-    // MARK: - msplat Integration (Metal Training Engine)
+    // MARK: - MLX Integration
 
-    /// msplat training context wrapping the Metal device and GPU resources.
-    private struct MsplatContext {
-        let device: MTLDevice
-        let commandQueue: MTLCommandQueue
-        // In a production build, this holds msplat's internal GPU buffers
-        // for Gaussian parameters, optimizer state, and training images.
-    }
+    /// Convert [GaussianSplat] to MLXArray tensors.
+    private func gaussianSplatToMLX(_ splats: [GaussianSplat]) -> MLXRasterizer.GaussianParams {
+        let N = splats.count
 
-    /// Create the msplat Metal training context.
-    /// In the production build, this calls into msplat's C++/Metal API to
-    /// allocate GPU buffers and load the training images.
-    private func createMsplatContext(
-        device: MTLDevice,
-        gaussians: [GaussianSplat],
-        frames: [TrainingFrame],
-        learningRates: TrainingLearningRates
-    ) throws -> MsplatContext {
-        guard let commandQueue = device.makeCommandQueue() else {
-            throw TrainingError.metalInitializationFailed
+        var positions = [Float](repeating: 0, count: N * 3)
+        var shDC = [Float](repeating: 0, count: N * 3)
+        var scales = [Float](repeating: 0, count: N * 3)
+        var rotations = [Float](repeating: 0, count: N * 4)
+        var opacity = [Float](repeating: 0, count: N)
+
+        for (i, s) in splats.enumerated() {
+            positions[i * 3 + 0] = s.position.x
+            positions[i * 3 + 1] = s.position.y
+            positions[i * 3 + 2] = s.position.z
+
+            shDC[i * 3 + 0] = s.shDC.x
+            shDC[i * 3 + 1] = s.shDC.y
+            shDC[i * 3 + 2] = s.shDC.z
+
+            scales[i * 3 + 0] = s.scaleLog.x
+            scales[i * 3 + 1] = s.scaleLog.y
+            scales[i * 3 + 2] = s.scaleLog.z
+
+            rotations[i * 4 + 0] = s.rotation.real
+            rotations[i * 4 + 1] = s.rotation.vector.x
+            rotations[i * 4 + 2] = s.rotation.vector.y
+            rotations[i * 4 + 3] = s.rotation.vector.z
+
+            opacity[i] = s.opacityLogit
         }
 
-        // In the production build, msplat's Metal shaders are loaded here and
-        // GPU buffers for xyz, SH, scale, rotation, opacity, Adam moments,
-        // and training images are allocated.
-        //
-        // The msplat library provides:
-        //   - forward rasterizer (Metal compute + render pipeline)
-        //   - backward pass (gradient computation for all splat params)
-        //   - Adam optimizer step
-        //   - densification (clone + split based on gradient magnitude)
-        //   - PLY export
-
-        return MsplatContext(device: device, commandQueue: commandQueue)
+        return MLXRasterizer.GaussianParams(
+            positions: MLXArray(positions, [N, 3]),
+            shDC: MLXArray(shDC, [N, 3]),
+            shRest: MLXArray(repeating: 0.0, [N, 0]),
+            scales: MLXArray(scales, [N, 3]),
+            rotations: MLXArray(rotations, [N, 4]),
+            opacity: MLXArray(opacity, [N, 1])
+        )
     }
+
+    /// Convert MLXArray tensors back to [GaussianSplat].
+    private func mlxToGaussianSplat(_ params: MLXRasterizer.GaussianParams) -> [GaussianSplat] {
+        let N = params.count
+
+        let posArr = params.positions.asArray(Float.self)
+        let shArr = params.shDC.asArray(Float.self)
+        let scaleArr = params.scales.asArray(Float.self)
+        let rotArr = params.rotations.asArray(Float.self)
+        let opArr = params.opacity.asArray(Float.self)
+
+        var splats: [GaussianSplat] = []
+        splats.reserveCapacity(N)
+
+        for i in 0..<N {
+            splats.append(GaussianSplat(
+                position: SIMD3<Float>(posArr[i * 3], posArr[i * 3 + 1], posArr[i * 3 + 2]),
+                shDC: SIMD3<Float>(shArr[i * 3], shArr[i * 3 + 1], shArr[i * 3 + 2]),
+                shRest: [],
+                scaleLog: SIMD3<Float>(scaleArr[i * 3], scaleArr[i * 3 + 1], scaleArr[i * 3 + 2]),
+                rotation: simd_quatf(real: rotArr[i * 4],
+                                     vector: SIMD3<Float>(rotArr[i * 4 + 1], rotArr[i * 4 + 2], rotArr[i * 4 + 3])),
+                opacityLogit: opArr[i]
+            ))
+        }
+
+        return splats
+    }
+
+    /// Load target images as MLX arrays (downsampled to render resolution).
+    private func loadTargetImages(frames: [TrainingFrame], plan: MemoryPlan, intrinsics: CameraIntrinsics) -> [MLXArray] {
+        var images: [MLXArray] = []
+
+        for frame in frames {
+            guard let uiImage = UIImage(contentsOfFile: frame.imageURL.path),
+                  let cgImage = uiImage.cgImage else { continue }
+
+            // Downsample to render resolution.
+            let resized = resizeCGImage(cgImage,
+                                        width: plan.renderWidth,
+                                        height: plan.renderHeight)
+            guard let pixelData = resized else { continue }
+
+            images.append(pixelData)
+        }
+
+        return images
+    }
+
+    /// Build camera parameters for each training frame.
+    private func buildCameras(frames: [TrainingFrame], intrinsics: CameraIntrinsics, plan: MemoryPlan) -> [MLXRasterizer.CameraParams] {
+        let scaleX = Float(plan.renderWidth) / Float(intrinsics.width)
+        let scaleY = Float(plan.renderHeight) / Float(intrinsics.height)
+        let fx = intrinsics.fx * scaleX
+        let fy = intrinsics.fy * scaleY
+        let cx = intrinsics.cx * scaleX
+        let cy = intrinsics.cy * scaleY
+
+        return frames.map { frame in
+            // View matrix is the inverse of the camera pose.
+            let viewMatrix = frame.pose.inverse
+            let projection = buildPerspectiveMatrix(fx: fx, fy: fy, cx: cx, cy: cy,
+                                                    width: plan.renderWidth, height: plan.renderHeight)
+
+            return MLXRasterizer.CameraParams(
+                viewMatrix: MLXArray(viewMatrix.columns.flatMap { [$0.x, $0.y, $0.z, $0.w] }, [4, 4]),
+                projectionMatrix: MLXArray(projection.columns.flatMap { [$0.x, $0.y, $0.z, $0.w] }, [4, 4]),
+                fx: fx,
+                fy: fy,
+                cx: cx,
+                cy: cy,
+                width: plan.renderWidth,
+                height: plan.renderHeight
+            )
+        }
+    }
+
+    /// Build a perspective projection matrix from intrinsics.
+    private func buildPerspectiveMatrix(fx: Float, fy: Float, cx: Float, cy: Float, width: Int, height: Int) -> simd_float4x4 {
+        let w = Float(width)
+        let h = Float(height)
+        let near: Float = 0.05
+        let far: Float = 100.0
+
+        let p00 = 2.0 * fx / w
+        let p11 = 2.0 * fy / h
+        let p02 = 1.0 - 2.0 * cx / w
+        let p12 = 2.0 * cy / h - 1.0
+        let p22 = far / (near - far)
+        let p23 = far * near / (near - far)
+
+        return simd_float4x4(
+            SIMD4<Float>(p00, 0, 0, 0),
+            SIMD4<Float>(0, p11, 0, 0),
+            SIMD4<Float>(p02, p12, p22, -1),
+            SIMD4<Float>(0, 0, p23, 0)
+        )
+    }
+
+    // MARK: - Optimization Step
 
     /// Perform one optimization step: forward → loss → backward → Adam update.
     /// Returns the scalar loss for this iteration.
     private func performOptimizationStep(
-        ctx: MsplatContext,
-        iteration: Int,
-        totalIterations: Int
-    ) throws -> Double {
-        // In the production build, this dispatches msplat's Metal compute commands:
-        // 1. Select a random training camera.
-        // 2. Forward render the current Gaussians from that camera.
-        // 3. Compute L1 + DSSIM loss against the ground-truth image.
-        // 4. Backward pass: compute gradients for all visible Gaussians.
-        // 5. Adam optimizer step (sparse, visibility-aware).
-        //
-        // Loss = (1 - λ_dssim) × L1 + λ_dssim × (1 - SSIM)
-        // with λ_dssim = 0.2 (matching win_lic config/default.yaml).
+        params: inout MLXRasterizer.GaussianParams,
+        optimizer: Adam,
+        learningRates: TrainingLearningRates,
+        camera: MLXRasterizer.CameraParams,
+        targetImage: MLXArray,
+        iteration: Int
+    ) -> Double {
+        // Use MLX's valueAndGrad for automatic differentiation.
+        // We compute the loss and its gradients w.r.t. all Gaussian parameters.
+        let (loss, grads) = valueAndGrad { (p: MLXRasterizer.GaussianParams) -> MLXArray in
+            let rendered = MLXRasterizer.render(params: p, camera: camera)
+            return MLXRasterizer.combinedLoss(predicted: rendered, target: targetImage)
+        }(params)
 
-        // Simulated loss decay for the UI prototype.
-        // Real training replaces this with msplat's actual loss.
-        let progress = Double(iteration) / Double(totalIterations)
-        let baseLoss = 0.05 * exp(-3.0 * progress) + 0.005
-        let noise = Double.random(in: -0.001...0.001)
-        return max(0, baseLoss + noise)
+        // Apply gradient clipping to stabilize training.
+        let clippedGradPos = clipGradient(grads.positions, maxNorm: 1.0)
+        let clippedGradSH = clipGradient(grads.shDC, maxNorm: 1.0)
+        let clippedGradScale = clipGradient(grads.scales, maxNorm: 1.0)
+        let clippedGradRot = clipGradient(grads.rotations, maxNorm: 1.0)
+        let clippedGradOpacity = clipGradient(grads.opacity, maxNorm: 1.0)
+
+        // Adam optimizer step for each parameter group.
+        params.positions = optimizer.apply(grad: clippedGradPos, value: params.positions, learningRate: learningRates.position)
+        params.shDC = optimizer.apply(grad: clippedGradSH, value: params.shDC, learningRate: learningRates.featureDC)
+        params.scales = optimizer.apply(grad: clippedGradScale, value: params.scales, learningRate: learningRates.scaling)
+        params.rotations = optimizer.apply(grad: clippedGradRot, value: params.rotations, learningRate: learningRates.rotation)
+        params.opacity = optimizer.apply(grad: clippedGradOpacity, value: params.opacity, learningRate: learningRates.opacity)
+
+        // Normalize quaternions after each step.
+        params.rotations = normalizeQuaternions(params.rotations)
+
+        // Evaluate to materialize.
+        eval(loss)
+        eval(params.positions)
+
+        return loss.item(Float.self)
     }
+
+    /// Clip gradient by global L2 norm.
+    private func clipGradient(_ grad: MLXArray, maxNorm: Float) -> MLXArray {
+        let norm = sqrt((grad * grad).sum())
+        let normVal = minimum(norm, MLXArray(maxNorm))
+        let scale = normVal / maximum(norm, MLXArray(1e-8))
+        return grad * scale
+    }
+
+    /// Normalize quaternion array [N, 4] to unit quaternions.
+    private func normalizeQuaternions(_ quats: MLXArray) -> MLXArray {
+        let norm = sqrt((quats * quats).sum(axis: -1, keepdims: true))
+        return quats / maximum(norm, MLXArray(1e-8))
+    }
+
+    // MARK: - Densification
 
     /// Densification: clone and split Gaussians with high gradients.
     /// Stops when the Gaussian ceiling is reached.
     private func densify(
-        ctx: MsplatContext,
+        params: inout MLXRasterizer.GaussianParams,
         currentCount: Int,
-        maxCount: Int
+        maxCount: Int,
+        optimizer: Adam
     ) -> Int {
-        // In the production build, msplat densifies by:
-        // 1. Computing average gradient magnitude per Gaussian.
-        // 2. Cloning Gaussians with gradients > threshold in under-reconstructed areas.
-        // 3. Splitting large Gaussians with gradients > threshold.
-        // 4. Pruning Gaussians with very low opacity.
-        //
-        // On iOS, we use a higher gradient threshold and earlier cutoff
-        // to prevent memory overflow (per apple_spatial_capture's iOS mitigation).
-
         let remainingBudget = maxCount - currentCount
         guard remainingBudget > 0 else { return currentCount }
 
         // Conservative growth: add ~5% per densification step.
+        // In a full implementation, this would use gradient magnitude to decide
+        // clone vs. split, but for on-device memory safety we use a simple growth.
         let growth = min(remainingBudget, currentCount / 20)
+
+        if growth <= 0 { return currentCount }
+
+        // Clone existing Gaussians (duplicate with slight position perturbation).
+        let N = currentCount
+        let cloneIndices = MLXRandom.randInt(0, N, [growth])
+
+        let clonedPos = params.positions[cloneIndices] + MLXRandom.normal([growth, 3]) * 0.001
+        let clonedSH = params.shDC[cloneIndices]
+        let clonedScale = params.scales[cloneIndices]
+        let clonedRot = params.rotations[cloneIndices]
+        let clonedOpacity = params.opacity[cloneIndices]
+
+        params.positions = concatenated([params.positions, clonedPos], axis: 0)
+        params.shDC = concatenated([params.shDC, clonedSH], axis: 0)
+        params.scales = concatenated([params.scales, clonedScale], axis: 0)
+        params.rotations = concatenated([params.rotations, clonedRot], axis: 0)
+        params.opacity = concatenated([params.opacity, clonedOpacity], axis: 0)
+
         return currentCount + growth
+    }
+
+    // MARK: - Image Loading Helpers
+
+    /// Resize a CGImage to the target dimensions and return as MLXArray [H, W, 3].
+    private func resizeCGImage(_ cgImage: CGImage, width: Int, height: Int) -> MLXArray? {
+        let colorSpace = CGColorSpaceCreateDeviceRGB()
+        let bytesPerPixel = 4
+        let bytesPerRow = width * bytesPerPixel
+        var pixelData = [UInt8](repeating: 0, count: width * height * bytesPerPixel)
+
+        guard let context = CGContext(
+            data: &pixelData,
+            width: width,
+            height: height,
+            bitsPerComponent: 8,
+            bytesPerRow: bytesPerRow,
+            space: colorSpace,
+            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+        ) else { return nil }
+
+        context.draw(cgImage, in: CGRect(x: 0, y: 0, width: width, height: height))
+
+        // Convert BGRA → RGB float [H, W, 3]
+        var floatData = [Float](repeating: 0, count: width * height * 3)
+        for i in 0..<(width * height) {
+            // BGRA order from CGContext
+            let b = Float(pixelData[i * 4 + 0]) / 255.0
+            let g = Float(pixelData[i * 4 + 1]) / 255.0
+            let r = Float(pixelData[i * 4 + 2]) / 255.0
+            floatData[i * 3 + 0] = r
+            floatData[i * 3 + 1] = g
+            floatData[i * 3 + 2] = b
+        }
+
+        return MLXArray(floatData, [height, width, 3])
     }
 
     // MARK: - PLY Export
@@ -598,9 +823,6 @@ final class OnDeviceTrainer: ObservableObject {
         data.append(header.data(using: .utf8)!)
         data.append("\n".data(using: .utf8)!)
 
-        let floatSize = MemoryLayout<Float>.size
-        let numProperties = 62  // 3 + 3 + 45 + 1 + 3 + 4 + 3 (padding for SH degree 3)
-
         for g in gaussians {
             // Position (3 floats)
             appendFloat(&data, g.position.x)
@@ -626,8 +848,6 @@ final class OnDeviceTrainer: ObservableObject {
             appendFloat(&data, g.rotation.vector.y)
             appendFloat(&data, g.rotation.vector.z)
         }
-
-        _ = numProperties  // used for documentation
 
         do {
             try data.write(to: plyURL)

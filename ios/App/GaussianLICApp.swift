@@ -7,8 +7,8 @@
 //
 //  Architecture:
 //    - Capture tab: ARKit RGB/LiDAR/Depth/IMU sensor capture → disk dataset
-//    - Render tab: RealityKit GaussianSplatComponent for PLY scene viewing
-//    - Train tab: On-device msplat Metal training or offline dataset export
+//    - Render tab: MetalSplatter (Metal-based 3DGS renderer) for PLY/SPZ scene viewing
+//    - Train tab: On-device MLX Swift training or offline dataset export
 //    - Device tab: Hardware capability detection (iPhone 14 Pro – 18 Pro)
 //
 
