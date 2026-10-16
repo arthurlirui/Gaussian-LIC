@@ -74,7 +74,15 @@ struct CaptureView: View {
 
 // MARK: - AR Camera Preview
 
-/// Renders the ARKit camera feed using a RealityKit ARView in AR mode.
+/// Renders the ARKit camera feed using a shared ARSession.
+///
+/// IMPORTANT: This view does NOT create its own ARSession. On a real iPhone,
+/// running two ARKit sessions simultaneously causes camera conflicts and
+/// frame delivery failures. Instead, it attaches a RealityKit ARView to the
+/// ARSession owned by CaptureSession's ARKitSensorSource. The preview starts
+/// passively (no recording); when the user taps "Start Preview", the
+/// CaptureSession opens its ARKitSensorSource and this view connects to
+/// that session.
 struct ARCameraPreview: UIViewRepresentable {
 
     let captureSession: CaptureSession
@@ -84,20 +92,32 @@ struct ARCameraPreview: UIViewRepresentable {
         arView.cameraMode = .ar
         arView.debugOptions = []
 
-        // Run a world-tracking configuration for preview.
-        let config = ARWorldTrackingConfiguration()
-        config.frameSemantics = [.sceneDepth]
-        config.worldAlignment = .gravity
-        arView.session.run(config)
+        // If the capture session already has a running ARSession, attach to it.
+        // Otherwise, the view will be updated once the session starts.
+        if let sharedSession = captureSession.sharedARSession {
+            // Don't re-run the config — the sensor source already started it.
+            // Just point the ARView at the existing session for rendering.
+            arView.session = sharedSession
+        } else {
+            // No active session yet — run a minimal preview config.
+            // This is replaced when the user taps "Start Preview".
+            let config = ARWorldTrackingConfiguration()
+            config.frameSemantics = [.sceneDepth]
+            config.worldAlignment = .gravity
+            arView.session.run(config)
+        }
 
-        // Store the ARView in the context for later session sharing.
         context.coordinator.arView = arView
-
         return arView
     }
 
     func updateUIView(_ uiView: ARView, context: Context) {
-        // No per-frame updates needed — ARView handles its own rendering.
+        // If the capture session now has a shared session and we're still
+        // using our own, switch to the shared one.
+        if let sharedSession = captureSession.sharedARSession,
+           uiView.session !== sharedSession {
+            uiView.session = sharedSession
+        }
     }
 
     func makeCoordinator() -> Coordinator {

@@ -36,8 +36,9 @@ final class FrameRecorder: @unchecked Sendable {
     private let depthDir: URL
     private let confDir: URL
 
-    // Trajectory file handle (TUM format)
+    // Trajectory and IMU file handles
     private var trajectoryFileHandle: FileHandle?
+    private var imuFileHandle: FileHandle?
     private let trajectoryQueue = DispatchQueue(label: "com.gaussianlic.trajectory")
     private let imuQueue = DispatchQueue(label: "com.gaussianlic.imu")
 
@@ -75,10 +76,12 @@ final class FrameRecorder: @unchecked Sendable {
         trajectoryFileHandle = try? FileHandle(forWritingTo: trajectoryURL)
         trajectoryFileHandle?.seekToEndOfFile()
 
-        // Write IMU CSV header.
+        // Write IMU CSV header and open persistent file handle.
         let imuURL = outputDirectory.appendingPathComponent("imu.csv")
         let imuHeader = "timestamp,ax,ay,az,gx,gy,gz\n"
         try? imuHeader.write(to: imuURL, atomically: true, encoding: .utf8)
+        imuFileHandle = try? FileHandle(forWritingTo: imuURL)
+        imuFileHandle?.seekToEndOfFile()
     }
 
     /// Stop recording and close files.
@@ -87,6 +90,10 @@ final class FrameRecorder: @unchecked Sendable {
         trajectoryQueue.sync {
             try? trajectoryFileHandle?.close()
             trajectoryFileHandle = nil
+        }
+        imuQueue.sync {
+            try? imuFileHandle?.close()
+            imuFileHandle = nil
         }
     }
 
@@ -220,13 +227,8 @@ final class FrameRecorder: @unchecked Sendable {
 
         guard let data = line.data(using: .utf8) else { return }
 
-        let imuURL = outputDirectory.appendingPathComponent("imu.csv")
-        imuQueue.async {
-            if let handle = try? FileHandle(forWritingTo: imuURL) {
-                handle.seekToEndOfFile()
-                try? handle.write(contentsOf: data)
-                try? handle.close()
-            }
+        imuQueue.async { [weak self] in
+            try? self?.imuFileHandle?.write(contentsOf: data)
         }
     }
 

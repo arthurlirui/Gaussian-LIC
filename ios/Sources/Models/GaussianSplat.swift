@@ -39,10 +39,10 @@ struct GaussianSplat {
     /// Matches win_lic/gaussians/gaussian_model.cpp::initialize():
     ///   position = point position
     ///   shDC = RGB2SH(color)
-    ///   scale = log(scaling_scale × depth / focal)
+    ///   scale = log(scaling_scale × depth / focal)  [scaling_scale = 1.0 per win_lic default]
     ///   rotation = identity quaternion
     ///   opacity = logit(0.1)
-    init(fromPoint point: PointXYZRGB, depth: Float, focal: Float, scalingScale: Float = 0.01) {
+    init(fromPoint point: PointXYZRGB, depth: Float, focal: Float, scalingScale: Float = 1.0) {
         self.position = SIMD3<Float>(point.x, point.y, point.z)
 
         // RGB2SH: (color - 0.5) / C0, where C0 = 0.28209479177387814

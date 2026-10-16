@@ -52,6 +52,12 @@ final class CaptureSession: ObservableObject {
     /// The ARKit sensor source.
     private var sensorSource: ARKitSensorSource?
 
+    /// Expose the sensor source's ARSession for sharing with ARCameraPreview.
+    /// This prevents two competing ARKit sessions on the same device.
+    var sharedARSession: ARSession? {
+        sensorSource?.session
+    }
+
     /// Frame recorder (activated when recording).
     private var recorder: FrameRecorder?
 

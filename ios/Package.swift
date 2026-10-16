@@ -22,7 +22,9 @@ let package = Package(
         // Vendored as a git submodule at third_party/MetalSplatter.
         .package(path: "../third_party/MetalSplatter"),
 
-        // MLX Swift: Apple's array framework for on-device ML with autograd + Adam.
+        // MLX Swift: Apple's array framework for on-device ML with autograd.
+        // We use a custom ManualAdam for per-group constant LRs (matching win_lic),
+        // so MLXOptimizers is not needed.
         .package(url: "https://github.com/ml-explore/mlx-swift.git", from: "0.22.0")
     ],
     targets: [
@@ -32,7 +34,6 @@ let package = Package(
                 .product(name: "MetalSplatter", package: "MetalSplatter"),
                 .product(name: "SplatIO", package: "MetalSplatter"),
                 .product(name: "MLX", package: "mlx-swift"),
-                .product(name: "MLXOptimizers", package: "mlx-swift"),
                 .product(name: "MLXRandom", package: "mlx-swift")
             ],
             path: "Sources"

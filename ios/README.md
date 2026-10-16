@@ -1,6 +1,6 @@
 # GaussianLIC iOS
 
-Gaussian Splatting 实时采集、端上训练与渲染平台，基于 RealityKit + Metal。
+Gaussian Splatting 实时采集、端上训练与渲染平台，基于 MetalSplatter + MLX Swift。
 
 ## 概述
 
@@ -11,30 +11,30 @@ GaussianLIC iOS 将 Gaussian-LIC2 的多模态传感器采集与高斯泼溅（3
 | 层 | 模块 | 技术 |
 |---|---|---|
 | **传感器层** | ARKit RGB/LiDAR/Depth + CoreMotion IMU → 磁盘数据集 | ARKit `ARWorldTrackingConfiguration`, `.sceneDepth` |
-| **渲染层** | PLY → RealityKit `GaussianSplatComponent` → GPU 渲染 | RealityKit (iOS 27+) `GaussianSplatResource` |
-| **训练层** | 端上 msplat Metal 训练 或 离线 win_lic 导出 | msplat (Apache 2.0) + 数据集打包 |
+| **渲染层** | PLY/SPZ/.splat → MetalSplatter `SplatRenderer` (Metal) → GPU 渲染 | MetalSplatter (MIT, iOS 18+) |
+| **训练层** | 端上 MLX Swift 可微分渲染训练 或 离线 win_lic 导出 | MLX Swift (Apache 2.0) + 自定义 ManualAdam |
 
 ### 工作流程
 
 ```
 Capture Tab          Train Tab              Render Tab
 ┌──────────┐    ┌──────────────────┐    ┌──────────────┐
-│ ARKit    │    │ On-Device (msplat)│    │ RealityKit    │
-│ RGB +    │───▶│ 500 iters / 4 min │───▶│ GaussianSplat │
-│ LiDAR +  │    │ → splat.ply       │    │ Component     │
-│ IMU      │    │                   │    │ Free/AR View  │
-└──────────┘    │ OR                │    └──────────────┘
-                │ Offline Export    │
-                │ → win_lic YAML    │
-                │ → AirDrop to Mac  │
+│ ARKit    │    │ On-Device (MLX)  │    │ MetalSplatter │
+│ RGB +    │───▶│ 500 iters        │───▶│ SplatRenderer │
+│ LiDAR +  │    │ → splat.ply      │    │ Free/AR View  │
+│ IMU      │    │                  │    └──────────────┘
+└──────────┘    │ OR               │
+                │ Offline Export   │
+                │ → win_lic YAML   │
+                │ → AirDrop to Mac │
                 └──────────────────┘
 ```
 
 ## 构建要求
 
-- **Xcode 27+** (iOS 27 SDK)
+- **Xcode 16+** (iOS 18 SDK)
 - **Swift 6.1** (swift-tools-version: 6.1)
-- **iOS 27.0+** 部署目标
+- **iOS 18.0+** 部署目标 (MetalSplatter 的最低要求)
 - **iPhone 14 Pro 或更高** (需要 LiDAR 扫描仪)
 - 模拟器不支持 LiDAR / `sceneDepth`，必须在真机上测试
 
@@ -78,25 +78,45 @@ open ios/Package.swift
 
 ### 2. 训练（Train Tab）
 
-**端上训练：**
+**端上训练（MLX Swift）：**
 1. 选择已采集的数据集
 2. 选择迭代数（300/500/1000）
 3. 点击 **Start On-Device Training**
-4. msplat Metal 引擎在 iPhone 上运行优化（~500 迭代约 4 分钟）
+4. MLX Swift 可微分渲染引擎在 iPhone 上运行优化：
+   - 前向渲染 → L1 + SSIM + 深度 L1 损失
+   - `valueAndGrad` 自动微分 → ManualAdam 更新（6 参数组，恒定学习率）
+   - win_lic 风格的 extend 致密化（在 α<0.99 区域插入新高斯）
 5. 训练完成后自动生成 `splat.ply` 并加载到渲染页
 
 **离线导出：**
 1. 选择已采集的数据集
 2. 选择 **Offline Export**
-3. 点击导出 — 生成 `win_lic` YAML 配置 + 数据集打包
+3. 点击导出 — 生成 `win_lic` YAML 配置 + nerfstudio `transforms.json` + 数据集 zip 打包
 4. 通过 AirDrop 传输到 Mac/CUDA 服务器进行训练
 
 ### 3. 渲染（Render Tab）
 
-1. 点击右上角文件夹图标选择 `.ply` 文件
-2. PLY 解析为 `GaussianSplatResource.BufferResource` → RealityKit 原生渲染
-3. **Free View** 模式：单指拖拽旋转、双指捏合缩放
+1. 点击右上角文件夹图标选择 `.ply` / `.splat` / `.spz` 文件
+2. MetalSplatter 的 `AutodetectSceneReader` 自动识别格式 → `SplatChunk` → `SplatRenderer` GPU 渲染
+3. **Free View** 模式：单指拖拽旋转、双指平移、捏合缩放
 4. **AR Live** 模式：使用 ARKit 相机位姿实时对齐虚拟场景
+
+## 训练参数（匹配 win_lic）
+
+| 参数 | 值 | 说明 |
+|------|-----|------|
+| position_lr | 0.00016 | 位置学习率（恒定） |
+| feature_dc_lr | 0.005 | SH DC 系数学习率 |
+| feature_rest_lr | 0.00025 | SH rest 学习率 (feature_lr / 20) |
+| opacity_lr | 0.05 | 不透明度学习率 |
+| scaling_lr | 0.005 | 缩放学习率 |
+| rotation_lr | 0.001 | 旋转学习率 |
+| Adam betas | (0.9, 0.999) | Adam 一阶/二阶矩衰减 |
+| Adam eps | 1e-15 | Adam epsilon |
+| λ_dssim | 0.2 | SSIM 损失权重 |
+| λ_depth | 0.005 | 深度 L1 损失权重 |
+| scaling_scale | 1.0 | 初始尺度因子 |
+| 致密化 | extend (α<0.99) | 仅追加，无 clone/split/prune |
 
 ## 设备支持
 
@@ -118,7 +138,7 @@ ios/
 ├── App/
 │   ├── GaussianLICApp.swift       — @main 入口, 4-tab SwiftUI app
 │   └── Info.plist                 — 权限声明 (相机/运动/文件)
-├── Package.swift                  — SwiftPM (iOS 27, msplat 依赖)
+├── Package.swift                  — SwiftPM (iOS 18, MetalSplatter + MLX Swift)
 ├── Sources/
 │   ├── Capture/
 │   │   ├── CaptureSession.swift   — 采集状态机 (idle→preview→record→stop)
@@ -129,25 +149,25 @@ ios/
 │   │   ├── GaussianSplat.swift    — 单高斯参数模型 + LiDAR 反投影
 │   │   └── TrainingRecord.swift   — 训练记录 + JSON 持久化
 │   ├── Rendering/
-│   │   ├── SplatRealityView.swift — RealityKit ARView 渲染 (Free/AR 模式)
-│   │   └── SplatSceneManager.swift— PLY → GaussianSplatComponent 管理
+│   │   ├── SplatRealityView.swift — MetalSplatter MTKView 渲染 (Free/AR 模式)
+│   │   └── SplatSceneManager.swift— PLY/SPZ/.splat → SplatRenderer 管理
 │   ├── Sensors/
 │   │   ├── ARKitSensorSource.swift— ARKit RGB/LiDAR/Depth/Pose 采集
 │   │   ├── IMURecorder.swift      — CoreMotion 加速度计+陀螺仪
 │   │   └── SensorFrame.swift      — 数据模型 (AlignedFrame Swift 版)
 │   ├── Training/
-│   │   ├── OnDeviceTrainer.swift  — msplat Metal 端上训练管线
+│   │   ├── MLXRasterizer.swift    — MLX 可微分 3DGS 前向渲染器 (RGB+深度)
+│   │   ├── OnDeviceTrainer.swift  — MLX 端上训练管线 + ManualAdam 优化器
 │   │   └── OffDeviceTrainingBridge.swift — 离线导出 + nerfstudio transforms.json
 │   ├── UI/
 │   │   ├── CaptureView.swift      — 采集 UI (AR 预览 + 录制控制)
-│   │   ├── RenderView.swift       — 渲染 UI (PLY 选择器 + RealityKit)
+│   │   ├── RenderView.swift       — 渲染 UI (PLY 选择器 + MetalSplatter)
 │   │   ├── TrainingProgressView.swift — 训练 UI (端上/离线切换 + 进度)
 │   │   └── DeviceCapabilityView.swift — 设备能力展示
 │   └── Utilities/
 │       ├── DepthVisualization.swift — 深度/置信度彩色可视化
 │       ├── FileStorage.swift      — 沙盒文件管理
-│       ├── MetalHelpers.swift     — Metal 设备 + simd 矩阵工具
-│       └── PLYLoader.swift        — PLY 解析 → GaussianSplatResource
+│       └── MetalHelpers.swift     — Metal 设备 + simd 矩阵工具
 └── Tests/
     └── GaussianLICTests.swift     — 单元测试
 ```
@@ -156,13 +176,13 @@ ios/
 
 | 库 | 许可证 | 用途 |
 |---|---|---|
-| [msplat](https://github.com/rayanht/msplat) | Apache 2.0 | Metal 后端 3DGS 训练引擎（前向渲染 + 反向传播 + Adam 优化 + 致密化） |
-
-> 之前使用的 MetalSplatter 子模块已移除，改为 Apple 原生 `GaussianSplatComponent`（RealityKit 内置，iOS 27+）。
+| [MetalSplatter](https://github.com/scier/MetalSplatter) | MIT | Metal 后端 3DGS 渲染引擎（PLY/SPZ/.splat 加载 + SH0-SH3 光栅化） |
+| [MLX Swift](https://github.com/ml-explore/mlx-swift) | Apache 2.0 | Apple Metal 加速数组框架（autograd 自动微分 + 端上训练） |
 
 ## 技术参考
 
-- Apple, "Rendering Gaussian splats with RealityKit", WWDC26 Session 287/279
-- msplat: github.com/rayanht/msplat — Metal GS training engine
-- PocketGS: arXiv:2601.17354 — on-device 3DGS training on iPhone 15 (500 iters / 4 min)
-- win_lic: Gaussian-LIC2 的 Windows 兼容离线分支（本项目的数据格式来源）
+- MetalSplatter: github.com/scier/MetalSplatter — Swift/Metal 3DGS 渲染器
+- MLX Swift: github.com/ml-explore/mlx-swift — Apple Metal ML 框架
+- MLX3D: github.com/Amirhossein-Razlighi/mlx3D — MLX 3DGS 训练参考
+- PocketGS: arXiv:2601.17354 — 端上 3DGS 训练 (iPhone 15, 500 iters / 4 min)
+- win_lic: Gaussian-LIC2 的 Windows 兼容离线分支（本项目的数据格式与训练参数来源）

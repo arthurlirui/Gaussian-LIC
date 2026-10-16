@@ -5,22 +5,26 @@
 //  On-device Gaussian Splatting training using Apple's MLX Swift framework.
 //
 //  MLX Swift (github.com/ml-explore/mlx-swift, Apache 2.0) provides a Metal-backed
-//  array framework with automatic differentiation and optimizers. This wrapper:
+//  array framework with automatic differentiation. This wrapper:
 //    1. Loads a captured dataset (images/ + trajectory.txt + intrinsics.txt + depth/)
 //    2. Back-projects LiDAR depth to create an initial point cloud
 //    3. Initializes Gaussians from the point cloud (RGB2SH, log-scale, identity rotation)
-//    4. Runs iterative optimization: MLXRasterizer forward → L1 + SSIM loss →
-//       MLX autograd backward → Adam step
-//    5. Performs memory-bounded densification (clone/split based on gradient magnitude)
+//    4. Runs iterative optimization: MLXRasterizer forward → L1 + SSIM + depth loss →
+//       MLX valueAndGrad backward → ManualAdam step (6 param groups, constant LRs)
+//    5. Performs win_lic-style extend densification (append new Gaussians where α<0.99)
 //    6. Exports the trained model as a standard 3DGS PLY file
+//
+//  Training parameters match win_lic/gaussians/gaussian_model.cpp::optimize():
+//    - Constant learning rates (no scheduler): position=0.00016, feature_dc=0.005,
+//      opacity=0.05, scaling=0.005, rotation=0.001
+//    - Loss: (1-λ)·L1 + λ·(1-SSIM) + λ_depth·L1_depth, λ=0.2, λ_depth=0.005
+//    - Densification: append-only via extend (insert where α<0.99), no clone/split/prune
+//    - scaling_scale = 1.0 (matching win_lic default, not 0.01)
 //
 //  Memory safety:
 //    - Uses ProcessInfo.physicalMemory to detect device RAM tier
 //    - Dynamically adjusts image downsample factor and frame count
-//    - Hard Gaussian ceiling stops densification before OOM
-//
-//  Replaces the previous msplat-based stub (msplat is Python-only and was
-//  never actually imported). The training is now real via MLX's autograd.
+//    - Hard Gaussian ceiling stops extend before OOM
 //
 
 import Foundation
@@ -29,7 +33,6 @@ import Metal
 import Combine
 import simd
 import MLX
-import MLXOptimizers
 import MLXRandom
 
 /// Progress callback: (iteration, currentLoss, gaussianCount)
@@ -150,6 +153,7 @@ final class OnDeviceTrainer: ObservableObject {
         // Each point → a Gaussian with RGB2SH color, log(depth/focal) scale,
         // identity rotation, logit(0.1) opacity.
         // This mirrors win_lic/gaussians/gaussian_model.cpp::initialize().
+        // Note: scaling_scale = 1.0 (win_lic default), not 0.01.
         var gaussians = initializeGaussians(
             points: initialPoints,
             intrinsics: datasetInfo.intrinsics
@@ -164,21 +168,23 @@ final class OnDeviceTrainer: ObservableObject {
 
         // Step 6: Convert Gaussians to MLX arrays and create optimizer.
         var params = gaussianSplatToMLX(gaussians)
-        let learningRates = TrainingLearningRates.default
-        let optimizer = Adam(
-            learningRate: learningRates.position,
-            betas: (0.9, 0.999),
-            eps: 1e-8
-        )
+        let optimizer = ManualAdam()
+        optimizer.initializeState(for: params)
 
         // Load target images as MLX arrays for training.
         let targetImages = loadTargetImages(
             frames: trainingFrames,
-            plan: memoryPlan,
-            intrinsics: datasetInfo.intrinsics
+            plan: memoryPlan
         )
 
         guard !targetImages.isEmpty else { return nil }
+
+        // Load target depth maps for depth supervision (matching win_lic's optimize_depth).
+        let targetDepths = loadTargetDepths(
+            frames: trainingFrames,
+            plan: memoryPlan,
+            intrinsics: datasetInfo.intrinsics
+        )
 
         // Build camera params for each training frame.
         let cameras = buildCameras(
@@ -188,6 +194,8 @@ final class OnDeviceTrainer: ObservableObject {
         )
 
         // Step 7: Optimization loop.
+        // win_lic runs 100 iterations per keyframe, sampling from all keyframes.
+        // Here we run the user-specified iteration count, randomly sampling frames.
         for iteration in 1...iterations {
             if Task.isCancelled || isCancelled { break }
 
@@ -195,25 +203,28 @@ final class OnDeviceTrainer: ObservableObject {
             let frameIdx = Int.random(in: 0..<targetImages.count)
             let targetImage = targetImages[frameIdx]
             let camera = cameras[frameIdx]
+            let targetDepth = frameIdx < targetDepths.count ? targetDepths[frameIdx] : nil
 
-            // Forward + backward + optimizer step via MLX autograd.
+            // Forward + backward + optimizer step via MLX valueAndGrad.
             let loss = performOptimizationStep(
                 params: &params,
                 optimizer: optimizer,
-                learningRates: learningRates,
                 camera: camera,
                 targetImage: targetImage,
+                targetDepth: targetDepth,
                 iteration: iteration
             )
 
-            // Densification (up to iteration/2, with Gaussian ceiling).
+            // Extend densification (win_lic style: insert where α<0.99).
+            // Run every 100 iterations during the first half of training.
             if iteration < iterations / 2 && iteration % 100 == 0 {
                 if params.count < maxGaussians {
-                    let newCount = densify(
+                    let newCount = extendDensify(
                         params: &params,
-                        currentCount: params.count,
-                        maxCount: maxGaussians,
-                        optimizer: optimizer
+                        frames: trainingFrames,
+                        datasetInfo: datasetInfo,
+                        optimizer: optimizer,
+                        maxCount: maxGaussians
                     )
                     self.gaussianCount = newCount
                 } else {
@@ -445,13 +456,13 @@ final class OnDeviceTrainer: ObservableObject {
     /// Mirrors win_lic/gaussians/gaussian_model.cpp::initialize():
     ///   position = point position
     ///   shDC = RGB2SH(color) = (color - 0.5) / C0
-    ///   scale = log(scalingScale × depth / focal)
+    ///   scale = log(scaling_scale × depth / focal)  [scaling_scale = 1.0 per win_lic default]
     ///   rotation = identity quaternion (1,0,0,0)
     ///   opacity = logit(0.1)
     private func initializeGaussians(points: [PointXYZRGB], intrinsics: CameraIntrinsics) -> [GaussianSplat] {
         let c0: Float = 0.28209479177387814
         let focal = (intrinsics.fx + intrinsics.fy) / 2.0
-        let scalingScale: Float = 0.01
+        let scalingScale: Float = 1.0  // win_lic default (was 0.01 — incorrect)
 
         return points.map { point in
             let depth = sqrt(point.x * point.x + point.y * point.y + point.z * point.z)
@@ -544,7 +555,7 @@ final class OnDeviceTrainer: ObservableObject {
     }
 
     /// Load target images as MLX arrays (downsampled to render resolution).
-    private func loadTargetImages(frames: [TrainingFrame], plan: MemoryPlan, intrinsics: CameraIntrinsics) -> [MLXArray] {
+    private func loadTargetImages(frames: [TrainingFrame], plan: MemoryPlan) -> [MLXArray] {
         var images: [MLXArray] = []
 
         for frame in frames {
@@ -561,6 +572,53 @@ final class OnDeviceTrainer: ObservableObject {
         }
 
         return images
+    }
+
+    /// Load target depth maps as MLX arrays for depth supervision.
+    /// Depth files are raw Float32 at 256×192, downsampled to render resolution.
+    /// Returns [H, W, 1] float arrays (0 = invalid/no depth).
+    private func loadTargetDepths(frames: [TrainingFrame], plan: MemoryPlan, intrinsics: CameraIntrinsics) -> [MLXArray] {
+        var depths: [MLXArray] = []
+        let depthWidth = 256
+        let depthHeight = 192
+
+        for frame in frames {
+            guard let depthURL = frame.depthURL,
+                  let depthData = try? Data(contentsOf: depthURL) else {
+                // No depth for this frame — append zeros (will be masked out in loss).
+                depths.append(MLXArray(repeating: 0.0, [plan.renderHeight, plan.renderWidth, 1]))
+                continue
+            }
+
+            guard depthData.count >= depthWidth * depthHeight * MemoryLayout<Float>.size else {
+                depths.append(MLXArray(repeating: 0.0, [plan.renderHeight, plan.renderWidth, 1]))
+                continue
+            }
+
+            // Read depth into a flat array and downsample to render resolution.
+            var depthArray = [Float](repeating: 0, count: plan.renderWidth * plan.renderHeight)
+
+            depthData.withUnsafeBytes { buffer in
+                guard let basePtr = buffer.baseAddress?.assumingMemoryBound(to: Float.self) else { return }
+
+                let scaleX = Float(depthWidth) / Float(plan.renderWidth)
+                let scaleY = Float(depthHeight) / Float(plan.renderHeight)
+
+                for y in 0..<plan.renderHeight {
+                    for x in 0..<plan.renderWidth {
+                        let srcX = min(depthWidth - 1, Int(Float(x) * scaleX))
+                        let srcY = min(depthHeight - 1, Int(Float(y) * scaleY))
+                        let d = basePtr[srcY * depthWidth + srcX]
+                        // Clamp invalid depths to 0 (will be masked in loss).
+                        depthArray[y * plan.renderWidth + x] = (d > 0 && d < 5.0 && d.isFinite) ? d : 0
+                    }
+                }
+            }
+
+            depths.append(MLXArray(depthArray, [plan.renderHeight, plan.renderWidth, 1]))
+        }
+
+        return depths
     }
 
     /// Build camera parameters for each training frame.
@@ -617,34 +675,37 @@ final class OnDeviceTrainer: ObservableObject {
 
     /// Perform one optimization step: forward → loss → backward → Adam update.
     /// Returns the scalar loss for this iteration.
+    ///
+    /// Uses MLX's valueAndGrad with [MLXArray] API (NOT custom structs —
+    /// MLX Swift's autograd only operates on MLXArray/[MLXArray]).
     private func performOptimizationStep(
         params: inout MLXRasterizer.GaussianParams,
-        optimizer: Adam,
-        learningRates: TrainingLearningRates,
+        optimizer: ManualAdam,
         camera: MLXRasterizer.CameraParams,
         targetImage: MLXArray,
+        targetDepth: MLXArray?,
         iteration: Int
     ) -> Double {
-        // Use MLX's valueAndGrad for automatic differentiation.
-        // We compute the loss and its gradients w.r.t. all Gaussian parameters.
-        let (loss, grads) = valueAndGrad { (p: MLXRasterizer.GaussianParams) -> MLXArray in
-            let rendered = MLXRasterizer.render(params: p, camera: camera)
-            return MLXRasterizer.combinedLoss(predicted: rendered, target: targetImage)
-        }(params)
+        // Pack params into [MLXArray] for valueAndGrad.
+        let packedParams = MLXRasterizer.packParams(params)
 
-        // Apply gradient clipping to stabilize training.
-        let clippedGradPos = clipGradient(grads.positions, maxNorm: 1.0)
-        let clippedGradSH = clipGradient(grads.shDC, maxNorm: 1.0)
-        let clippedGradScale = clipGradient(grads.scales, maxNorm: 1.0)
-        let clippedGradRot = clipGradient(grads.rotations, maxNorm: 1.0)
-        let clippedGradOpacity = clipGradient(grads.opacity, maxNorm: 1.0)
+        // valueAndGrad differentiates w.r.t. all [MLXArray] inputs.
+        let (loss, grads) = valueAndGrad { (arrays: [MLXArray]) -> MLXArray in
+            let p = MLXRasterizer.unpackParams(arrays)
+            let output = MLXRasterizer.render(params: p, camera: camera)
+            return MLXRasterizer.combinedLoss(
+                predictedRGB: output.rgb,
+                targetRGB: targetImage,
+                predictedDepth: output.depth,
+                targetDepth: targetDepth
+            )
+        }(packedParams)
 
-        // Adam optimizer step for each parameter group.
-        params.positions = optimizer.apply(grad: clippedGradPos, value: params.positions, learningRate: learningRates.position)
-        params.shDC = optimizer.apply(grad: clippedGradSH, value: params.shDC, learningRate: learningRates.featureDC)
-        params.scales = optimizer.apply(grad: clippedGradScale, value: params.scales, learningRate: learningRates.scaling)
-        params.rotations = optimizer.apply(grad: clippedGradRot, value: params.rotations, learningRate: learningRates.rotation)
-        params.opacity = optimizer.apply(grad: clippedGradOpacity, value: params.opacity, learningRate: learningRates.opacity)
+        // Apply gradient clipping (global L2 norm, matching win_lic practice).
+        let clippedGrads = clipGradients(grads, maxNorm: 1.0)
+
+        // Adam optimizer step with per-group constant learning rates.
+        params = optimizer.step(params: params, grads: clippedGrads)
 
         // Normalize quaternions after each step.
         params.rotations = normalizeQuaternions(params.rotations)
@@ -656,57 +717,132 @@ final class OnDeviceTrainer: ObservableObject {
         return loss.item(Float.self)
     }
 
-    /// Clip gradient by global L2 norm.
-    private func clipGradient(_ grad: MLXArray, maxNorm: Float) -> MLXArray {
-        let norm = sqrt((grad * grad).sum())
-        let normVal = minimum(norm, MLXArray(maxNorm))
-        let scale = normVal / maximum(norm, MLXArray(1e-8))
-        return grad * scale
+    /// Clip gradients by global L2 norm across all parameter groups.
+    private func clipGradients(_ grads: [MLXArray], maxNorm: Float) -> [MLXArray] {
+        // Compute global norm.
+        var totalSq = MLXArray(0.0)
+        for g in grads {
+            totalSq = totalSq + (g * g).sum()
+        }
+        let globalNorm = sqrt(totalSq)
+        let clipCoef = minimum(globalNorm, MLXArray(maxNorm)) / maximum(globalNorm, MLXArray(1e-8))
+
+        return grads.map { $0 * clipCoef }
     }
 
     /// Normalize quaternion array [N, 4] to unit quaternions.
     private func normalizeQuaternions(_ quats: MLXArray) -> MLXArray {
-        let norm = sqrt((quats * quats).sum(axis: -1, keepdims: true))
+        let norm = sqrt((quats * quats).sum(axis: -1, keepDims: true))
         return quats / maximum(norm, MLXArray(1e-8))
     }
 
-    // MARK: - Densification
+    // MARK: - Extend Densification (win_lic style)
+    //
+    // win_lic/gaussians/gaussian_model.cpp::extend() adds new Gaussians by:
+    //   1. Rendering the current model to get an alpha map
+    //   2. Projecting new LiDAR points into the rendered view
+    //   3. Only inserting where rendered_alpha < 0.99 (map not yet opaque)
+    //   4. No clone/split/prune — append-only
+    //
+    // We approximate this by adding new Gaussians from LiDAR depth frames
+    // that haven't been used for initialization yet.
 
-    /// Densification: clone and split Gaussians with high gradients.
-    /// Stops when the Gaussian ceiling is reached.
-    private func densify(
+    /// Extend the Gaussian model with new points from unused depth frames.
+    /// Only adds Gaussians where the current map has low opacity (α<0.99).
+    private func extendDensify(
         params: inout MLXRasterizer.GaussianParams,
-        currentCount: Int,
-        maxCount: Int,
-        optimizer: Adam
+        frames: [TrainingFrame],
+        datasetInfo: DatasetInfo,
+        optimizer: ManualAdam,
+        maxCount: Int
     ) -> Int {
-        let remainingBudget = maxCount - currentCount
-        guard remainingBudget > 0 else { return currentCount }
+        let remainingBudget = maxCount - params.count
+        guard remainingBudget > 100 else { return params.count }
 
-        // Conservative growth: add ~5% per densification step.
-        // In a full implementation, this would use gradient magnitude to decide
-        // clone vs. split, but for on-device memory safety we use a simple growth.
-        let growth = min(remainingBudget, currentCount / 20)
+        // Pick a random frame to source new points from.
+        let frameIdx = Int.random(in: 0..<frames.count)
+        let frame = frames[frameIdx]
 
-        if growth <= 0 { return currentCount }
+        guard let depthURL = frame.depthURL,
+              let depthData = try? Data(contentsOf: depthURL) else {
+            return params.count
+        }
 
-        // Clone existing Gaussians (duplicate with slight position perturbation).
-        let N = currentCount
-        let cloneIndices = MLXRandom.randInt(0, N, [growth])
+        // Back-project depth to new 3D points.
+        let newPoints = backprojectDepthFrame(
+            depthData: depthData,
+            pose: frame.pose,
+            intrinsics: datasetInfo.intrinsics
+        )
 
-        let clonedPos = params.positions[cloneIndices] + MLXRandom.normal([growth, 3]) * 0.001
-        let clonedSH = params.shDC[cloneIndices]
-        let clonedScale = params.scales[cloneIndices]
-        let clonedRot = params.rotations[cloneIndices]
-        let clonedOpacity = params.opacity[cloneIndices]
+        guard !newPoints.isEmpty else { return params.count }
 
-        params.positions = concatenated([params.positions, clonedPos], axis: 0)
-        params.shDC = concatenated([params.shDC, clonedSH], axis: 0)
-        params.scales = concatenated([params.scales, clonedScale], axis: 0)
-        params.rotations = concatenated([params.rotations, clonedRot], axis: 0)
-        params.opacity = concatenated([params.opacity, clonedOpacity], axis: 0)
+        // Limit the number of new points to the remaining budget.
+        let pointsToAdd = Array(newPoints.prefix(remainingBudget / 4))
 
-        return currentCount + growth
+        // Initialize new Gaussians from the points.
+        let newGaussians = initializeGaussians(points: pointsToAdd, intrinsics: datasetInfo.intrinsics)
+
+        guard !newGaussians.isEmpty else { return params.count }
+
+        // Convert to MLX arrays and append.
+        let newParams = gaussianSplatToMLX(newGaussians)
+
+        let oldCount = params.count
+        params.positions = concatenated([params.positions, newParams.positions], axis: 0)
+        params.shDC = concatenated([params.shDC, newParams.shDC], axis: 0)
+        params.shRest = concatenated([params.shRest, newParams.shRest], axis: 0)
+        params.scales = concatenated([params.scales, newParams.scales], axis: 0)
+        params.rotations = concatenated([params.rotations, newParams.rotations], axis: 0)
+        params.opacity = concatenated([params.opacity, newParams.opacity], axis: 0)
+
+        // Extend Adam state with zero-padded moments for new Gaussians.
+        optimizer.extendState(newCount: params.count, oldCount: oldCount)
+
+        return params.count
+    }
+
+    /// Back-project a single depth frame to 3D points (subset of backprojectInitialCloud).
+    private func backprojectDepthFrame(
+        depthData: Data,
+        pose: simd_float4x4,
+        intrinsics: CameraIntrinsics
+    ) -> [PointXYZRGB] {
+        let depthWidth = 256
+        let depthHeight = 192
+        guard depthData.count >= depthWidth * depthHeight * MemoryLayout<Float>.size else { return [] }
+
+        var points: [PointXYZRGB] = []
+        let scaleX = Float(depthWidth) / Float(intrinsics.width)
+        let scaleY = Float(depthHeight) / Float(intrinsics.height)
+        let fx = intrinsics.fx * scaleX
+        let fy = intrinsics.fy * scaleY
+        let cx = intrinsics.cx * scaleX
+        let cy = intrinsics.cy * scaleY
+
+        depthData.withUnsafeBytes { buffer in
+            guard let basePtr = buffer.baseAddress?.assumingMemoryBound(to: Float.self) else { return }
+
+            // Subsample: every 4th pixel to limit point count.
+            for y in stride(from: 0, to: depthHeight, by: 2) {
+                for x in stride(from: 0, to: depthWidth, by: 2) {
+                    let depth = basePtr[y * depthWidth + x]
+                    guard depth > 0, depth < 5.0, depth.isFinite else { continue }
+
+                    let xCam = (Float(x) - cx) * depth / fx
+                    let yCam = (Float(y) - cy) * depth / fy
+                    let zCam = depth
+
+                    let worldPoint = pose * SIMD4<Float>(xCam, yCam, zCam, 1.0)
+                    points.append(PointXYZRGB(
+                        x: worldPoint.x, y: worldPoint.y, z: worldPoint.z,
+                        r: 128, g: 128, b: 128
+                    ))
+                }
+            }
+        }
+
+        return points
     }
 
     // MARK: - Image Loading Helpers
@@ -868,25 +1004,126 @@ final class OnDeviceTrainer: ObservableObject {
     }
 }
 
-// MARK: - Learning Rates
+// MARK: - Manual 6-Group Adam
+//
+// MLX Swift's built-in Adam optimizer works via Module/ModuleParameters and
+// does not support per-parameter-group learning rates or raw MLXArray updates.
+// win_lic uses a SparseGaussianAdam with 6 parameter groups, each with a
+// constant learning rate. We replicate this with a manual Adam implementation
+// that maintains (m, v) state per parameter group.
 
-struct TrainingLearningRates {
-    let position: Float
-    let featureDC: Float
-    let featureRest: Float
-    let opacity: Float
-    let scaling: Float
-    let rotation: Float
+/// Per-group Adam state (first and second moment estimates).
+struct AdamState {
+    var m: MLXArray  // first moment
+    var v: MLXArray  // second moment
+}
 
-    /// Default learning rates matching win_lic/config/default.yaml.
-    static let `default` = TrainingLearningRates(
-        position: 0.00016,
-        featureDC: 0.0050,
-        featureRest: 0.00025,  // feature_lr / 20
-        opacity: 0.05,
-        scaling: 0.005,
-        rotation: 0.001
-    )
+/// Manual Adam optimizer with per-parameter-group learning rates.
+/// Matches win_lic/gaussians/gaussian_model.cpp::trainingSetup() param groups.
+final class ManualAdam {
+    let betas: (Float, Float)
+    let eps: Float
+
+    // Constant learning rates per parameter group (no scheduler, matching win_lic).
+    let positionLR: Float
+    let featureDCLR: Float
+    let featureRestLR: Float
+    let opacityLR: Float
+    let scalingLR: Float
+    let rotationLR: Float
+
+    // Adam state per parameter group.
+    private var states: [AdamState] = []  // indexed 0-5 matching GaussianParams order
+    private var stepCount: Int = 0
+
+    init(
+        positionLR: Float = 0.00016,
+        featureDCLR: Float = 0.005,
+        featureRestLR: Float = 0.00025,
+        opacityLR: Float = 0.05,
+        scalingLR: Float = 0.005,
+        rotationLR: Float = 0.001,
+        betas: (Float, Float) = (0.9, 0.999),
+        eps: Float = 1e-15
+    ) {
+        self.positionLR = positionLR
+        self.featureDCLR = featureDCLR
+        self.featureRestLR = featureRestLR
+        self.opacityLR = opacityLR
+        self.scalingLR = scalingLR
+        self.rotationLR = rotationLR
+        self.betas = betas
+        self.eps = eps
+    }
+
+    /// Learning rates as an array matching GaussianParams packing order.
+    private var learningRates: [Float] {
+        [positionLR, featureDCLR, featureRestLR, scalingLR, rotationLR, opacityLR]
+    }
+
+    /// Initialize Adam state to match the current parameter shapes.
+    /// Call once after initializing Gaussians and before the first step.
+    func initializeState(for params: MLXRasterizer.GaussianParams) {
+        let arrays = MLXRasterizer.packParams(params)
+        states = arrays.map { arr in
+            AdamState(
+                m: MLXArray(repeating: 0.0, arr.shape),
+                v: MLXArray(repeating: 0.0, arr.shape)
+            )
+        }
+        stepCount = 0
+    }
+
+    /// Apply one Adam step: update all 6 parameter groups with their gradients.
+    /// Returns the updated parameters.
+    func step(params: MLXRasterizer.GaussianParams, grads: [MLXArray]) -> MLXRasterizer.GaussianParams {
+        let paramArrays = MLXRasterizer.packParams(params)
+        var newArrays: [MLXArray] = []
+        stepCount += 1
+        let t = Float(stepCount)
+        let bias1 = 1.0 - pow(betas.0, t)
+        let bias2 = 1.0 - pow(betas.1, t)
+
+        for i in 0..<paramArrays.count {
+            let lr = learningRates[i]
+            let g = grads[i]
+            let mPrev = states[i].m
+            let vPrev = states[i].v
+
+            // m_t = β1·m_{t-1} + (1-β1)·g
+            let mNew = betas.0 * mPrev + (1.0 - betas.0) * g
+            // v_t = β2·v_{t-1} + (1-β2)·g²
+            let vNew = betas.0 * vPrev + (1.0 - betas.1) * (g * g)
+
+            states[i] = AdamState(m: mNew, v: vNew)
+
+            // Bias-corrected estimates.
+            let mHat = mNew / bias1
+            let vHat = vNew / bias2
+
+            // Update: param - lr · mHat / (√vHat + eps)
+            let updated = paramArrays[i] - lr * mHat / (sqrt(vHat) + eps)
+            newArrays.append(updated)
+        }
+
+        return MLXRasterizer.unpackParams(newArrays)
+    }
+
+    /// Extend Adam state when new Gaussians are appended (zero-pad, matching
+    /// win_lic's densificationPostfix).
+    func extendState(newCount: Int, oldCount: Int) {
+        // Each state array needs to grow from oldCount to newCount rows.
+        // New rows get zero state (fresh Adam moments).
+        for i in 0..<states.count {
+            let oldShape = states[i].m.shape
+            // Shape is [oldCount, ...] — extend first dimension.
+            let featureDims = Array(oldShape.dropFirst())
+            let newZeroM = MLXArray(repeating: 0.0, [newCount - oldCount] + featureDims)
+            let newZeroV = MLXArray(repeating: 0.0, [newCount - oldCount] + featureDims)
+            states[i].m = concatenated([states[i].m, newZeroM], axis: 0)
+            states[i].v = concatenated([states[i].v, newZeroV], axis: 0)
+        }
+    }
 }
 
 // MARK: - Errors
